@@ -1,0 +1,18 @@
+<svg width="350" height="200" xmlns="http://www.w3.org/2000/svg">
+    <g>
+        <rect stroke-width="0" rx="10" id="key_1" height="50" width="50" y="0" x="0" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="key_2" height="50" width="50" y="0" x="75" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="key_3" height="50" width="50" y="0" x="150" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="key_4" height="50" width="50" y="0" x="225" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="key_5" height="50" width="50" y="0" x="300" stroke="#000" fill="#54c9b9"/>
+
+        <rect stroke-width="0" rx="10" id="key_6" height="50" width="50" y="75" x="0" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="key_7" height="50" width="50" y="75" x="75" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="key_8" height="50" width="50" y="75" x="150" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="enter" height="50" width="125" y="75" x="225" fill="#bf5695"/>
+
+        <rect stroke-width="0" rx="10" id="key_9" height="50" width="50" y="150" x="0" stroke="#000" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="space" height="50" width="200" y="150" x="75" fill="#54c9b9"/>
+        <rect stroke-width="0" rx="10" id="key_10" height="50" width="50" y="150" x="300" stroke="#000" fill="#54c9b9"/>
+    </g>
+</svg>

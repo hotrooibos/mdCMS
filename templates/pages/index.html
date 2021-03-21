@@ -1,0 +1,8 @@
+{% extends 'layouts/default.html' %}}
+{% block content %}
+<ul>
+	{% for p in posts %}
+	<li><a href="{{ url_for('post', id=p.id) }}">{{ p.title }}</a> le {{ p.dateupd }}</li>
+	{% endfor %}
+</ul>
+{% endblock %}
