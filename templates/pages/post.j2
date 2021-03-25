@@ -1,0 +1,9 @@
+{% extends 'layouts/default.j2' %}}
+{% block content %}
+	<h1 class="postitle">{{ title }}</h1>
+	<p>Créé le: {{ datecr }} / Modifié le : {{ dateupd }}</p>
+	<p>Auteur: {{ author }}</p>
+	<hr>
+	
+	{{ content|safe }}
+{% endblock %}

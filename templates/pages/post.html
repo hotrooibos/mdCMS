@@ -1,9 +1,0 @@
-{% extends 'layouts/default.html' %}}
-{% block content %}
-	<p>(#{{ post.id }}) {{ post.title }}</p>
-	<p>Créé le: {{ post.datecr }} / Modifié le : {{ post.dateupd }}</p>
-	<p>Auteur: {{ post.author }}</p>
-	<hr>
-	
-	{{ post.content|safe }}
-{% endblock %}

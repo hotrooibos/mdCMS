@@ -8,10 +8,10 @@
 	<link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
 </head>
 <body>
-	{% include 'layouts/partials/_header.html' %}
+	{% include 'layouts/partials/_header.j2' %}
    	<div id="content">
 	    {% block content %}{% endblock %}
     </div>
- 	{% include 'layouts/partials/_footer.html' %}
+ 	{% include 'layouts/partials/_footer.j2' %}
 </body>
 </html>

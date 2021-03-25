@@ -6,7 +6,7 @@ body {
     margin: 0;
     background-color: #30302c;
     color: #eee;
-    font: 1.2em georgia, serif;
+    font: 1.1em georgia, serif;
     align-items: center;
     justify-content: s;
 
@@ -30,6 +30,7 @@ h2,
 h3,
 h4,
 h5 {
+    margin:.5em 0 0;
     line-height: 1.3;
     font-weight: normal;
 }
@@ -66,11 +67,22 @@ h5 {
     background-color: #30302c;
     max-width: 40em;
     text-align: justify;
+    font-family: Helvetica, Arial, sans-serif;
+    color: rgb(247, 236, 224);
 }
 
-#content a {
-    color: #bf5695;
-}
+    #content a {
+        color: #bf5695;
+    }
+
+    #content h1 {
+        
+    }
+
+    #content .postitle {
+        font-size: 4em;
+        color: #54c9b9;
+    }
 
 #footer {
     color:#666656;
