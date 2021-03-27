@@ -5,7 +5,8 @@ import jdata
 import markdown
 from markdown.extensions import Extension
 import os
-import time
+import re
+
 
 JDAT    = jdata.Jdata()
 MD_PATH = os.getcwd() + '/posts'
@@ -46,6 +47,24 @@ class Md:
         md_sum.update((self.title + self.author + self.content).encode())
         self.sum = md_sum.hexdigest()
         return self.sum
+
+
+    # @staticmethod
+    # def process_ressources(content):
+    #     '''
+    #     Lire le contenu du .md, puis vérifier la présence de lignes
+    #     au format ![*](*.png/jpg/gif/svg)
+    #     '''
+    #     # In content, find regex ![*](*.jpg) or one of the others formats
+    #     # The * preceding extension only accepts alphanumeric, dash and underscore chars
+    #     # The goal here is to detect simple filenames (without url format like https://...)
+    #     #  which means they are local images
+    #     # Ex : ![](hellow.svg), ![A landscape](landsc.png), etc.
+    #     x = re.findall("!\[.*\]\([a-zA-ZÀ-ÿ0-9_-]*\.(?:jpg|gif|png|svg)\)", content)
+ 
+
+    #     for i in x:
+    #         print(i, 'non traité')
 
 
 
@@ -182,12 +201,17 @@ def watchdog():
         mdid = str(Md(mdurl).id)                            # TODO gérer le cas où l'id n'existe pas (nouvel article à intégrer)
 
         cur_mtime = record[1]
-        json_mtime = JDAT.jsondat['posts'][mdid]['dateupd'] # TODO gérer le cas où l'id n'existe pas (nouvel article à intégrer)
 
-        if cur_mtime != json_mtime:
-            print(f'CHANGE DETECTED FOR {mdid} : {cur_mtime} - {json_mtime}')
-            process_md()
-            return
+        if mdid in JDAT.jsondat['posts']:
+            json_mtime = JDAT.jsondat['posts'][mdid]['dateupd'] # TODO gérer le cas où l'id n'existe pas (nouvel article à intégrer)
+            
+            # If file mtime equals known (json) mtime = no change = skip
+            if cur_mtime == json_mtime:
+                continue
+        
+        process_md()
+        return
+
 
     # Non-sorted algorithm (XXX for future performance test) :
     #
@@ -204,9 +228,3 @@ def watchdog():
     #             print(f'CHANGE DETECTED FOR {mdid} : {cur_mtime} - {json_mtime}')
     #             process_md()
     #             return
-
-
-
-if __name__ == "__main__":
-    watchdog()
-    # process_md()
