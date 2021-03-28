@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from datetime import datetime
 import hashlib
-import jdata
+from . import jdata
 import markdown
 from markdown.extensions import Extension
 import os

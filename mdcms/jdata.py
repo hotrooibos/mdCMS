@@ -65,8 +65,3 @@ class Jdata(Singleton):
         with open(file=JSON_PATH, mode='w', encoding='utf-8') as jsonf:
             # json.dump(self.jsondat, jsonf)
             json.dump(self.jsondat, jsonf, indent=4)
-
-
-
-# if __name__ == "__main__":
-#     jdat = Jdata().jsondat

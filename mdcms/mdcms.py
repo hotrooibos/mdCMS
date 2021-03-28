@@ -2,9 +2,7 @@
 from time import sleep
 from flask import Flask, render_template, redirect, request
 from flask.helpers import send_file, send_from_directory
-import jdata
-import md
-import threading
+from . import jdata
 import time
 
 def app(testing: bool = True):
@@ -56,10 +54,3 @@ def app(testing: bool = True):
 
 
     return app
-
-
-if __name__ == "__main__":    
-    # md.watchdog()
-    watchdog = threading.Timer(10, lambda: md.watchdog()).start()
-    
-    app().run(threaded=True, host='localhost', port=8080, debug=True)
