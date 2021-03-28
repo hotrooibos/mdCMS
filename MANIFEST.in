@@ -1,0 +1,4 @@
+include README.md
+recursive-include mdcms/posts/ *
+recursive-include mdcms/static/ *
+recursive-include mdcms/templates/ *

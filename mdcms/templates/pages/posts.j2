@@ -1,8 +1,9 @@
 {% extends 'layouts/default.j2' %}}
 {% block content %}
+<p>{{ posts|length }} posts publiés</p>
 <ul>
 {% for pid in posts %}
-	<li><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a> le {{ posts[pid].dateupd }}</li>
+	<li><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}
