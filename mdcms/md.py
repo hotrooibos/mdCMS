@@ -1,15 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
-from datetime import datetime
-import hashlib
+from . import constants as const
 from . import jdata
+import hashlib
 import markdown
-from markdown.extensions import Extension
+from   markdown.extensions import Extension
 import os
-import re
-
 
 JDAT    = jdata.Jdata()
-MD_PATH = os.getcwd() + '/posts'
+jposts  = JDAT.jsondat['posts']
+
 
 
 class Md:
@@ -60,9 +59,9 @@ class Md:
     #     # The goal here is to detect simple filenames (without url format like https://...)
     #     #  which means they are local images
     #     # Ex : ![](hellow.svg), ![A landscape](landsc.png), etc.
+    #     import re
     #     x = re.findall("!\[.*\]\([a-zA-ZÀ-ÿ0-9_-]*\.(?:jpg|gif|png|svg)\)", content)
  
-
     #     for i in x:
     #         print(i, 'non traité')
 
@@ -72,10 +71,10 @@ def process_md():
     id = JDAT.last_id + 1
 
     # .md LOOP
-    for f in os.listdir(MD_PATH):
+    for f in os.listdir(const.MD_PATH):
         if f[-3:] == '.md':
 
-            mdurl = f'{MD_PATH}/{f}'
+            mdurl = f'{const.MD_PATH}/{f}'
             
             md = Md(mdurl)
 
@@ -120,7 +119,7 @@ def process_md():
                 "content":md.content
                 }
             }
-            JDAT.jsondat['posts'].update(new_record)
+            jposts.update(new_record)
             JDAT.write()
 
             id += 1
@@ -136,21 +135,20 @@ def maj_post(md_id,
     '''
     UPDATE posts 
     '''
-    jsondat = JDAT.jsondat
     md_id = str(md_id)
-
+ 
     # FIND the json record corresponding to .md id, CHECK that
     # content (sum) has changed, then UPDATE json with new .md data
     
-    if jsondat['posts'][md_id]['sum'] != md_sum:
+    if jposts[md_id]['sum'] != md_sum:
         print(f'\nUpdating .md id{md_id}')
-        jsondat['posts'][md_id]['sum'] = md_sum
-        jsondat['posts'][md_id]['title']   = md_title
-        jsondat['posts'][md_id]['author']  = md_author
-        jsondat['posts'][md_id]['content'] = md_content
-        jsondat['posts'][md_id]['dateupd'] = md_modtime
+        jposts[md_id]['sum'] = md_sum
+        jposts[md_id]['title']   = md_title
+        jposts[md_id]['author']  = md_author
+        jposts[md_id]['content'] = md_content
+        jposts[md_id]['dateupd'] = md_modtime
 
-        JDAT.write() # WRITE changes in Json
+        JDAT.write(JDAT.jsondat) # WRITE changes in Json
 
 
 
@@ -158,12 +156,13 @@ def md_checkup():
     '''
     Vérif complète des md.
 
-    TODO Loop sur tous les fichiers md comportant un id, pour vérifier qu'il existe bien un post à l'id correspondant dans le JSON
-    
-    S'il existe un id, vérifier que 1) la date de création est ==, 2) le checksum(title + content) est ==
+    TODO Loop sur tous les fichiers md comportant un id, pour vérifier qu'il
+    existe bien un post à l'id correspondant dans le JSON
+    S'il existe un id, vérifier que 1) la date de création est ==,
+    2) le checksum(title + content) est ==
     '''
-    for f in os.listdir(MD_PATH):
-        mdurl = f'{MD_PATH}/{f}'
+    for f in os.listdir(const.MD_PATH):
+        mdurl = f'{const.MD_PATH}/{f}'
 
         if f[-3:] == '.md':     
             md = Md(mdurl)
@@ -186,9 +185,9 @@ def watchdog():
     # Create a dict with .md files url as keys, and their last mod time as values
     # ex: {'/opt/hellow.md': 1616622618.280879, '/opt/neatpost.md': 1616622594.959593, ...}
     sorted_md = {}
-    for f in os.listdir(MD_PATH):
+    for f in os.listdir(const.MD_PATH):
         if f[-3:] == '.md':
-            mdurl = f'{MD_PATH}/{f}'
+            mdurl = f'{const.MD_PATH}/{f}'
             cur_mtime = os.stat(mdurl).st_mtime
             sorted_md.update({mdurl:cur_mtime})
 
@@ -197,13 +196,12 @@ def watchdog():
     
     # Loop in the sorted list, so most recently modified files will be comparated first
     for record in sorted_md:
-        mdurl = record[0]
-        mdid = str(Md(mdurl).id)                            # TODO gérer le cas où l'id n'existe pas (nouvel article à intégrer)
-
+        mdurl     = record[0]
+        mdid      = str(Md(mdurl).id)
         cur_mtime = record[1]
 
-        if mdid in JDAT.jsondat['posts']:
-            json_mtime = JDAT.jsondat['posts'][mdid]['dateupd'] # TODO gérer le cas où l'id n'existe pas (nouvel article à intégrer)
+        if mdid in jposts:
+            json_mtime = jposts[mdid]['dateupd']
             
             # If file mtime equals known (json) mtime = no change = skip
             if cur_mtime == json_mtime:
@@ -213,14 +211,14 @@ def watchdog():
         return
 
 
-    # Non-sorted algorithm (XXX for future performance test) :
+    # Non-sorted algorithm (TODO for future performance test) :
     #
     # for f in os.listdir(MD_PATH):
     #     if f[-3:] == '.md':
 
     #         mdurl = f'{MD_PATH}/{f}'
     #         mdid = str(Md(mdurl).id)
-    #         json_mtime = JDAT.jsondat['posts'][mdid]['dateupd']
+    #         json_mtime = jposts[mdid]['dateupd']
     #         cur_mtime = os.stat(mdurl).st_mtime
         
         

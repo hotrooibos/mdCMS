@@ -1,9 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+from . import constants as const
 import json
-import os
-import time
-
-JSON_PATH = os.getcwd() + '/posts/data.json'
 
 
 class Singleton:
@@ -20,7 +17,7 @@ class Jdata(Singleton):
     '''
     JSON data file
     '''
-    def __init__(self, json_file=JSON_PATH):
+    def __init__(self, json_file: str = const.JSON_PATH):
         self.jsonf = json_file
         self.jsondat = None
         self.ids = []
@@ -36,7 +33,9 @@ class Jdata(Singleton):
         '''
         READ JSON data file, load and check the content
         '''
-        with open(file=self.jsonf, mode='r', encoding='utf-8') as jsonf:
+        with open(file     = self.jsonf,
+                  mode     = 'r',
+                  encoding = 'utf-8') as jsonf:
             self.jsondat = json.load(jsonf)
         
         # for id in self.jsondat['posts']:
@@ -58,10 +57,12 @@ class Jdata(Singleton):
                 print(f'JSON CHECK FAILED : several {id} in data.json')
 
 
-    def write(self):
+    def write(self, jsondat: dict = None):
         '''
-        WRITE 'jsonf' JSON file
+        WRITE 'jsondat' dict to 'jsonf' JSON file
         '''
-        with open(file=JSON_PATH, mode='w', encoding='utf-8') as jsonf:
-            # json.dump(self.jsondat, jsonf)
-            json.dump(self.jsondat, jsonf, indent=4)
+        if not jsondat:
+            jsondat = self.jsondat
+
+        with open(file=const.JSON_PATH, mode='w', encoding='utf-8') as jsonf:
+            json.dump(jsondat, jsonf, indent=4)
