@@ -9,4 +9,4 @@ if __name__ == "__main__":
     from mdcms import md
 
     watchdog = threading.Timer(10, lambda: md.watchdog()).start()
-    mdcms.app().run(threaded=True, host='localhost', port=8080, debug=True)
+    mdcms.app().run(threaded=True, host='localhost', port=8080, debug=False)

@@ -1,13 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
 from time import sleep
 from flask import Flask, render_template, redirect, request
-from flask.helpers import send_file, send_from_directory
+from flask.helpers import send_from_directory
 from . import jdata
 import time
 
-def app(testing: bool = True):
+def app(testing: bool = False):
     app = Flask(__name__)   # Instance de Flask = WSGI application
     jdat = jdata.Jdata()    # Données (articles)
+
+
+    @app.before_request
+    def my_method():
+        remote_ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+        print("remote ip :", remote_ip)
 
 
     @app.route('/', methods=['GET', 'POST'])         # URL "/" triggers this function
@@ -28,14 +34,7 @@ def app(testing: bool = True):
     @app.route('/posts/<int:id>')
     def post(id):
         post = jdat.jsondat['posts'][str(id)]
-        
-        
-        return render_template('pages/post.j2',
-                            title   = post['title'],
-                            datecr  = time.strftime('%Y-%m-%d', time.localtime(post['datecr'])),
-                            dateupd = time.strftime('%Y-%m-%d', time.localtime(post['dateupd'])),
-                            author  = post['author'],
-                            content = post['content'])
+        return render_template('pages/post.j2', post = post)
 
 
     @app.route('/git')

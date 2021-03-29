@@ -1,6 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 from . import constants as const
 import json
+import time
+
 
 
 class Singleton:
@@ -11,6 +13,7 @@ class Singleton:
             class_.__instance = object.__new__(class_, *args, *kwargs)
 
         return class_.__instance
+
 
 
 class Jdata(Singleton):
@@ -29,6 +32,7 @@ class Jdata(Singleton):
         self.check()
 
 
+
     def read(self):
         '''
         READ JSON data file, load and check the content
@@ -38,14 +42,20 @@ class Jdata(Singleton):
                   encoding = 'utf-8') as jsonf:
             self.jsondat = json.load(jsonf)
         
-        # for id in self.jsondat['posts']:
-        #     self.jsondat['posts'][str(id)]['datecr'] = time.strftime('%Y-%m-%d %H:%M', time.localtime(self.jsondat['posts'][str(id)]['datecr']))
-        #     self.jsondat['posts'][str(id)]['dateupd'] = time.strftime('%Y-%m-%d', time.localtime(self.jsondat['posts'][str(id)]['dateupd']))
+        # UPDATE all dates to jj Mon yyyy in memory
+        # and FILL object lists
+        for k, v in self.jsondat['posts'].items():
+            v.update({
+                'datecr':  time.strftime('%d %b %Y', time.localtime(v.get('datecr'))),
+                'dateupd': time.strftime('%d %b %Y', time.localtime(v.get('dateupd')))
+            })
 
-        self.ids     = [ int(id)                            for id in self.jsondat['posts'] ]
-        self.sums    = [ self.jsondat['posts'][id]['sum']   for id in self.jsondat['posts'] ]
-        self.titles  = [ self.jsondat['posts'][id]['title'] for id in self.jsondat['posts'] ]
+            self.ids.append(int(k))
+            self.sums.append(v.get('sum'))
+            self.titles.append(v.get('title'))
+
         self.last_id = max(self.ids) if len(self.ids) > 0 else -1
+
 
 
     def check(self):
@@ -55,6 +65,7 @@ class Jdata(Singleton):
         for id in self.ids:
             if self.ids.count(id) > 1:
                 print(f'JSON CHECK FAILED : several {id} in data.json')
+
 
 
     def write(self, jsondat: dict = None):

@@ -1,8 +1,8 @@
 {% extends 'layouts/default.j2' %}}
 {% block content %}
-	<h1 class="postitle">{{ title }}</h1>
+	<h1 class="postitle">{{ post.title }}</h1>
 	<hr>
-	{{ content|safe }}
+	{{ post.content|safe }}
 	<hr>
-	<p class="postdate">Le {{ datecr }} (update {{ dateupd }})</p>
+	<p class="postdate">Le {{ post.datecr }} (update {{ post.dateupd }})</p>
 {% endblock %}

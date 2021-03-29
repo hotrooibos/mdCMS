@@ -148,7 +148,8 @@ def maj_post(md_id,
         jposts[md_id]['content'] = md_content
         jposts[md_id]['dateupd'] = md_modtime
 
-        JDAT.write(JDAT.jsondat) # WRITE changes in Json
+        JDAT.jsondat['posts'] = jposts  # UPDATE JDAT
+        JDAT.write()        # WRITE changes in Json
 
 
 
