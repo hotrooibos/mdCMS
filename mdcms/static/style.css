@@ -123,6 +123,7 @@ CONTENT
 #content {
     flex-grow: 4;
     max-width: 50em;
+    min-width: 20em;
     text-align: justify;
 }
 
@@ -130,10 +131,6 @@ CONTENT
         margin: 0;
         font-size: 3em;
         color: #54c9b9;
-    }
-
-    #content p {
-        margin-left: .5em;
     }
 
     #content p.postdate {

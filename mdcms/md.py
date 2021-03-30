@@ -48,24 +48,6 @@ class Md:
         return self.sum
 
 
-    # @staticmethod
-    # def process_ressources(content):
-    #     '''
-    #     Lire le contenu du .md, puis vérifier la présence de lignes
-    #     au format ![*](*.png/jpg/gif/svg)
-    #     '''
-    #     # In content, find regex ![*](*.jpg) or one of the others formats
-    #     # The * preceding extension only accepts alphanumeric, dash and underscore chars
-    #     # The goal here is to detect simple filenames (without url format like https://...)
-    #     #  which means they are local images
-    #     # Ex : ![](hellow.svg), ![A landscape](landsc.png), etc.
-    #     import re
-    #     x = re.findall("!\[.*\]\([a-zA-ZÀ-ÿ0-9_-]*\.(?:jpg|gif|png|svg)\)", content)
- 
-    #     for i in x:
-    #         print(i, 'non traité')
-
-
 
 def process_md():
     id = JDAT.last_id + 1
@@ -113,13 +95,14 @@ def process_md():
                 id: {
                 "sum":md.sum,
                 "datecr":datecreation,
-                "dateupd":datemaj,
+                "dateup":datemaj,
                 "title":md.title,
                 "author":md.author,
                 "content":md.content
                 }
             }
             jposts.update(new_record)
+            JDAT.jsondat['posts'] = jposts  # UPDATE JDAT
             JDAT.write()
 
             id += 1
@@ -146,35 +129,10 @@ def maj_post(md_id,
         jposts[md_id]['title']   = md_title
         jposts[md_id]['author']  = md_author
         jposts[md_id]['content'] = md_content
-        jposts[md_id]['dateupd'] = md_modtime
+        jposts[md_id]['dateup'] = md_modtime
 
         JDAT.jsondat['posts'] = jposts  # UPDATE JDAT
         JDAT.write()        # WRITE changes in Json
-
-
-
-def md_checkup():
-    '''
-    Vérif complète des md.
-
-    TODO Loop sur tous les fichiers md comportant un id, pour vérifier qu'il
-    existe bien un post à l'id correspondant dans le JSON
-    S'il existe un id, vérifier que 1) la date de création est ==,
-    2) le checksum(title + content) est ==
-    '''
-    for f in os.listdir(const.MD_PATH):
-        mdurl = f'{const.MD_PATH}/{f}'
-
-        if f[-3:] == '.md':     
-            md = Md(mdurl)
-
-            # SKIP file if a post with same title or checksum exists in JSON data
-            if md.title in JDAT.titles:
-                print(f'| A post with title {md.title} already exists in data.json -> skipping {f}')
-                continue
-            if md.sum in JDAT.sums:
-                print(f'| A post with the same content as {f} exists in data.json -> skipping {f}')
-                continue
 
 
 
@@ -202,7 +160,7 @@ def watchdog():
         cur_mtime = record[1]
 
         if mdid in jposts:
-            json_mtime = jposts[mdid]['dateupd']
+            json_mtime = jposts[mdid]['dateup']
             
             # If file mtime equals known (json) mtime = no change = skip
             if cur_mtime == json_mtime:
@@ -211,7 +169,6 @@ def watchdog():
         process_md()
         return
 
-
     # Non-sorted algorithm (TODO for future performance test) :
     #
     # for f in os.listdir(MD_PATH):
@@ -219,7 +176,7 @@ def watchdog():
 
     #         mdurl = f'{MD_PATH}/{f}'
     #         mdid = str(Md(mdurl).id)
-    #         json_mtime = jposts[mdid]['dateupd']
+    #         json_mtime = jposts[mdid]['dateup']
     #         cur_mtime = os.stat(mdurl).st_mtime
         
         
@@ -227,3 +184,46 @@ def watchdog():
     #             print(f'CHANGE DETECTED FOR {mdid} : {cur_mtime} - {json_mtime}')
     #             process_md()
     #             return
+
+
+    
+    # def md_checkup():
+    '''
+    Vérif complète des md.
+
+    TODO Loop sur tous les fichiers md comportant un id, pour vérifier qu'il
+    existe bien un post à l'id correspondant dans le JSON
+    S'il existe un id, vérifier que 1) la date de création est ==,
+    2) le checksum(title + content) est ==
+    '''
+    # for f in os.listdir(const.MD_PATH):
+    #     mdurl = f'{const.MD_PATH}/{f}'
+
+    #     if f[-3:] == '.md':     
+    #         md = Md(mdurl)
+
+    #         # SKIP file if a post with same title or checksum exists in JSON data
+    #         if md.title in JDAT.titles:
+    #             print(f'| A post with title {md.title} already exists in data.json -> skipping {f}')
+    #             continue
+    #         if md.sum in JDAT.sums:
+    #             print(f'| A post with the same content as {f} exists in data.json -> skipping {f}')
+    #             continue
+
+
+    # @staticmethod
+    # def process_ressources(content):
+    '''
+    Lire le contenu du .md, puis vérifier la présence de lignes
+    au format ![*](*.png/jpg/gif/svg)
+    '''
+    # In content, find regex ![*](*.jpg) or one of the others formats
+    # The * preceding extension only accepts alphanumeric, dash and underscore chars
+    # The goal here is to detect simple filenames (without url format like https://...)
+    #  which means they are local images
+    # Ex : ![](hellow.svg), ![A landscape](landsc.png), etc.
+        # import re
+        # x = re.findall("!\[.*\]\([a-zA-ZÀ-ÿ0-9_-]*\.(?:jpg|gif|png|svg)\)", content)
+
+        # for i in x:
+        #     print(i, 'non traité')

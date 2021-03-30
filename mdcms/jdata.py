@@ -47,7 +47,7 @@ class Jdata(Singleton):
         for k, v in self.jsondat['posts'].items():
             v.update({
                 'datecr':  time.strftime('%d %b %Y', time.localtime(v.get('datecr'))),
-                'dateupd': time.strftime('%d %b %Y', time.localtime(v.get('dateupd')))
+                'dateup': time.strftime('%d %b %Y', time.localtime(v.get('dateup')))
             })
 
             self.ids.append(int(k))
