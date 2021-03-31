@@ -198,7 +198,9 @@ def wuu():
 def on_starting(server):
     import threading as th 
     from mdcms import mdcms
-    th.Thread(target=wuu).start()
+    wd = th.Thread(target=wuu)
+    wd.daemon = True
+    wd.start()
     # mdcms.md
 
 def post_fork(server, worker):

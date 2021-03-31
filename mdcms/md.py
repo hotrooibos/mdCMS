@@ -140,10 +140,13 @@ def watchdog():
     '''
     Check any article change
     '''
-    print('Watchdog is watching...')
+    
+    # print('Checking for new/updated md')
+    
     # Create a dict with .md files url as keys, and their last mod time as values
     # ex: {'/opt/hellow.md': 1616622618.280879, '/opt/neatpost.md': 1616622594.959593, ...}
     sorted_md = {}
+
     for f in os.listdir(const.MD_PATH):
         if f[-3:] == '.md':
             mdurl = f'{const.MD_PATH}/{f}'
@@ -169,12 +172,12 @@ def watchdog():
         process_md()
         return
 
-    # Non-sorted algorithm (TODO for future performance test) :
+    # Non-sorted algorithm (TODO perf test with timeit) :
     #
-    # for f in os.listdir(MD_PATH):
+    # for f in os.listdir(const.MD_PATH):
     #     if f[-3:] == '.md':
 
-    #         mdurl = f'{MD_PATH}/{f}'
+    #         mdurl = f'{const.MD_PATH}/{f}'
     #         mdid = str(Md(mdurl).id)
     #         json_mtime = jposts[mdid]['dateup']
     #         cur_mtime = os.stat(mdurl).st_mtime
