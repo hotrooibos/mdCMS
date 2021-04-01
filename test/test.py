@@ -7,11 +7,12 @@ if __name__ == "__main__":
     from mdcms import mdcms, md
 
     ''' Timit tests '''
-    # import timeit
+    import timeit
     # print ('Watchdog:', timeit.timeit('md.watchdog()',
     #                                   setup = "from mdcms import mdcms, md",
-    #                                   number = 1000))
-    
+    #                                   number = 1))
+
+
     ''''''
     # import threading
     # watchdog = threading.Timer(10, lambda: md.watchdog()).start()

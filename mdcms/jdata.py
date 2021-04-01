@@ -22,7 +22,7 @@ class Jdata(Singleton):
     '''
     def __init__(self, json_file: str = const.JSON_PATH):
         self.jsonf = json_file
-        self.jsondat = None
+        self.jdat = None
         self.ids = []
         self.last_id = None
         self.sums = []
@@ -40,16 +40,10 @@ class Jdata(Singleton):
         with open(file     = self.jsonf,
                   mode     = 'r',
                   encoding = 'utf-8') as jsonf:
-            self.jsondat = json.load(jsonf)
+            self.jdat = json.load(jsonf)
         
-        # UPDATE all dates to jj Mon yyyy in memory
-        # and FILL object lists
-        for k, v in self.jsondat['posts'].items():
-            v.update({
-                'datecr':  time.strftime('%d %b %Y', time.localtime(v.get('datecr'))),
-                'dateup': time.strftime('%d %b %Y', time.localtime(v.get('dateup')))
-            })
-
+        # FILL object lists
+        for k, v in self.jdat['posts'].items():
             self.ids.append(int(k))
             self.sums.append(v.get('sum'))
             self.titles.append(v.get('title'))
@@ -68,12 +62,12 @@ class Jdata(Singleton):
 
 
 
-    def write(self, jsondat: dict = None):
+    def write(self, jdat: dict = None):
         '''
-        WRITE 'jsondat' dict to 'jsonf' JSON file
+        WRITE 'jdat' dict to 'jsonf' JSON file
         '''
-        if not jsondat:
-            jsondat = self.jsondat
+        if not jdat:
+            jdat = self.jdat
 
         with open(file=const.JSON_PATH, mode='w', encoding='utf-8') as jsonf:
-            json.dump(jsondat, jsonf, indent=4)
+            json.dump(jdat, jsonf, indent=4)

@@ -6,18 +6,26 @@ from . import jdata
 import time
 
 def app():
-    app = Flask(__name__)   # Instance de Flask = WSGI application
-    jdat = jdata.Jdata()    # Données (articles)
+    app    = Flask(__name__)                   # Instance de Flask = WSGI application
+    jposts = jdata.Jdata().jdat['posts'] # Données (articles)
+    
+    
+    # CONVERT all dates to jj Mon yyyy in jposts to be human-readable
+    for v in jposts.values():
+        v.update({
+            'datecr': time.strftime('%d %b %Y', time.localtime(v.get('datecr'))),
+            'dateup': time.strftime('%d %b %Y', time.localtime(v.get('dateup')))
+        })
 
 
     @app.route('/', methods=['GET', 'POST'])         # URL "/" triggers this function
     def main():
-        return render_template('pages/index.j2', posts=jdat.jsondat['posts'])
+        return render_template('pages/index.j2', posts=jposts)
 
 
     @app.route('/posts')
     def posts():
-        return render_template('pages/posts.j2', posts=jdat.jsondat['posts'])
+        return render_template('pages/posts.j2', posts=jposts)
 
 
     @app.route('/posts/ressources/<path:path>')
@@ -27,7 +35,7 @@ def app():
 
     @app.route('/posts/<int:id>')
     def post(id):
-        post = jdat.jsondat['posts'][str(id)]
+        post = jposts[str(id)]
         return render_template('pages/post.j2', post = post)
 
 
