@@ -40,7 +40,6 @@ Server hooks
 # mdCMS watchdog loop
 def mdcms():
     while True:
-        print('Gunicorn.conf.py: start watchdog')
         md.watchdog()
         sleep(constants.CHECK_TIME)
 

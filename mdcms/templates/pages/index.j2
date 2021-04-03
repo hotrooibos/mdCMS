@@ -1,8 +1,10 @@
 {% extends 'layouts/default.j2' %}}
 {% block content %}
 	{% for pid in posts %}
-	<h1><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a></h1>
-	<p>Le {{ posts[pid].datecr }}</p>
-	{{ posts[pid].content|safe }}
+	<div class='post'>
+		<h1><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a></h1>
+		{{ posts[pid].content|safe }}
+		<p>Le {{ posts[pid].datecr }}</p>
+	</div>
 	{% endfor %}
 {% endblock %}

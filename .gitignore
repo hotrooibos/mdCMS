@@ -1,0 +1,12 @@
+__pycache__/
+.vscode/
+venv/
+dist/
+mdcms.egg-info/
+perso/
+*.log
+mdcms/posts/*
+
+
+# Exceptions
+!mdcms/posts/hello.md
