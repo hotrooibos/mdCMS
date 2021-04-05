@@ -1,13 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
 from . import constants as const
 from . import jdata
-import hashlib
+import zlib
 import markdown
 from   markdown.extensions import Extension
 import os
 import time
 
-JDAT    = jdata.Jdata()
+JDAT = jdata.Jdata()
+JDAT.read()
+
 # TODO Ajouter un paramètre dans data.json : "ressource_path".
 # TODO  Si dans le .md un ![](machin.jpg/png..) (cf fonction regex infra),
 # TODO  faire la concaténation de ressource_path et de machin.jpg pour trouver les ressources
@@ -24,100 +26,73 @@ class Md:
     >>>  mdfile = Md('/home/antoine/readme.md')
     '''
     def __init__(self, mdurl:str):
+
+        # Read .md file and make attributes from its content
         with open(file     = mdurl,
                   mode     = 'r',
                   encoding = 'utf-8') as mdf:
             
             mddat = mdf.read()
 
-        md           = markdown.Markdown(extensions = ['meta','toc','codehilite'])
-        self.content = md.convert(mddat)
-        md_meta      = md.Meta
-        
-        self.id      = int(md_meta.get('id')[0])  if md_meta.get('id')       else None
-        self.title   = md_meta.get('title')[0]    if md_meta.get('title')    else ''
-        self.author  = md_meta.get('author')[0]   if md_meta.get('author')   else ''
-        self.cat     = md_meta.get('category')[0] if md_meta.get('category') else None
-        self.datecr  = md_meta.get('date')[0]     if md_meta.get('date')     else None
-        self.dateup  = int(os.stat(mdurl).st_ctime)
-        self.toc     = md.toc
-        self.sum     = self.refresh_sum()
+        __md           = markdown.Markdown(extensions = ['meta','toc','codehilite'])
+        self.content = __md.convert(mddat)
 
+        self.title   = __md.Meta.get('title')[0]      if __md.Meta.get('title')      else self.content[:15]
+        self.author  = __md.Meta.get('author')[0]     if __md.Meta.get('author')     else ''
+        self.cat     = __md.Meta.get('categories')[0] if __md.Meta.get('categories') else None
+        self.datecr  = __md.Meta.get('date')[0]       if __md.Meta.get('date')       else None
+        self.dateup  = int(os.stat(mdurl).st_mtime) # Update date = file last mod time
+        self.toc     = __md.toc
 
+        # ID = title checksum
+        __id = zlib.crc32(self.title.encode('utf-8'))
+        self.id = str(__id)
 
-    def refresh_sum(self) -> str:
-        '''
-        Refresh and return checksum of (.md title + content)
-        '''
-        md_sum = hashlib.md5()
-        md_sum.update((self.title + self.author + self.content).encode())
-        self.sum = md_sum.hexdigest()
-        return self.sum
+        # ADD creation date from file stats if not given in metadatas
+        if not self.datecr:
+            self.datecr = os.stat(mdurl).st_ctime                     # c(reation)time is OS tied, see os.stat doc
+            self.datecr = time.strftime('%Y-%m-%d %H:%M:%S',          # CONVERT epoch to datetime
+                                        time.localtime(self.datecr))
 
 
 
 def process_md():
-    id = JDAT.last_id + 1
+    '''
+    Read all .md files, get and transform
+    their data, inject datas in data.json
+    '''
 
     # .md LOOP
     for f in os.listdir(const.MD_PATH):
         if f[-3:] == '.md':
-
             mdurl = f'{const.MD_PATH}/{f}'
-            
             md = Md(mdurl)
 
-            # If .md has ID, try to find it in Json
-            if md.id != None :
-                
-                # ID known in Json : update Json with possibly updated data from .md
-                if md.id in JDAT.ids:
-                    # md.refresh_sum()
-                    maj_post(md.id,
-                             md.title,
-                             md.author,
-                             md.content,
-                             md.datecr,
-                             os.stat(mdurl).st_mtime,
-                             md.sum)
-                    
-                    continue                                            # END, process next .md
-                
-                # ID unknown in Json : remove it from .md & continue to record creation process
-                else:
-                    print(f'\nID {md.id} unkown in Json, reset {f} ID')
-                    with open(mdurl, 'r', encoding='utf-8') as mdf:  # REMOVE ID (1st line)
-                        mdnew = mdf.readlines()[1:]
-                    with open(mdurl, 'w', encoding='utf-8') as mdf:
-                        mdf.writelines(mdnew)
-
-            # ↓
-            # Json record creation process ↓
-            # ↓
             
-            # ADD ID in .md
-            with open(mdurl, 'r', encoding='utf-8') as mdf:
-                mddat = mdf.read()
-            with open(mdurl, 'w', encoding='utf-8') as mdf:
-                mdf.write(f'id:{id}\n{mddat}')
+            # ID KNOWN in json : update json with
+            # possibly updated data from .md
+            if md.id in JDAT.ids:
+                # md.refresh_sum()
+                maj_post(md.id,
+                         md.title,
+                         md.author,
+                         md.content,
+                         md.datecr,
+                         os.stat(mdurl).st_mtime)
 
-            # ADD creation date from file stats if not given in metadatas
-            if not md.datecr:
-                md_datecr = os.stat(mdurl).st_ctime                     # c(reation)time is OS tied, see os.stat doc
-                md_datecr = time.strftime('%Y-%m-%d %H:%M:%S',          # CONVERT epoch to time
-                                        time.localtime(md_datecr))
-            else:
-                md_datecr = md.datecr
+                continue # END, process next .md
 
+            
+            # ID UNKNOWN in json
+            # JSON record CREATION
             md_dateup = os.stat(mdurl).st_mtime                         # m(odification)time
             md_dateup = time.strftime('%Y-%m-%d %H:%M:%S',
                                       time.localtime(md_dateup))
 
-            # ADD/WRITE record to Json
+            # ADD new record to dict
             new_record = {
-                id: {
-                "sum":md.sum,
-                "datecr":md_datecr,
+                md.id: {
+                "datecr":md.datecr,
                 "dateup":md_dateup,
                 "title":md.title,
                 "author":md.author,
@@ -126,43 +101,39 @@ def process_md():
             }
             JDAT.jdat['posts'].update(new_record)
 
-            id += 1
-    
-    # WRITE changes in json file
+    # WRITE JSON FILE
     JDAT.write()
 
 
 
-def maj_post(md_id,
-             md_title,
-             md_author,
-             md_content,
-             md_datecr,
-             md_dateup,
-             md_sum):
+def maj_post(id,
+             title,
+             author,
+             content,
+             datecr,
+             dateup):
     '''
     UPDATE posts 
     '''
-    md_id = str(md_id)
- 
-    md_dateup = time.strftime('%Y-%m-%d %H:%M:%S',
-                              time.localtime(md_dateup))
 
-    # FIND the json record corresponding to .md id, CHECK that
-    # content (sum) has changed, then UPDATE json with new .md data
+    dateup = time.strftime('%Y-%m-%d %H:%M:%S',
+                           time.localtime(dateup))
 
-    JDAT.jdat['posts'][md_id]['sum']     = md_sum
-    JDAT.jdat['posts'][md_id]['title']   = md_title
-    JDAT.jdat['posts'][md_id]['author']  = md_author
-    JDAT.jdat['posts'][md_id]['content'] = md_content
-    JDAT.jdat['posts'][md_id]['datecr']  = md_datecr
-    JDAT.jdat['posts'][md_id]['dateup']  = md_dateup
+    # FIND the json record corresponding to .md
+    # id, CHECK that content (sum) has changed,
+    # then UPDATE json with new .md data
+
+    JDAT.jdat['posts'][id]['title']   = title
+    JDAT.jdat['posts'][id]['author']  = author
+    JDAT.jdat['posts'][id]['content'] = content
+    JDAT.jdat['posts'][id]['datecr']  = datecr
+    JDAT.jdat['posts'][id]['dateup']  = dateup
 
 
 
 def watchdog():
     '''
-    Check any article change
+    Polling MD_PATH for .md file change
     '''
 
     for f in os.listdir(const.MD_PATH):
@@ -173,8 +144,7 @@ def watchdog():
             
             # If the .md isn't newer than last known post update
             if md.dateup <= JDAT.last_chdate:
-                if md.id in JDAT.ids:
-                    # if md.sum == JDAT.jdat['posts'][str(md.id)]['sum']:
+                if str(md.id) in JDAT.ids:
                     continue
 
             print(f'Watchdog: process_md from {f}')

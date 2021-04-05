@@ -1,12 +1,10 @@
+import time
+
+
 '''
 GUNICORN configuration file.
 
 '''
-
-from time import sleep
-from mdcms import md, constants
-import threading as th 
-
 
 bind = '127.0.0.1:8000'
 backlog = 2048
@@ -24,10 +22,13 @@ keepalive = 2
 daemon = False
 
 
-#   Logging
-errorlog = 'gunicorn_err.log'
+# Logging
+t    = time.time()
+date = time.strftime('%Y_%m', time.localtime(t))
+
+errorlog = f'logs/{date}_gunicorn_err.log'
 loglevel = 'info'
-accesslog = 'gunicorn.log'
+accesslog = f'logs/{date}_gunicorn.log'
 # access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 access_log_format = '%(h)s %(t)s "%(f)s" "%(a)s"'
 
@@ -36,19 +37,6 @@ access_log_format = '%(h)s %(t)s "%(f)s" "%(a)s"'
 Server hooks
 
 '''
-
-# mdCMS watchdog loop
-def mdcms():
-    while True:
-        md.watchdog()
-        sleep(constants.CHECK_TIME)
-
-# Start mdcms daemon in a separate thread on Gunicorn startup
-def on_starting(server):
-    wd = th.Thread(target=mdcms)
-    wd.daemon = True
-    wd.start()
-
 
 def post_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
