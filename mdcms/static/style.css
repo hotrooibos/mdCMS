@@ -6,21 +6,26 @@ body {
     margin: 0;
     width: 100%;
     background-color: #282C34;
-    color: #dbdbe7;
-    font: 1.1em -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans","Ubuntu","Cantarell","Helvetica Neue",sans-serif;
+    color: #d3d3e0; /* dbdbe7 */
+    font: 1.1em -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans",
+                "Ubuntu","Cantarell","Helvetica Neue",sans-serif;
     align-items: center;
     justify-content: center;
 }
 
 a,
 a:visited {
-    color: #bf5695;
+    color: #54c9b9;
     font-weight: bold;
     text-decoration: none;
 }
-
 a:hover {
     color: #c988af;
+}
+
+p {
+    margin: .5em 0;
+    text-align: justify;
 }
 
 hr {
@@ -32,22 +37,38 @@ ul {
     list-style: none;
 }
 
+code {
+    padding: .1em;
+    background-color: #434852;
+    border-radius: .1em;
+    font: .7em "Fira Code", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+               "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
+               "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+
 pre {
-    padding: 1em;
+    padding: .7em 2%;
     background-color: rgb(84, 201, 185, .2);
     border-radius: .3em;
-    width: 80%;
-    margin: 0 auto;
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
-    font: .7em 'fira code', consolas, arial, sans-serif;
+    margin: 1em 0 1em 2%;
+    width: min-content;
+    min-width: 60%;
+    max-width: 92%;
+    overflow-x: hidden;
+    box-shadow: 1px 2px 5px #1e2229;
 }
-pre:hover {
-    background-color: rgb(84, 201, 185, .4);
+pre:hover, pre:focus {
+    width: 100%;
+    white-space: pre-wrap;
 }
+
+pre code {
+    padding: initial;
+    background-color: initial;
+    border-radius: initial;
+}
+
+
 
 /* div {
     margin: 0 auto 1em 1em;
@@ -62,7 +83,7 @@ h5 {
 }
 
 h1 {
-    margin: 0;
+    margin: 1em 0 .3em;
 }
 
 
@@ -80,11 +101,6 @@ HEADER
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
 }
-
-    #header a,
-    #header a:visited {
-        color: #54c9b9;
-    }
 
     #logo {
         padding: .5em;
@@ -124,13 +140,20 @@ CONTENT
     flex-grow: 4;
     max-width: 50em;
     min-width: 20em;
-    text-align: justify;
 }
 
     #content .postitle {
         margin: 0;
-        font-size: 3em;
-        color: #54c9b9;
+        font-size: 2.5em;
+        color: #bf5695;
+        text-shadow: 1px 2px 1px #1e2229;
+    }
+    #content .postitle a,
+    #content .postitle a:visited {
+        color: #bf5695;
+    }
+    #content .postitle a:hover {
+        color: #cc6aa5;
     }
 
     #content p.postdate {
@@ -141,11 +164,12 @@ CONTENT
     #content div.post {
         padding: 1em;
         margin: 2em 0;
-        border-radius: .3em;
+        border-radius: .5em;
+        background-image: linear-gradient(#282C34, #282C34, #262931);
     }
 
     #content div.post:hover {
-        background-color: #333a41; /* 282C34 */
+        background-color: #292d35; /* 282C34 */
     }
 
 

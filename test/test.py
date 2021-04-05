@@ -7,7 +7,7 @@ import sys
 if __name__ == "__main__":    
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from mdcms import jdata, md, constants
-
+    from mdcms import utils
 
     # Start execution timer
     start_time = time.time()
@@ -22,7 +22,10 @@ if __name__ == "__main__":
             # print(jdata.Jdata().jdat['posts']['3702526768']['content'][:10])
             time.sleep(constants.CHECK_TIME)
 
-   
+
+
+
+
 
         '''Run flask with Werkzeug WSGI test server'''
         # mdcms.app().run(threaded = True,

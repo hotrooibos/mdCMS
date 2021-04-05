@@ -2,9 +2,9 @@
 {% block content %}
 	{% for pid in posts %}
 	<div class='post'>
-		<h1><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a></h1>
+		<h1 class="postitle"><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a></h1>
 		{{ posts[pid].content|safe }}
-		<p>Le {{ posts[pid].datecr }}</p>
+		<p class="postdate">Le {{ posts[pid].datecr }}</p>
 	</div>
 	{% endfor %}
 {% endblock %}

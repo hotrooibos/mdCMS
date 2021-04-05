@@ -1,7 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 from . import constants as const
+from . import utils
 import json
-from datetime import date, datetime
+# from datetime import date, datetime
 
 
 class Singleton:
@@ -41,11 +42,8 @@ class Jdata(Singleton):
             self.ids.append(k) # k(ey) = id string
             self.titles.append(v.get('title'))
             
-            __last_chdate = datetime.strptime(v.get('dateup'), '%Y-%m-%d %H:%M:%S')
-            __last_chdate = datetime.timestamp(__last_chdate)
-
-            if self.last_chdate < __last_chdate:
-                self.last_chdate =  int(__last_chdate)
+            if self.last_chdate < v.get('dateup'):
+                self.last_chdate =  v.get('dateup')
 
         # JSON checkup
         self.__check()
@@ -60,8 +58,8 @@ class Jdata(Singleton):
         #     print(i['title'], '---', i['dateup'], i['datecr'])
 
         # CONVERT dates format for front display
-        if const.TIME_FORMAT:
-            self.__format_time(const.TIME_FORMAT)
+        # if const.TIME_FORMAT:
+        #     self.__format_time(const.TIME_FORMAT)
 
 
 
@@ -76,23 +74,20 @@ class Jdata(Singleton):
 
         with open(file=jsonf, mode='w', encoding='utf-8') as jfile:
             json.dump(jdat, jfile, indent=4)
-        
+
         self.read()
 
-
+        
 
     def __sorter(self, i):
         '''
         Function called as a key when sorting posts with .sorted()
         Sort by post update date, then post creation date
         '''
-        dt = datetime.strptime(i[1]['dateup'], '%Y-%m-%d %H:%M:%S')
-        dateup = int(datetime.timestamp(dt)) # Convert to epoch time
+        __dateup = i[1]['dateup']
+        __datecr = i[1]['datecr']
 
-        dt = datetime.strptime(i[1]['datecr'], '%Y-%m-%d %H:%M:%S')
-        datecr = int(datetime.timestamp(dt))
-
-        return (dateup, datecr)
+        return (__dateup, __datecr)
 
 
 
@@ -103,16 +98,15 @@ class Jdata(Singleton):
         for id in self.ids:
             if self.ids.count(id) > 1:
                 print(f'JSON CHECK FAILED : several {id} in data.json')
-                # TODO ne conserver en mémoire que le post le plus récent (mtime)
+                # TODO ne conserver en mémoire que
+                # le post le plus récent (mtime)
 
 
 
-    def __format_time(self, format: str):
+    def __format_time(self, __format: str):
         '''
-        Format time stamps to the given format
+        Convert posts timestamps to the given __format
         '''
         for k, v in self.jdat['posts'].items():
-            datecr = datetime.strptime(v.get('datecr'), '%Y-%m-%d %H:%M:%S')
-            dateup = datetime.strptime(v.get('dateup'), '%Y-%m-%d %H:%M:%S')
-            self.jdat['posts'][k]['datecr'] = datecr.strftime(format)
-            self.jdat['posts'][k]['dateup'] = dateup.strftime(format)
+            self.jdat['posts'][k]['datecr'] = v.get('datecr')
+            self.jdat['posts'][k]['dateup'] = v.get('dateup')
