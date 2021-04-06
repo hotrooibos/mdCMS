@@ -30,31 +30,42 @@ def flaskapp():
 
     @app.route('/', methods=['GET', 'POST'])         # URL "/" triggers this function
     def main():
-        return render_template('pages/index.j2', posts=jdata.Jdata().jdat['posts'])
+        return render_template('pages/index.j2',
+                               posts=jdata.Jdata().jdat['posts'])
+
 
     @app.route('/posts')
     def posts():
-        return render_template('pages/posts.j2', posts=jdata.Jdata().jdat['posts'])
+        return render_template('pages/posts.j2',
+                               posts=jdata.Jdata().jdat['posts'])
+
 
     @app.route('/posts/ressources/<path:path>')
     def post_ressources(path):
         return send_from_directory(f'posts/ressources/', path)
 
-    @app.route('/posts/<int:id>')
-    def post(id):
-        post = jdata.Jdata().jdat['posts'][str(id)]
-        return render_template('pages/post.j2', post = post)
+
+    @app.route('/post/<string:__url>')
+    def post(__url):
+
+        for v in jdata.Jdata().jdat['posts'].values():
+            if v.get('url') == __url:
+                return render_template('pages/post.j2',
+                                       post=v)
 
     @app.route('/git')
     def git():
         return redirect('https://github.com/hotrooibos')
 
+
     @app.route('/about')
     def about():
         return render_template('pages/about.j2')
 
+
     @app.errorhandler(404)
     def page_not_found(error):
         return render_template('errors/404.j2'), 404
+
 
     return app
