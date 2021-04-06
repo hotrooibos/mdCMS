@@ -2,18 +2,16 @@
 from . import constants as const
 from . import jdata
 from . import utils
-import zlib
 import markdown
 from   markdown.extensions import Extension
 import os
-import time
+import zlib
 
 JDAT = jdata.Jdata()
 JDAT.read()
-
-# TODO Ajouter un paramètre dans data.json : "ressource_path".
-# TODO  Si dans le .md un ![](machin.jpg/png..) (cf fonction regex infra),
-# TODO  faire la concaténation de ressource_path et de machin.jpg pour trouver les ressources
+# TODO Ajouter paramètre dans data.json : "ressource_path".
+# TODO  Si dans .md existe ![](machin.jpg/png..) (cf fonction regex infra),
+# TODO  faire la concat de ressource_path et de machin.jpg
 
 
 
@@ -26,6 +24,9 @@ class Md:
     Usage:
     >>>  mdfile = Md('readme.md', '/home/antoine/readme.md')
     '''
+    __urls = []
+
+
     def __init__(self, fname: str, mdurl: str):
 
         # Read .md file and make attributes from its content
@@ -59,12 +60,7 @@ class Md:
         self.toc     = __md.toc
 
         # ID and URL = file name
-        self.url = fname[:-3]    # Remove .md extension
-        self.url = self.url[:15] # Limit length
-        self.url = self.url.lower()
-        self.url = utils.replacemany(self.url,
-                                     (' ','-'),
-                                     '_')
+        self.__build_url(fname)
 
         __id = zlib.crc32(fname.encode('utf-8'))
         self.id = str(__id)
@@ -72,6 +68,39 @@ class Md:
         # ADD creation date from file stats if not given in metadatas
         if not hasattr(self, 'datecr'):
             self.datecr = os.stat(mdurl).st_ctime # c(reation)time is OS tied, see os.stat doc
+
+
+
+    def __build_url(self, url: str):
+        tw = ('with','avec','under',        # "Trash" words list
+                'sous','the', 'for')
+
+        url = url[:-3]                      # Remove .md extension
+        url = url.replace('-', '')          # Remove dashes
+        wds = url.split(' ')                # Make list from str
+
+        for w in list(wds):
+            if (len(w) < 3) or (w in tw):   # Rm short / trash words
+                wds.remove(w)
+        
+        url = '_'.join(wds)                 # Make string
+        url = url[:20]                      # Limit length
+
+        # Clean '_' and 1-letter endings
+        while (url[-1:] == '_') or (url[-2:-1] == '_'):
+            url = url[:-1]
+
+        url = url.lower()                   # Lower case
+
+        # Dupe workaround
+        urlf = url
+        if url in Md.__urls:
+            __nb = Md.__urls.count(url)
+            urlf = f'{url}{__nb}'           # Add count to name
+
+        Md.__urls.append(url)               # Add to url list
+
+        self.url = urlf
 
 
 

@@ -22,9 +22,7 @@ if __name__ == "__main__":
             # print(jdata.Jdata().jdat['posts']['3702526768']['content'][:10])
             time.sleep(constants.CHECK_TIME)
 
-
-
-
+  
 
 
         '''Run flask with Werkzeug WSGI test server'''
