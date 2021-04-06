@@ -19,9 +19,6 @@ a:visited {
     font-weight: bold;
     text-decoration: none;
 }
-a:hover {
-    color: #c988af;
-}
 
 p {
     margin: .5em 0;
@@ -54,6 +51,7 @@ pre {
     width: min-content;
     min-width: 60%;
     max-width: 92%;
+    border-left: 5px solid #54c9b9;
     overflow-x: hidden;
     box-shadow: 1px 2px 5px #1e2229;
 }
@@ -101,6 +99,7 @@ HEADER
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
 }
+    #content 
 
     #logo {
         padding: .5em;
@@ -153,7 +152,15 @@ CONTENT
         color: #bf5695;
     }
     #content .postitle a:hover {
-        color: #cc6aa5;
+        color: #c988af;
+        background: none;
+        border-radius: initial;
+    }
+
+    #content a:hover {
+        color: #d3d3e0;
+        background-color: rgb(84, 201, 185, .2);
+        border-radius: 2px;
     }
 
     #content p.postdate {

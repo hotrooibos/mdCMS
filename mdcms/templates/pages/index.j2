@@ -4,7 +4,7 @@
 	<div class='post'>
 		<h1 class="postitle"><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a></h1>
 		{{ posts[pid].content|safe }}
-		<p class="postdate">Le {{ posts[pid].datecr }}</p>
+		<p class="postdate">Le <span class="date">{{ posts[pid].datecr }}</span></p>
 	</div>
 	{% endfor %}
 {% endblock %}

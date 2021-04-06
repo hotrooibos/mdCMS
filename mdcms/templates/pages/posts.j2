@@ -3,7 +3,7 @@
 <p>{{ posts|length }} posts publiés</p>
 <ul>
 {% for pid in posts %}
-	<li><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a> créé le {{ posts[pid].datecr }}</li>
+	<li><a href="{{ url_for('post', id=pid) }}">{{ posts[pid].title }}</a> créé le <span class="date">{{ posts[pid].datecr }}</span></li>
 {% endfor %}
 </ul>
 {% endblock %}

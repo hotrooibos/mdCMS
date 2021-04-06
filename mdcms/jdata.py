@@ -84,10 +84,11 @@ class Jdata(Singleton):
         Function called as a key when sorting posts with .sorted()
         Sort by post update date, then post creation date
         '''
-        __dateup = i[1]['dateup']
+        # __dateup = i[1]['dateup']
+        # return (__dateup, __datecr)
         __datecr = i[1]['datecr']
 
-        return (__dateup, __datecr)
+        return (__datecr)
 
 
 

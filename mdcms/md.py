@@ -34,7 +34,7 @@ class Md:
                   encoding = 'utf-8') as mdf:
             __mddat = mdf.read()
 
-        __md = markdown.Markdown(extensions=['meta','toc','extra'])
+        __md = markdown.Markdown(extensions=['meta','toc','extra','codehilite'])
         
         self.furl    = mdurl
         self.content = __md.convert(__mddat)
