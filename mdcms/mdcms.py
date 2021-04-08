@@ -12,7 +12,8 @@ def mdcms():
     MDCMS background job
     '''
     while True:
-        md.watchdog()
+        # md.watchdog()
+        print('loop...')
         sleep(constants.CHECK_TIME)
 
 
@@ -22,6 +23,7 @@ def flaskapp():
     FLASK web application
     '''
     app = Flask(__name__) # Instance de Flask (WSGI application)
+    print('wut...')
 
     # START mdCMS thread
     Thread(target=mdcms,

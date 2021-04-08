@@ -43,15 +43,17 @@ class Md:
         if __md.Meta.get('title'):
             self.title = __md.Meta.get('title')[0]
         else:
-            self.title = self.content[:15]
+            self.__build_title(fname)
 
         if __md.Meta.get('author'):
             self.author = __md.Meta.get('author')[0]
+        else:
+            self.author = "Antoine"
 
         if __md.Meta.get('categories'):
             self.cat = __md.Meta.get('categories')[0]
 
-        if __md.Meta.get('date') :          
+        if __md.Meta.get('date'):          
             self.datecr = __md.Meta.get('date')[0]
             if type(self.datecr) == str:
                 self.datecr = utils.to_epoch(self.datecr)
@@ -102,6 +104,11 @@ class Md:
 
         self.url = urlf
 
+
+
+    def __build_title(self, fname):
+        self.title = self.content[:15]
+        # TODO récupérer le premier titre '# xxxx..' via la toc ? https://python-markdown.github.io/extensions/toc/
 
 
 def process_md(__mds: list):

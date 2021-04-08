@@ -1,3 +1,4 @@
+# -*- mode: python ; coding: utf-8 -*-
 import time
 
 
@@ -30,7 +31,8 @@ errorlog = f'logs/{date}_gunicorn_err.log'
 loglevel = 'info'
 accesslog = f'logs/{date}_gunicorn.log'
 # access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
-access_log_format = '%(h)s %(t)s "%(f)s" "%(a)s"'
+# access_log_format = '%(h)s %(t)s "%(f)s" "%(a)s"'
+access_log_format = '%({X-Forwarded-For}i)s %(t)s "%(f)s" "%(a)s"'
 
 
 '''
