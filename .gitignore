@@ -2,8 +2,8 @@ __pycache__/
 .vscode/
 venv/
 dist/
+posts/
 mdcms.egg-info/
-perso/
 *.log
 mdcms/posts/*
 

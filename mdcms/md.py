@@ -1,11 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
+from mdcms.mdcms import mdcms
 from . import constants as const
 from . import jdata
 from . import utils
 import markdown
 from   markdown.extensions import Extension
 import os
-import zlib
+import uuid
 
 JDAT = jdata.Jdata()
 JDAT.read()
@@ -41,14 +42,15 @@ class Md:
         self.furl    = mdurl
         self.content = md.convert(mddat)
 
-        # Build perma URL
-        self.__build_url(fname)
-
         # Build ID
         if md.Meta.get('id'):
-            self.id = md.Meta.get('id')
+            if self.checkid(md.Meta.get('id')[0]) == 0:
+                self.id = md.Meta.get('id')[0]
+            else:
+                self.id = str(uuid.uuid4())
+                w.append('id')
         else:
-            self.__build_id()
+            self.id == str(uuid.uuid4())
             w.append('id')
 
         # Get or build title
@@ -56,6 +58,9 @@ class Md:
             self.title = md.Meta.get('title')[0]
         else:
             self.__build_title()
+
+        # Build perma URL from title
+        self.__build_url()
 
         # Get author from file or consts
         if md.Meta.get('author'):
@@ -84,8 +89,22 @@ class Md:
 
 
 
+    @staticmethod
+    def checkid(id) -> int:
+        try:
+            if uuid.UUID(id).version == 4:
+                return 0
+            else:
+                return 1
+
+        except ValueError:
+            return 1
+
+
+
     def __write(self, data_to_write: list):
         w = data_to_write
+
         # WRITE ctime(datecr) to .md metadata header
         with open(self.furl,
                   mode='r+',
@@ -97,6 +116,9 @@ class Md:
                 mdl.insert(0, f'datecr:{datestr}\n')
 
             if 'id' in w:
+                for i, l in enumerate(mdl):
+                    if l[:3] == 'id:':
+                        mdl.pop(i)
                 mdl.insert(0, f'id:{self.id}\n')
 
             mdl = ''.join(mdl)
@@ -105,18 +127,11 @@ class Md:
 
 
 
-    def __build_id(self):
-        '''ID = crc of perma url'''
-        n_id = zlib.crc32(self.url.encode('utf-8'))
-        self.id = str(n_id)
-
-
-
-    def __build_url(self, file_name: str):
+    def __build_url(self):
         tw = ('with','avec','under',        # "Trash" words list
                 'sous','the', 'for')
 
-        url = file_name[:-3]                # Remove .md extension
+        url = self.title
         url = url.replace('-', '')          # Remove dashes
         wds = url.split(' ')                # Make list from str
 
@@ -170,53 +185,51 @@ class Md:
 
 
 
-def process_md(__mds: list):
+def process_md(mds: list):
     '''
     Read .md file, get, transform and
     inject its data in data.json
     '''
 
-    for __md in __mds:
+    for md in mds:
 
         # KNOWN ID in json : update json with
         # possibly updated data from .md
-        if __md.id in JDAT.ids:
-            maj_post(__md)
+        if md.id in JDAT.ids:
+            maj_post(md)
             continue # END, process next .md
 
-        
         # UNKNOWN ID in json
         # CREATE json record
 
-        md_dateup = os.stat(__md.furl).st_mtime # m(odification)time
+        md_dateup = os.stat(md.furl).st_mtime # m(odification)time
 
         new_record = {
-            __md.id: {
-            "title":__md.title,
-            "author":__md.author,
-            "url":__md.url,
-            "datecr":__md.datecr,
+            md.id: {
+            "title":md.title,
+            "author":md.author,
+            "url":md.url,
+            "datecr":md.datecr,
             "dateup":md_dateup,
-            "content":__md.content
+            "content":md.content
             }
         }
         JDAT.jdat['posts'].update(new_record)
-
 
     # WRITE json file
     JDAT.write()
 
 
 
-def maj_post(__md: Md):
+def maj_post(md: Md):
     '''
     UPDATE posts 
     '''
-    JDAT.jdat['posts'][__md.id]['title']   = __md.title
-    JDAT.jdat['posts'][__md.id]['author']  = __md.author
-    JDAT.jdat['posts'][__md.id]['content'] = __md.content
-    JDAT.jdat['posts'][__md.id]['datecr']  = __md.datecr
-    JDAT.jdat['posts'][__md.id]['dateup']  = __md.dateup
+    JDAT.jdat['posts'][md.id]['title']   = md.title
+    JDAT.jdat['posts'][md.id]['author']  = md.author
+    JDAT.jdat['posts'][md.id]['content'] = md.content
+    JDAT.jdat['posts'][md.id]['datecr']  = md.datecr
+    JDAT.jdat['posts'][md.id]['dateup']  = md.dateup
 
 
 
