@@ -1,11 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 import time
 
-
 '''
 GUNICORN configuration file.
-
 '''
+
 
 bind = '127.0.0.1:8000'
 backlog = 2048

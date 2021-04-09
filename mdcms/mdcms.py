@@ -12,8 +12,7 @@ def mdcms():
     MDCMS background job
     '''
     while True:
-        # md.watchdog()
-        print('loop...')
+        md.watchdog()
         sleep(constants.CHECK_TIME)
 
 
@@ -23,7 +22,6 @@ def flaskapp():
     FLASK web application
     '''
     app = Flask(__name__) # Instance de Flask (WSGI application)
-    print('wut...')
 
     # START mdCMS thread
     Thread(target=mdcms,
@@ -42,9 +40,9 @@ def flaskapp():
                                posts=jdata.Jdata().jdat['posts'])
 
 
-    @app.route('/posts/ressources/<path:path>')
-    def post_ressources(path):
-        return send_from_directory(f'posts/ressources/', path)
+    @app.route('/posts/ressources/<path:filename>')
+    def post_ressources(filename):
+        return send_from_directory(constants.MD_RES_PATH, filename)
 
 
     @app.route('/post/<string:__url>')
