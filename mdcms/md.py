@@ -33,51 +33,90 @@ class Md:
         with open(file     = mdurl,
                   mode     = 'r',
                   encoding = 'utf-8') as mdf:
-            __mddat = mdf.read()
+            mddat = mdf.read()
 
-        __md = markdown.Markdown(extensions=['meta','toc','extra','codehilite'])
+        w = [] # Datas to write to .md
+        md = markdown.Markdown(extensions=['meta','toc','extra','codehilite'])
         
         self.furl    = mdurl
-        self.content = __md.convert(__mddat)
+        self.content = md.convert(mddat)
 
-        if __md.Meta.get('title'):
-            self.title = __md.Meta.get('title')[0]
-        else:
-            self.__build_title(fname)
-
-        if __md.Meta.get('author'):
-            self.author = __md.Meta.get('author')[0]
-        else:
-            self.author = "Antoine"
-
-        if __md.Meta.get('categories'):
-            self.cat = __md.Meta.get('categories')[0]
-
-        if __md.Meta.get('date'):          
-            self.datecr = __md.Meta.get('date')[0]
-            if type(self.datecr) == str:
-                self.datecr = utils.to_epoch(self.datecr)
-
-        self.dateup  = os.stat(mdurl).st_mtime # Update date = file last mod time
-        self.toc     = __md.toc
-
-        # ID and URL = file name
+        # Build perma URL
         self.__build_url(fname)
 
-        __id = zlib.crc32(fname.encode('utf-8'))
-        self.id = str(__id)
+        # Build ID
+        if md.Meta.get('id'):
+            self.id = md.Meta.get('id')
+        else:
+            self.__build_id()
+            w.append('id')
 
-        # ADD creation date from file stats if not given in metadatas
-        if not hasattr(self, 'datecr'):
-            self.datecr = os.stat(mdurl).st_ctime # c(reation)time is OS tied, see os.stat doc
+        # Get or build title
+        if md.Meta.get('title'):
+            self.title = md.Meta.get('title')[0]
+        else:
+            self.__build_title()
+
+        # Get author from file or consts
+        if md.Meta.get('author'):
+            self.author = md.Meta.get('author')[0]
+        else:
+            self.author = const.DEFAULT_AUTHOR
+
+        # Get categories (optional)
+        if md.Meta.get('categories'):
+            self.cat = md.Meta.get('categories')[0]
+
+        self.dateup  = os.stat(self.furl).st_mtime
+        self.toc     = md.toc
+
+        # Add creation date from file stats if not given in metadatas
+        if md.Meta.get('datecr'):
+            self.datecr = md.Meta.get('datecr')[0]
+            if type(self.datecr) == str:
+                self.datecr = utils.to_epoch(self.datecr)
+        else:
+            self.datecr = os.stat(self.furl).st_ctime
+            w.append('datecr')
+
+        if len(w) > 0:
+            self.__write(w)
 
 
 
-    def __build_url(self, url: str):
+    def __write(self, data_to_write: list):
+        w = data_to_write
+        # WRITE ctime(datecr) to .md metadata header
+        with open(self.furl,
+                  mode='r+',
+                  encoding='utf-8') as md:
+            mdl = md.readlines()
+
+            if 'datecr' in w:
+                datestr = utils.to_datestr(self.datecr)
+                mdl.insert(0, f'datecr:{datestr}\n')
+
+            if 'id' in w:
+                mdl.insert(0, f'id:{self.id}\n')
+
+            mdl = ''.join(mdl)
+            md.seek(0)
+            md.write(mdl)
+
+
+
+    def __build_id(self):
+        '''ID = crc of perma url'''
+        n_id = zlib.crc32(self.url.encode('utf-8'))
+        self.id = str(n_id)
+
+
+
+    def __build_url(self, file_name: str):
         tw = ('with','avec','under',        # "Trash" words list
                 'sous','the', 'for')
 
-        url = url[:-3]                      # Remove .md extension
+        url = file_name[:-3]                # Remove .md extension
         url = url.replace('-', '')          # Remove dashes
         wds = url.split(' ')                # Make list from str
 
@@ -106,9 +145,29 @@ class Md:
 
 
 
-    def __build_title(self, fname):
-        self.title = self.content[:15]
-        # TODO récupérer le premier titre '# xxxx..' via la toc ? https://python-markdown.github.io/extensions/toc/
+    def __build_title(self):
+        with open(self.furl,
+                  mode='r+',
+                  encoding='utf-8') as md:
+            mdl = md.readlines()
+
+        for l in mdl:
+            if l[:2] == '# ':
+                self.title = l[2:]
+                break
+            elif l[:3] == '## ':
+                self.title = l[3:]
+                break
+            elif l[:4] == '### ':
+                self.title = l[4:]
+                break
+            elif l[:5] == '#### ':
+                self.title = l[5:]
+                break
+
+            # Not a single title in .md ?
+            self.title = f'Post id {self.id}'
+
 
 
 def process_md(__mds: list):
@@ -164,6 +223,8 @@ def maj_post(__md: Md):
 def watchdog():
     '''
     Polling MD_PATH for .md file change
+
+
     '''
     __md_to_process = []
 
@@ -171,6 +232,9 @@ def watchdog():
         if f[-3:] == '.md':
 
             __mdurl = f'{const.MD_PATH}/{f}'
+
+            # crée systématiquement un objet pour chaque fichier MD...
+            # vérifier plutôt les dates de modif des fichiers ?
             __md    = Md(f, __mdurl)
             
             if str(__md.id) in JDAT.ids:

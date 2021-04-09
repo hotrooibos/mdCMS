@@ -16,13 +16,14 @@ if __name__ == "__main__":
 
 
         '''Tests'''
-
         while True:
             md.watchdog()
-            # print(jdata.Jdata().jdat['posts']['3702526768']['content'][:10])
             time.sleep(constants.CHECK_TIME)
 
-  
+        # mdtest = md.Md('hello.md',
+        #             '/home/toleda/Documents/Dev/Python/Marzin.org/posts/hello.md')
+        # print(mdtest.title)
+
 
 
         '''Run flask with Werkzeug WSGI test server'''
