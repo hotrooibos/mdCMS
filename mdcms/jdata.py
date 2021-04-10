@@ -104,10 +104,14 @@ class Jdata(Singleton):
 
 
 
-    def __format_time(self, __format: str):
-        '''
-        Convert posts timestamps to the given __format
-        '''
-        for k, v in self.jdat['posts'].items():
-            self.jdat['posts'][k]['datecr'] = v.get('datecr')
-            self.jdat['posts'][k]['dateup'] = v.get('dateup')
+    def add_comments(self, new_comments: dict):
+        print("jdata.py : add comments")
+        
+        for k, v in new_comments.items():
+            if k in self.jdat['comments']:
+                for comment in v:
+                    self.jdat['comments'][k].append(comment)
+            else:
+                self.jdat['comments'].update(new_comments)
+
+        self.write()

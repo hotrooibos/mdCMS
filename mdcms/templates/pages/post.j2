@@ -1,8 +1,40 @@
 {% extends 'layouts/default.j2' %}}
 {% block content %}
-	<h1 class="postitle">{{ post.title }}</h1>
-	<hr>
-	{{ post.content|safe }}
-	<hr>
-	<p class="postdate"><span class="date">{{ post.datecr }}</span> (update <span class="date">{{ post.dateup }}</span>)</p>
+	<div id="post">
+		<h1 class="postitle">{{ post.title }}</h1>
+		<hr>
+		{{ post.content|safe }}
+		<hr>
+		<p class="datestamp"><span class="date">{{ post.datecr }}</span> (updated <span class="date">{{ post.dateup }}</span>)</p>
+	</div>
+
+	<div id="comments">
+		{% if coms != None %}
+		<h2 id="comtitle">{{ coms|length }} comment{% if coms|length > 1 %}s{% endif %}</h2>
+			{% for c in coms %}
+			{% if loop.index % 2 == 1 %}
+			<div class="com flex-ltr">
+			{% else %}
+			<div class="com flex-rtl">
+			{% endif %}
+				<div class="cometa">{{ c.name }}</div>
+				<div class="comment">{{ c.comm }} <span class="datestamp">– <span class="date">{{ c.time }}</span></span></div>
+			</div>
+			{% endfor %}
+		{% else %}
+		<h2 id="comtitle">Be the first to comment !</h2>
+		{% endif %}
+
+
+		<form method="post" class="flex-utd">
+			<div class="flex-ltr">
+				<input type="text" id="name" class="input" name="name" placeholder="Name">
+				<input type="text" id="email" class="input" name="email" placeholder="E-mail @ (optional)">
+			</div>
+			<div class="flex-ltr">
+				<textarea id="comment" class="input" name="comment" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you."></textarea>
+				<input type="submit" class="submit" value="Comment!">
+			</div>
+		</form>
+	</div>
 {% endblock %}

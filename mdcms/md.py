@@ -1,5 +1,4 @@
 # -*- mode: python ; coding: utf-8 -*-
-from mdcms.mdcms import mdcms
 from . import constants as const
 from . import jdata
 from . import utils
@@ -211,7 +210,8 @@ def process_md(mds: list):
             "url":md.url,
             "datecr":md.datecr,
             "dateup":md_dateup,
-            "content":md.content
+            "content":md.content,
+            "comments":[]
             }
         }
         JDAT.jdat['posts'].update(new_record)
@@ -233,7 +233,7 @@ def maj_post(md: Md):
 
 
 
-def watchdog():
+def watchdog(new_comments: dict):
     '''
     Polling MD_PATH for .md file change
 
@@ -264,7 +264,10 @@ def watchdog():
     if len(__md_to_process) > 0:
         process_md(__md_to_process)
         print(len(__md_to_process), 'post(s) processed')
-        
+    
+    if len(new_comments) > 0:
+        JDAT.add_comments(new_comments)
+
     return
     
 
