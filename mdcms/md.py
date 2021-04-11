@@ -1,14 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 from . import constants as const
-from . import jdata
 from . import utils
-import markdown
-from   markdown.extensions import Extension
+from .jdata              import Jdata as jd
+from markdown            import Markdown
 import os
 import uuid
 
-JDAT = jdata.Jdata()
-JDAT.read()
+jd().read()
+
 # TODO Ajouter paramètre dans data.json : "ressource_path".
 # TODO  Si dans .md existe ![](machin.jpg/png..) (cf fonction regex infra),
 # TODO  faire la concat de ressource_path et de machin.jpg
@@ -36,7 +35,7 @@ class Md:
             mddat = mdf.read()
 
         w = [] # Datas to write to .md
-        md = markdown.Markdown(extensions=['meta','toc','extra','codehilite'])
+        md = Markdown(extensions=['meta','toc','extra','codehilite'])
         
         self.furl    = mdurl
         self.content = md.convert(mddat)
@@ -194,7 +193,7 @@ def process_md(mds: list):
 
         # KNOWN ID in json : update json with
         # possibly updated data from .md
-        if md.id in JDAT.ids:
+        if md.id in jd().ids:
             maj_post(md)
             continue # END, process next .md
 
@@ -214,10 +213,10 @@ def process_md(mds: list):
             "comments":[]
             }
         }
-        JDAT.jdat['posts'].update(new_record)
+        jd().jd()['posts'].update(new_record)
 
     # WRITE json file
-    JDAT.write()
+    jd().write()
 
 
 
@@ -225,19 +224,20 @@ def maj_post(md: Md):
     '''
     UPDATE posts 
     '''
-    JDAT.jdat['posts'][md.id]['title']   = md.title
-    JDAT.jdat['posts'][md.id]['author']  = md.author
-    JDAT.jdat['posts'][md.id]['content'] = md.content
-    JDAT.jdat['posts'][md.id]['datecr']  = md.datecr
-    JDAT.jdat['posts'][md.id]['dateup']  = md.dateup
+    jd().jd()['posts'][md.id]['title']   = md.title
+    jd().jd()['posts'][md.id]['author']  = md.author
+    jd().jd()['posts'][md.id]['content'] = md.content
+    jd().jd()['posts'][md.id]['datecr']  = md.datecr
+    jd().jd()['posts'][md.id]['dateup']  = md.dateup
 
 
 
-def watchdog(new_comments: dict):
+def watchdog(pending_coms: bool):
     '''
     Polling MD_PATH for .md file change
 
-
+    Also, if new comments are pending for writing,
+    then write them to json
     '''
     __md_to_process = []
 
@@ -250,9 +250,9 @@ def watchdog(new_comments: dict):
             # vérifier plutôt les dates de modif des fichiers ?
             __md    = Md(f, __mdurl)
             
-            if str(__md.id) in JDAT.ids:
+            if str(__md.id) in jd().ids:
                 # If the .md isn't newer than last known post update
-                if __md.dateup <= JDAT.last_chdate:
+                if __md.dateup <= jd().last_chdate:
                         continue
                 print(f'Watchdog: update {f}')
             
@@ -265,8 +265,8 @@ def watchdog(new_comments: dict):
         process_md(__md_to_process)
         print(len(__md_to_process), 'post(s) processed')
     
-    if len(new_comments) > 0:
-        JDAT.add_comments(new_comments)
+    if pending_coms:
+        jd().write()    # WRITE comments in json
 
     return
     
@@ -289,10 +289,10 @@ def watchdog(new_comments: dict):
     #         md = Md(mdurl)
 
     #         # SKIP file if a post with same title or checksum exists in JSON data
-    #         if md.title in JDAT.titles:
+    #         if md.title in jd().titles:
     #             print(f'| A post with title {md.title} already exists in data.json -> skipping {f}')
     #             continue
-    #         if md.sum in JDAT.sums:
+    #         if md.sum in jd().sums:
     #             print(f'| A post with the same content as {f} exists in data.json -> skipping {f}')
     #             continue
 

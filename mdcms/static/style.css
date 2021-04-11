@@ -8,9 +8,9 @@ body {
     padding: 0;
     margin: 0;
     width: 100%;
-    background-color: #272b2f;
-    color: #e0dcd6;
-    font: 1em -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans",
+    background-color: #252728;
+    color: #b6aea2;
+    font: 1.05em -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans",
                 "Ubuntu","Cantarell","Helvetica Neue",sans-serif;
     align-items: center;
     justify-content: center;
@@ -42,13 +42,14 @@ ul {
 
 code {
     padding: .1em;
-    background-color: #434852;
     border-radius: .1em;
-    font: .7em "Fira Code", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+    font: .8em "Fira Code", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
                "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
                "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 }
-
+p code {
+    color: #f5d56a;
+}
 pre {
     padding: .7em 2%;
     background-color: rgb(84, 201, 185, .2);
@@ -107,12 +108,12 @@ HEADER
     position: sticky;
     top: 0;
     width: 100%;
-    background-color: rgba(46, 50, 58, 0.9);
+    background-color: rgba(47,49,51,.9);
     justify-content: center;
     align-items: center;
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
-    font-size: 1.4em;
+    font-size: 1.3em;
 }
     #content 
 
@@ -175,7 +176,7 @@ CONTENT
     }
 
     #content a:hover {
-        color: #e0dcd6;
+        color: #b6aea2;
         background-color: rgb(84, 201, 185, .2);
         border-radius: 2px;
     }
@@ -184,7 +185,7 @@ CONTENT
         padding: 0 1em 1em;
         margin: 0 0 2.5em;
         border-radius: .5em;
-        background-image: linear-gradient(#272b2f, #272b2f, #25282c);
+        background-image: linear-gradient(#252728, #252728, #212324);
         /* box-shadow: 0px 2px 5px #191c22; */
     }
 
@@ -217,7 +218,7 @@ CONTENT
             margin: .5em;
             padding: .3em;
             border: none;
-            background-color: #e0dcd6;
+            background-color: #b6aea2;
             border-radius: .3em;
             width: 100%;
             font: 1em -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans",

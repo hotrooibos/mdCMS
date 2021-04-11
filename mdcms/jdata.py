@@ -26,7 +26,7 @@ class Jdata(Singleton):
         '''
         READ JSON data file, load and check the content
         '''
-        print('Read json file')
+        print('Read json')
         
         self.ids = []
         self.titles = []
@@ -69,6 +69,8 @@ class Jdata(Singleton):
         '''
         WRITE 'jdat' dict to 'jsonf' JSON file
         '''
+        print('Write json')
+
         if not jdat:
             jdat = self.jdat
 
@@ -101,17 +103,3 @@ class Jdata(Singleton):
                 print(f'JSON CHECK FAILED : several {id} in data.json')
                 # TODO ne conserver en mémoire que
                 # le post le plus récent (mtime)
-
-
-
-    def add_comments(self, new_comments: dict):
-        print("jdata.py : add comments")
-        
-        for k, v in new_comments.items():
-            if k in self.jdat['comments']:
-                for comment in v:
-                    self.jdat['comments'][k].append(comment)
-            else:
-                self.jdat['comments'].update(new_comments)
-
-        self.write()
