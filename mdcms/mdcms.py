@@ -123,9 +123,6 @@ def process_comment(post_id: str,
                     sender_ip: str):
     '''Create a new comment and add it to pending comments dict
     '''
-    # TODO : js + python : check longueurs
-    # TODO : js : check format email (regex)
-
     global pending_write
 
     comment = {
@@ -158,9 +155,15 @@ def flaskapp():
     Thread(target=mdcms, daemon=True).start()
 
 
-    @app.route('/')         # URL "/" triggers this function
-    def main():
+    @app.route('/')
+    def index():
         return fk.render_template('pages/index.j2',
+                                  posts=jd().jdat['posts'])
+
+
+    @app.route('/fullposts')
+    def fullposts():
+        return fk.render_template('pages/fullposts.j2',
                                   posts=jd().jdat['posts'])
 
 

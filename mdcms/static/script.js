@@ -86,9 +86,7 @@ form.addEventListener('submit', function (e) {
     // Save  current comment flow
     const currcom = comflow.innerHTML;
 
-    // CALL CAPTCHA
-    // Create new ajax request
-    // TODO
+    // TODO CALL CAPTCHA
 
     // SEND COMMENT
     // Create new ajax request

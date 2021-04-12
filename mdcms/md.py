@@ -8,10 +8,6 @@ import uuid
 
 jd().read()
 
-# TODO Ajouter paramètre dans data.json : "ressource_path".
-# TODO  Si dans .md existe ![](machin.jpg/png..) (cf fonction regex infra),
-# TODO  faire la concat de ressource_path et de machin.jpg
-
 
 
 class Md:
@@ -213,7 +209,7 @@ def process_md(mds: list):
             "comments":[]
             }
         }
-        jd().jd()['posts'].update(new_record)
+        jd().jdat['posts'].update(new_record)
 
     # WRITE json file
     jd().write()
@@ -224,11 +220,11 @@ def maj_post(md: Md):
     '''
     UPDATE posts 
     '''
-    jd().jd()['posts'][md.id]['title']   = md.title
-    jd().jd()['posts'][md.id]['author']  = md.author
-    jd().jd()['posts'][md.id]['content'] = md.content
-    jd().jd()['posts'][md.id]['datecr']  = md.datecr
-    jd().jd()['posts'][md.id]['dateup']  = md.dateup
+    jd().jdat['posts'][md.id]['title']   = md.title
+    jd().jdat['posts'][md.id]['author']  = md.author
+    jd().jdat['posts'][md.id]['content'] = md.content
+    jd().jdat['posts'][md.id]['datecr']  = md.datecr
+    jd().jdat['posts'][md.id]['dateup']  = md.dateup
 
 
 

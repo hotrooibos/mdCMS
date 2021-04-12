@@ -2,13 +2,9 @@
     <h2 id="comtitle">{{ coms|length }} comment{% if coms|length > 1 %}s{% endif %}</h2>
 
     {% for c in coms %}
-        {% if loop.index % 2 == 1 %}
-    <div class="com flex-ltr">
-        {% else %}
-    <div class="com flex-rtl">
-        {% endif %}
-    <div class="cometa">{{ c.name }}</div>
-    <div class="comment">{{ c.comm }} <span class="datestamp">– <span class="date">{{ c.time }}</span></span></div>
+    <div class="com {{ loop.cycle('flex-ltr', 'flex-rtl') }}">
+        <div class="cometa">{{ c.name }}</div>
+        <div class="comment">{{ c.comm }} <span class="datestamp">– <span class="date">{{ c.time }}</span></span></div>
     </div>
     {% endfor %}
 
