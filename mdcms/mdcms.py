@@ -3,50 +3,75 @@ import flask as fk
 from flask.helpers import send_from_directory
 from threading     import Thread
 from time          import sleep, time
+
+from flask.wrappers import Response
+from werkzeug.datastructures import ImmutableMultiDict
 from .             import constants, md 
 from .jdata        import Jdata as jd
 
-pending_coms = False
+pending_write = False
 
 
 
 def mdcms():
+    '''CMS background job
     '''
-    MDCMS background job
-    '''
-    global pending_coms
+    global pending_write
 
     while True:
-        md.watchdog(pending_coms)
-        pending_coms = False
+        md.watchdog(pending_write)
+        pending_write = False
         sleep(constants.CHECK_TIME)     
 
 
 
-def check_spam(sender_ip: str) -> int:
+def valid_form(form: ImmutableMultiDict):
+    '''Form validation
+    
+    Raise 403 HTTP errors for any wrong format
     '''
-    Comments anti junk
+
+    # NAME must be 2-20 chars
+    if not (1 < len(form['name']) < 21):
+        return fk.abort(403, "Wrong name length")
+
+    # EMAIL must be 0 (blank), or > 7 chars
+    # TODO regex tests
+    if (0 < len(form['email']) < 8):  # 8 chars = xx@zz.yy
+        return fk.abort(403, "Wrong email format")
+
+    # COMMENT must be 6-1000 chars
+    if not (5 < len(form['comment']) < 1001):
+        return fk.abort(403, "Wrong text length")
+
+
+
+def banned(sender_ip: str) -> bool:
+    '''Comments anti junk
+    
+    Return True if IP@ is banned, False if not
     '''
+    global pending_write
     banstate = 0
 
     # Check sender ban state, refuse comment if in bantime
-    # State 0  = unknown
-    # State 1  = 1 hour ban
-    # State 2  = 1 day ban
-    # State 3  = 3 days ban
+    # State 0  = no ban
+    # State 1 & 2  = 30mn ban
+    # State 3  = 1 day ban
+    # State 4  = 3 days ban
     # State -1 = permanent ban (always refuse comments)
     if sender_ip in jd().jdat['bans']:
         banstate = jd().jdat['bans'][sender_ip]['banstate']
         bantime = jd().jdat['bans'][sender_ip]['bantime']
 
-    if banstate == 1 and (time()-bantime) < 600: #1h
-        return 1
-    elif banstate == 2 and (time()-bantime) < 172800: #24h
-        return 1
-    elif banstate in (3) and (time()-bantime) < 259200: #72h
-        return 1
-    elif banstate == -1:
-        return 1
+        if banstate in (1,2) and (time()-bantime) < 1800: #30mn
+            return True
+        elif banstate == 3 and (time()-bantime) < 172800: #24h
+            return True
+        elif banstate == 4 and (time()-bantime) < 259200: #72h
+            return True
+        elif banstate == -1:
+            return True
 
     # Gather all old comments' time recorded from sender
     sender_comments = []
@@ -56,8 +81,10 @@ def check_spam(sender_ip: str) -> int:
             if i.get('ip') == sender_ip:
                 sender_comments.append(i.get('time'))
 
-    # Tempban him if more than 5 comments in the last 5mn
-    if len(sender_comments) > 5:
+    print(f'Sender has {len(sender_comments)} total msg.')
+
+    # Ban if 5th comment within 5 last minutes
+    if len(sender_comments) > 4:
         deltatime = time() - sender_comments[-5]
         print("delta:",deltatime)
 
@@ -75,32 +102,31 @@ def check_spam(sender_ip: str) -> int:
                 jd().jdat['bans'].update(newban)
 
             # Ban harder, states 1 & 2
-            elif banstate in range(1,3):
+            elif banstate in (1,2,3):
                 jd().jdat['bans'][sender_ip]['banstate'] += 1
                 jd().jdat['bans'][sender_ip]['bantime'] = time()
 
             # Permanent ban
-            elif banstate == 3:
+            elif banstate == 4:
                 jd().jdat['bans'][sender_ip]['banstate'] = -1
                 jd().jdat['bans'][sender_ip]['bantime'] = time()
 
-            return 1
-    
-    print(f'Sender has sent {len(sender_comments)} total msg.')
-    print('Sent msg:\n', sender_comments)
+            pending_write = True           
+            return True
 
-    return 0
+    return False
 
 
 
 def process_comment(post_id: str,
                     form_data: dict,
                     sender_ip: str):
-    '''Create a new comment and add it to pending comments dict'''
+    '''Create a new comment and add it to pending comments dict
+    '''
     # TODO : js + python : check longueurs
     # TODO : js : check format email (regex)
 
-    global pending_coms
+    global pending_write
 
     comment = {
         "ip":sender_ip,
@@ -119,19 +145,17 @@ def process_comment(post_id: str,
         }
         jd().jdat['comments'].update(comment)
 
-    pending_coms = True
+    pending_write = True
 
 
 
 def flaskapp():
-    '''
-    FLASK web application
+    '''FLASK web app
     '''
     app = fk.Flask(__name__) # Instance de Flask (WSGI application)
 
     # START mdCMS thread
-    Thread(target=mdcms,
-           daemon=True).start()
+    Thread(target=mdcms, daemon=True).start()
 
 
     @app.route('/')         # URL "/" triggers this function
@@ -151,8 +175,7 @@ def flaskapp():
         return send_from_directory(constants.MD_RES_PATH, filename)
 
 
-    @app.route('/post/<string:url>',
-               methods=['GET', 'POST'])
+    @app.route('/post/<string:url>', methods=['GET', 'POST'])
     def post(url):
         # Get wanted post id + content from url
         for k, v in jd().jdat['posts'].items():
@@ -171,32 +194,44 @@ def flaskapp():
                                   coms=coms)
 
 
-    @app.route('/comment',
-               methods=['POST'])
+    @app.route('/comment', methods=['POST'])
     def comment():
+        '''Perform comment request from XHR (AJAX)
 
-        # Build URL from Referer
-        referer = fk.request.headers.get("Referer")
-        url = referer.split('/')[-1]
-
-        # Get post id from url
-        for k, v in jd().jdat['posts'].items():
-            if v.get('url') == url:
-                pid = k
+        Security, anti junk check, comment processing
+        '''
 
         sender_ip = fk.request.environ.get('HTTP_X_REAL_IP',
                                            fk.request.remote_addr)
 
-        if check_spam(sender_ip) != 0:
-            return
+        if banned(sender_ip) == True:
+            return fk.abort(403, "Banned")
 
-        process_comment(pid, fk.request.form, sender_ip)
+        form = fk.request.form              # FORM datas
+
+        # Check form validity
+        # Already done in JS (client-side) but redo it
+        # in Python (server-side) as a security layer
+        valid_form(form)
+            
+        # Build URL from Referer
+        referer = fk.request.headers.get("Referer")
+        url = referer.split('/')[-1]
+
+        # Get post ID from URL
+        for k, v in jd().jdat['posts'].items():
+            if v.get('url') == url:
+                pid = k
+
+        process_comment(pid, form, sender_ip)
 
         # Get comments including new one
         coms = None
         for k, v in jd().jdat['comments'].items():
             if k == pid:
                 coms = v
+
+        # All is OK, return comments
         return fk.render_template('layouts/partials/_comments.j2',
                                   coms=coms)
 

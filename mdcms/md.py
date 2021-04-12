@@ -232,12 +232,12 @@ def maj_post(md: Md):
 
 
 
-def watchdog(pending_coms: bool):
+def watchdog(pending_write: bool):
     '''
     Polling MD_PATH for .md file change
 
-    Also, if new comments are pending for writing,
-    then write them to json
+    Also, if new data (comment, bans..) are
+    pending for writing, then write them to json
     '''
     __md_to_process = []
 
@@ -265,8 +265,8 @@ def watchdog(pending_coms: bool):
         process_md(__md_to_process)
         print(len(__md_to_process), 'post(s) processed')
     
-    if pending_coms:
-        jd().write()    # WRITE comments in json
+    if pending_write:
+        jd().write()    # WRITE json
 
     return
     

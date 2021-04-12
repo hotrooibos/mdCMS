@@ -16,11 +16,11 @@
 		
 		<form method="post" id="comment_form" class="flex-utd">
 			<div class="flex-ltr">
-				<input type="text" id="name" class="input" name="name" placeholder="Name">
-				<input type="text" id="email" class="input" name="email" placeholder="E-mail @ (optional)">
+				<input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">
+				<input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail @ (optional)">
 			</div>
 			<div class="flex-ltr">
-				<textarea id="comment" class="input" name="comment" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you."></textarea>
+				<textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you."></textarea>
 				<input type="submit" class="submit" value="Comment!">
 			</div>
 		</form>

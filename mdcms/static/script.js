@@ -18,7 +18,9 @@ function convertEpoch(dates) {
 }
 
 
+
 convertEpoch(dates); // Convert post dates 
+
 
 
 // The Header Scroll effect
@@ -29,32 +31,91 @@ window.addEventListener("scroll", (event) => {
         nav.style.padding     = '.3em 0 .4em';
         logo.style.display    = 'none';
     } else {
-        header.style.fontSize = null;
-        nav.style.padding     = null;
-        logo.style.display    = null;
+        header.style = null;
+        nav.style    = null;
+        logo.style   = null;
     }
 });
 
 
 
-// Comment ajax processing
+// When clicking comment Submit btn
+// Form tests + ajax processing
 form.addEventListener('submit', function (e) {
     e.preventDefault();
+    const newcom = new FormData(form);
+    let err = false;    // Error flag
 
+    // Inputs test
+    for(var i of newcom.entries()){
+        let ele = document.getElementById(i[0]);
+        let len = i[1].length;
+        ele.style = null;
+
+        switch (i[0]) {
+            // NAME must be 2-20 chars
+            case 'name':
+                if (len < 2 || len > 20) {
+                    ele.style.backgroundColor= '#bd9191';
+                    err = true;
+                }
+                break;
+
+            // EMAIL must be 0 (blank), or > 7 chars
+            // TODO : regex test
+            case 'email':
+                if (len > 0 && len < 8) {
+                    ele.style.backgroundColor= '#bd9191';
+                    err = true;
+                }
+                break;
+            
+            // COMMENT must be 6-1000 chars
+            case 'comment':
+                if (len < 6 || len > 1000) {
+                    ele.style.backgroundColor= '#bd9191';
+                    err = true;
+                }
+                break;
+        }
+    }
+
+    if (err)
+        return; // If any error, do not process request
+
+    // Save  current comment flow
+    const currcom = comflow.innerHTML;
+
+    // CALL CAPTCHA
+    // Create new ajax request
+    // TODO
+
+    // SEND COMMENT
     // Create new ajax request
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/comment', true);
-    let comment = new FormData(form);
-    xhr.send(comment);
+    xhr.send(newcom);
 
     xhr.onreadystatechange = function() {
         comflow.innerHTML = '<h2 id="comtitle">Loading comments...</h2>';
+        
+        if(xhr.readyState === 4) {
+            switch (xhr.status) {
+                case 403:
+                    // Do nothing, restore comment flow
+                    comflow.innerHTML = currcom;
+                    break;
 
-        if(xhr.readyState === 4 && xhr.status === 200) {
-            // responseText = returned by /comment route = all comments
-            comflow.innerHTML = xhr.responseText;
-            convertEpoch(comflow.getElementsByClassName('date'));
-            form.reset();
+                case 200:
+                    // responseText = returned by /comment route = all comments
+                    comflow.innerHTML = xhr.responseText;
+                    convertEpoch(comflow.getElementsByClassName('date'));
+                    form.reset();
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 });
