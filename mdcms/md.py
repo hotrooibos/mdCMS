@@ -44,7 +44,7 @@ class Md:
                 self.id = str(uuid.uuid4())
                 w.append('id')
         else:
-            self.id == str(uuid.uuid4())
+            self.id = str(uuid.uuid4())
             w.append('id')
 
         # Get or build title
@@ -85,6 +85,10 @@ class Md:
 
     @staticmethod
     def checkid(id) -> int:
+        ''' Check .md ID format.
+
+        Return 0 if UUID compliant.
+        '''
         try:
             if uuid.UUID(id).version == 4:
                 return 0
