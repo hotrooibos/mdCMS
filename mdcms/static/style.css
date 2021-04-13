@@ -8,13 +8,13 @@ body {
     padding: 0;
     margin: 0;
     width: 100%;
+    height: 100%;
     background-color: #252728;
     color: #b6aea2;
     font: 16px -apple-system,BlinkMacSystemFont,"Segoe UI",
                "Roboto","Oxygen-Sans","Ubuntu","Cantarell",
                "Helvetica Neue",sans-serif;
     align-items: center;
-    justify-content: center;
 }
 
 a,
@@ -58,11 +58,13 @@ pre {
     background-color: rgb(84, 201, 185, .2);
     border-radius: .3em;
     margin: 1em 0 1em 2%;
-    width: min-content;
+        width: min-content; /*retirer*/
     max-width: 92%;
+    min-width: 50%;/*retirer*/
     border-left: 5px solid #54c9b9;
     overflow-x: hidden;
     box-shadow: 1px 2px 5px #1e2229;
+        /* white-space: pre-wrap; */
 }
 pre:hover, pre:focus {
     width: 100%;
@@ -153,7 +155,7 @@ HEADER
 CONTENT
 */
 #content {
-    flex-grow: 4;
+    flex: 1 0 auto;
     max-width: 55em;
     margin-top: 2em;
 }
@@ -161,8 +163,8 @@ CONTENT
         font-size: 4em;
     } */
     #title {
-        margin: .3em 0;
-        font-size: 5em;
+        margin: 0 0;
+        font-size: 6em;
         text-align: center;
         background-color: #F67280;
         background-image: linear-gradient(45deg,
@@ -180,14 +182,6 @@ CONTENT
         -moz-text-fill-color: transparent;
         animation: text_anim 2s ease forwards;
     }
-    @media screen and (max-width: 1024px) {
-        div {
-            font-size: 1em;
-        }
-        #title {
-            font-size: 4em;
-        }
-      }
     @keyframes text_anim {
         0% {
             background-size: 500%;
@@ -204,7 +198,7 @@ CONTENT
     span.red { color:#e06660; }
 
     #presentation {
-        margin: 0 0 5em 0;
+        margin: 0 0 2em 0;
         font-size: 1.3em;
     }
 
@@ -301,7 +295,8 @@ CONTENT
 FOOTER
 */
 #footer {
-    margin: 1.5em 0 1em;
+    flex-shrink: 0;
+    margin: 1em 0;
     opacity: .3;
 }
     #footer a,
@@ -327,3 +322,16 @@ ABOUT
     #photo img {
         height: 100%;
     }
+
+
+
+/* Mobile responsiveness */
+@media screen and (max-width: 500px) {
+    #logo { display: none; }
+    #wip { display: none; }
+    #title { font-size: 18vw; }
+    pre {
+        width: 100%;
+        white-space: pre-wrap;
+    }
+}
