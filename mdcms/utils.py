@@ -8,23 +8,22 @@ STRING UTILS
 
 '''
 
-def replacemany(__string: str,
-                __old: tuple,
-                __new: str,
-                __count: int = -1) -> str:
-    '''
-    Replaces many different strings with another specified string.
+def replacemany(string: str,
+                old: tuple,
+                new: str,
+                count: int=-1) -> str:
+    '''Replaces many different strings with another specified string.
 
     Strings to replace are specified in the tuple argument.
 
     Works as an extension of replace().
     '''
-    newstr = __string
+    newstr = string
     
-    for i in __old:
+    for i in old:
         newstr = newstr.replace(i,
-                                __new,
-                                __count)
+                                new,
+                                count)
     
     return newstr
 
@@ -38,53 +37,50 @@ TIME UTILS
 
 '''
 
-def to_epoch(__datetime: str,
-             __datetime_format: str = '%Y-%m-%d %H:%M:%S',
-             __epoch_format: str = 'float'):
-    '''
-    Return an UNIX epoch time from a given datetime string
+def to_epoch(datetime: str,
+             datetime_format: str='%Y-%m-%d %H:%M:%S',
+             epoch_format: str='float'):
+    '''Return an UNIX epoch time from a given datetime string
 
     Default source format is '%Y-%m-%d %H:%M:%S'
 
     Default epoch returned format is float. Can be 'int'.
     '''
-    __epoch = time.strptime(__datetime,
-                            __datetime_format)
-    __epoch = time.mktime(__epoch)
+    epoch = time.strptime(datetime,
+                          datetime_format)
+    epoch = time.mktime(epoch)
 
-    if __epoch_format == 'float':
-        return __epoch
+    if epoch_format == 'float':
+        return epoch
     else:
-        return int(__epoch)
+        return int(epoch)
 
 
 
-def to_datestr(__epoch,
-               __datestr_format: str = '%Y-%m-%d %H:%M:%S') -> str:
-    '''
-    Return a datetime string from a given UNIX epoch time
+def to_datestr(epoch,
+               out_format: str='%Y-%m-%d %H:%M:%S') -> str:
+    '''Return a datetime string from a given UNIX epoch time
 
     Default source format is '%Y-%m-%d %H:%M:%S'
 
     Default epoch returned format is integer. Can be 'float'.
     '''
-    __datestr = time.ctime(__epoch)
-    __datestr = time.strptime(__datestr)
-    __datestr = time.strftime(__datestr_format,
-                              __datestr)
-    return __datestr
+    datestr = time.ctime(epoch)
+    datestr = time.strptime(datestr)
+    datestr = time.strftime(out_format,
+                            datestr)
+    return datestr
 
 
 
-def datestr_convert(__old: str,
-                    __old_format: str,
-                    __new_format: str):
+def datestr_convert(old: str,
+                    old_format: str,
+                    new_format: str):
+    '''Convert a date string to another date string format
     '''
-    Convert a date string to another date string format
-    '''
-    __datestr = time.strptime(__old,
-                              __old_format)
-    __datestr = time.strftime(__new_format,
-                              __datestr)
+    datestr = time.strptime(old,
+                            old_format)
+    datestr = time.strftime(new_format,
+                            datestr)
     
-    return __datestr
+    return datestr
