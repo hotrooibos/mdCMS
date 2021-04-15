@@ -6,8 +6,6 @@ from markdown import Markdown
 import os
 import uuid
 
-jd().read()
-
 
 
 class Md:
@@ -19,7 +17,10 @@ class Md:
 
         mdfile = Md('readme.md', '/home/antoine/readme.md')
     '''
-    urls = []
+    mdb = {}    # Markdown posts database
+    ids = []    # TODO suppr... récupérer la liste des ids sur mdb
+    urls = []   # TODO idem, inutile
+
 
 
     def __init__(self, fname: str, mdurl: str):
@@ -107,6 +108,29 @@ class Md:
 
         if len(wmd) > 0:
             self.write(wmd)
+
+
+
+    @classmethod
+    def get_lastupdate(cls) -> int:
+        ''' Return the latest known post update (epoch time)
+        '''
+        dates = []
+        lastd = 0
+
+        # Fill 'dates' list with all dateup
+        # converted to epoch time
+        for v in Md.mdb.values():
+            date = utils.to_epoch(v.get('dateup'), 'int')
+            dates.append(date)
+
+        # Test all dates, keep most recent
+        # TODO just sort the list ? bigger int wins
+        for d in dates:
+            if lastd < d:
+                lastd = d
+
+        return lastd
 
 
 
@@ -239,21 +263,18 @@ class Md:
 
 
 
-def process_md(mds: list):
-    '''Read .md file, get, transform and
-    inject its data in data.json
+def load_md(mds: list):
+    '''Load/update md datas in memory
     '''
 
     for md in mds:
 
-        # KNOWN ID in json : update json with
-        # possibly updated data from .md
-        if md.id in jd().ids:
-            maj_post(md)
+        # ID already loaded -> update post in mem
+        if md.id in Md.ids:
+            update(md)
             continue # END, process next .md
 
-        # UNKNOWN ID in json
-        # CREATE json record
+        # Unknown ID in mem -> ADD new md post in mem
         md_dateup = os.stat(md.furl).st_mtime # m(odification)time
 
         new_record = {
@@ -269,32 +290,29 @@ def process_md(mds: list):
             "content":md.content,
             }
         }
-        jd().jdat['posts'].update(new_record)
-
-    # WRITE json file
-    jd().write()
+        Md.mdb.update(new_record)
 
 
 
-def maj_post(md: Md):
+def update(md: Md):
     '''UPDATE posts 
     '''
-    jd().jdat['posts'][md.id]['title'] = md.title
-    jd().jdat['posts'][md.id]['author'] = md.author
+    Md.mdb[md.id]['title'] = md.title
+    Md.mdb[md.id]['author'] = md.author
     # NB: url is not updated as is it intented to be permanent
-    jd().jdat['posts'][md.id]['datecr'] = md.datecr
-    jd().jdat['posts'][md.id]['dateup'] = md.dateup
-    jd().jdat['posts'][md.id]['lang'] = md.lang
-    jd().jdat['posts'][md.id]['originpost'] = md.originpost
-    jd().jdat['posts'][md.id]['categories'] = md.cat
-    jd().jdat['posts'][md.id]['content'] = md.content
+    Md.mdb[md.id]['datecr'] = md.datecr
+    Md.mdb[md.id]['dateup'] = md.dateup
+    Md.mdb[md.id]['lang'] = md.lang
+    Md.mdb[md.id]['originpost'] = md.originpost
+    Md.mdb[md.id]['categories'] = md.cat
+    Md.mdb[md.id]['content'] = md.content
 
 
 
 def watchdog(pending_write: bool):
     '''Polling MD_PATH for .md file change
 
-    Also, if new data (comment, bans..) are
+    Also, if new data (comment, bans) are
     pending for writing, then write them to json
     '''
     md_to_process = []
@@ -308,9 +326,9 @@ def watchdog(pending_write: bool):
             # vérifier plutôt les dates de modif des fichiers ?
             md = Md(f, mdurl)
             
-            if str(md.id) in jd().ids:
+            if str(md.id) in Md.ids:
                 # If the .md isn't newer than last known post update
-                if md.dateup <= jd().last_chdate:
+                if md.dateup <= Md.get_lastupdate():
                         continue
                 print(f'Watchdog: update {f}')
             
@@ -320,7 +338,7 @@ def watchdog(pending_write: bool):
             md_to_process.append(md)
 
     if len(md_to_process) > 0:
-        process_md(md_to_process)
+        load_md(md_to_process)
         print(len(md_to_process), 'post(s) processed')
     
     if pending_write:

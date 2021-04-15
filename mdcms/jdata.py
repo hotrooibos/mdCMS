@@ -32,7 +32,6 @@ class Jdata(Singleton):
         
         self.ids = []
         self.titles = []
-        self.last_chdate = 0
 
         try:
             with open(file=jsonf,
@@ -45,8 +44,6 @@ class Jdata(Singleton):
                 self.ids.append(k) # k(ey) = id string
                 self.titles.append(v.get('title'))
                 
-                if self.last_chdate < v.get('dateup'):
-                    self.last_chdate =  v.get('dateup')
         except JSONDecodeError:
             print("jdata.py: JSONDecodeError: creating new JSON")
             self.make_default()
