@@ -3,13 +3,23 @@ import flask as fk
 from flask.helpers import send_from_directory
 from threading import Thread
 from time import sleep, time
-
 from flask.wrappers import Response
+import logging
 from werkzeug.datastructures import ImmutableMultiDict
 from . import constants, md
 from .jdata import Jdata as jd
 
 
+
+# Logging setup
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+logging.basicConfig(filename='logs/mdcms.log',
+                    filemode='a',
+                    format=log_format,
+                    datefmt='%Y%m%d %H:%M:%S',
+                    level=logging.INFO)
+
+# Mdcms setup
 mdb = []            # Markdown posts base
 jd().read()         # Read json data
 pending_w = False   # Comments/bans to be written in json

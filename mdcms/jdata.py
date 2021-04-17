@@ -3,9 +3,11 @@ from . import constants as const
 from . import utils
 import json
 from json.decoder import JSONDecodeError
+import logging
 import os
 from time import time
 
+log = logging.getLogger(__name__)
 
 
 class Singleton:
@@ -28,7 +30,7 @@ class Jdata(Singleton):
         '''
         READ JSON data file, load and check the content
         '''
-        print('Read json...')
+        log.info('Read json...')
 
         try:
             with open(file=jsonf,
@@ -37,7 +39,7 @@ class Jdata(Singleton):
                 self.jdat = json.load(jsonf)
                 
         except (JSONDecodeError, FileNotFoundError) as e:
-            print(f'jdata.py: {e}: creating new JSON')
+            log.info(f'jdata.py: {e}: creating new JSON')
             self.make_default()
 
 
@@ -71,7 +73,7 @@ class Jdata(Singleton):
         '''
         WRITE 'jdat' dict to 'jsonf' JSON file
         '''
-        print('Write json')
+        log.info('Write json')
 
         if not jdat:
             jdat = self.jdat
@@ -90,6 +92,6 @@ class Jdata(Singleton):
     #     '''
     #     for id in self.ids:
     #         if self.ids.count(id) > 1:
-    #             print(f'JSON CHECK FAILED : several {id} in data.json')
+    #             log.info(f'JSON CHECK FAILED : several {id} in data.json')
     #             # TODO ne conserver en mémoire que
     #             # le post le plus récent (mtime)

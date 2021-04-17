@@ -2,10 +2,13 @@
 from . import constants as const
 from . import utils
 from .jdata import Jdata as jd
+import logging
 from markdown import Markdown
 import os
 from time import time
 import uuid
+
+log = logging.getLogger(__name__)
 
 
 
@@ -21,7 +24,6 @@ class Md:
     urls = []
 
     def __init__(self, fname: str, mdurl: str):
-
         # Read .md file and make attributes from its content
         with open(file=mdurl,
                   mode='r',
@@ -34,45 +36,63 @@ class Md:
         self.furl = mdurl
         self.content = md.convert(mddat)
         self.toc = md.toc
+        self.dateup = os.stat(self.furl).st_mtime
+
+        # Metas
         self.id = None
         self.title = None
         self.author = const.DEFAULT_AUTHOR
         self.url = None
         self.datecr = None
-        self.dateup = os.stat(self.furl).st_mtime
         self.lang = const.DEFAULT_LANG
         self.originpost = None
         self.cat = None
-
-        # Build ID
+        
+        # 
+        # ID
+        # Get from metas + check, or build it
+        #
         if md.Meta.get('id'):
             if self.checkid(md.Meta.get('id')[0]) == 0:
                 self.id = md.Meta.get('id')[0]
             else:
                 self.id = str(uuid.uuid4())
                 wmd.append(('id', self.id))
-                # TODO et l'ancien ID pourri n'est pas suppr ?
+                # TODO suppr l'ancien ID pourri
         else:
             self.id = str(uuid.uuid4())
             wmd.append(('id', self.id))
 
-        # Get or build title
+        # 
+        # TITLE : get or build it
+        #
         if md.Meta.get('title'):
             self.title = md.Meta.get('title')[0]
         else:
             self.title = self.build_title()
             wmd.append(('title', self.title))
 
-        # Build perma URL from title
-        self.url = self.build_url()
+        # 
+        # PERMA URL : get or build it
+        #
+        if md.Meta.get('url'):
+            self.url = md.Meta.get('url')[0]
+        else:
+            self.url = self.build_url()
+            wmd.append(('url', self.url))
 
-        # Get author from file or consts
+        # 
+        # AUTHOR : get from md or consts
+        #
         if md.Meta.get('author'):
             self.author = md.Meta.get('author')[0]
         else:
-            wmd.append(('author', const.DEFAULT_AUTHOR))
+            self.author = const.DEFAULT_AUTHOR
 
-        # Get language (optional)
+        # 
+        # LANGUAGE : get from md or consts
+        # ORIGINPOST : get from md if lang != default lang
+        #
         if md.Meta.get('lang'):
             self.lang = md.Meta.get('lang')[0]
 
@@ -85,16 +105,19 @@ class Md:
                 else:
                     wmd.append(('originpost', ""))
         else:
-            wmd.append(('lang', const.DEFAULT_LANG[:2]))
+            self.lang = const.DEFAULT_LANG[:2]
 
-        # Get categories (optional)
+        # 
+        # CETEGORIES : get from md
+        #
         if md.Meta.get('categories'):
             self.cat = md.Meta.get('categories')[0]
         else:
             wmd.append(('categories', ""))
 
-        # Write datecr from file stats into
-        # md body if not given in metadatas
+        # 
+        # DATECR : get from md or create from OS fs metas
+        #
         if md.Meta.get('datecr'):
             self.datecr = md.Meta.get('datecr')[0]
             if type(self.datecr) == str:
@@ -103,6 +126,7 @@ class Md:
             self.datecr = os.stat(self.furl).st_mtime
             wmd.append(('datecr', utils.to_datestr(self.datecr)))
 
+        # WRITE missing metadatas in .md
         if len(wmd) > 0:
             self.write(wmd)
 
@@ -237,37 +261,6 @@ class Md:
 
 
 
-def load_md(mds: list):
-    '''Load/update md datas in memory
-    '''
-
-    for md in mds:
-
-        # ID already loaded -> update post in mem
-        if md.id in Md.ids:
-            update(md)
-            continue # END, process next .md
-
-        # Unknown ID in mem -> ADD new md post in mem
-        md_dateup = os.stat(md.furl).st_mtime # m(odification)time
-
-        new_record = {
-            md.id: {
-            "title":md.title,
-            "author":md.author,
-            "url":md.url,
-            "datecr":md.datecr,
-            "dateup":md_dateup,
-            "lang":md.lang,
-            "originpost":md.originpost,
-            "cat":md.cat,
-            "content":md.content,
-            }
-        }
-        Md.mdb.update(new_record)
-
-
-
 def watchdog(mdb: list=[],
              pending_w: bool=None) -> list:
     '''Polling MD_PATH for .md file change
@@ -297,7 +290,7 @@ def watchdog(mdb: list=[],
             fpath = f'{const.MD_PATH}/{f}'
             fdateup = os.stat(fpath).st_mtime
 
-            if not populate and fdateup < mdb_last:
+            if not populate and fdateup <= mdb_last:
                 continue      # File not updated -> skip
 
             md = Md(f, fpath)
@@ -305,7 +298,7 @@ def watchdog(mdb: list=[],
             # Update post in memory
             if md.id in mdb_ids:
                 if md.dateup > mdb_last:
-                    print(f'Watchdog: update {f}')
+                    log.info(f'Update post "{f}"')
                     i = mdb_ids.index(md.id)
                     mdb[i] = md
                 else:
@@ -314,15 +307,13 @@ def watchdog(mdb: list=[],
             # Add post in mem
             else:
                 mdb.insert(0, md)
-                print(f'Watchdog: new post {f}')
+                log.info(f'Add post "{f}"')
 
                 # Sort posts by datecr at populate time
                 if populate:
                     mdb.sort(key=lambda x: x.datecr,
                              reverse=True)
-
-    print(f'{utils.to_datestr(time())} - {len(mdb)} posts in mdb')
-
+    
     if pending_w:
         jd().write()    # WRITE json
 
@@ -348,10 +339,10 @@ def watchdog(mdb: list=[],
 
     #         # SKIP file if a post with same title or checksum exists in JSON data
     #         if md.title in jd().titles:
-    #             print(f'| A post with title {md.title} already exists in data.json -> skipping {f}')
+    #             log.info(f'| A post with title {md.title} already exists in data.json -> skipping {f}')
     #             continue
     #         if md.sum in jd().sums:
-    #             print(f'| A post with the same content as {f} exists in data.json -> skipping {f}')
+    #             log.info(f'| A post with the same content as {f} exists in data.json -> skipping {f}')
     #             continue
 
 
@@ -370,4 +361,4 @@ def watchdog(mdb: list=[],
         # x = re.findall("!\[.*\]\([a-zA-ZÀ-ÿ0-9_-]*\.(?:jpg|gif|png|svg)\)", content)
 
         # for i in x:
-        #     print(i, 'non traité')
+        #     log.info(i, 'non traité')
