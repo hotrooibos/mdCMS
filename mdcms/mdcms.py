@@ -1,8 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
 import flask as fk
+from flask.globals import request
 from flask.helpers import send_from_directory
 from threading import Thread
-from time import sleep, time
+from time import sleep, time, strftime, localtime
 from flask.wrappers import Response
 import logging
 from werkzeug.datastructures import ImmutableMultiDict
@@ -12,8 +13,10 @@ from .jdata import Jdata as jd
 
 
 # Logging setup
+t = time()
+date = strftime('%Y_%m', localtime(t))
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(filename='logs/mdcms.log',
+logging.basicConfig(filename=f'logs/{date}_mdcms.log',
                     filemode='a',
                     format=log_format,
                     datefmt='%Y%m%d %H:%M:%S',

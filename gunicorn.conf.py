@@ -23,7 +23,7 @@ daemon = False
 
 
 # Logging
-t    = time.time()
+t = time.time()
 date = time.strftime('%Y_%m', time.localtime(t))
 
 errorlog = f'logs/{date}_gunicorn_err.log'
