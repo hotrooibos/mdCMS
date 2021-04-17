@@ -29,32 +29,16 @@ class Jdata(Singleton):
         READ JSON data file, load and check the content
         '''
         print('Read json...')
-        
-        self.ids = []
-        self.titles = []
 
         try:
             with open(file=jsonf,
                       mode='r',
                       encoding='utf-8') as jsonf:
                 self.jdat = json.load(jsonf)
-
-            # FILL object lists
-            for k, v in self.jdat['posts'].items():
-                self.ids.append(k) # k(ey) = id string
-                self.titles.append(v.get('title'))
                 
-        except JSONDecodeError:
-            print("jdata.py: JSONDecodeError: creating new JSON")
+        except (JSONDecodeError, FileNotFoundError) as e:
+            print(f'jdata.py: {e}: creating new JSON')
             self.make_default()
-
-        # JSON checkup
-        self.check()
-
-        # SORT posts by dateup, then datecr
-        self.jdat['posts'] = dict(sorted(self.jdat['posts'].items(),
-                                         key=self.sorter,
-                                         reverse=True))
 
 
 
@@ -71,8 +55,6 @@ class Jdata(Singleton):
 
         # Create structure & write to new file
         self.jdat = {
-            "posts": {
-            },
             "comments": {
             },
             "bans": {
@@ -101,26 +83,13 @@ class Jdata(Singleton):
 
         self.read()
 
-        
-
-    def sorter(self, i):
-        '''Function called as a key when sorting posts with .sorted()
-
-        Sort by post update date, then post creation date
-        '''
-        # __dateup = i[1]['dateup']
-        # return (__dateup, __datecr)
-        datecr = i[1]['datecr']
-
-        return (datecr)
 
 
-
-    def check(self):
-        '''Check for id duplicates
-        '''
-        for id in self.ids:
-            if self.ids.count(id) > 1:
-                print(f'JSON CHECK FAILED : several {id} in data.json')
-                # TODO ne conserver en mémoire que
-                # le post le plus récent (mtime)
+    # def check(self):
+    #     '''Check for id duplicates
+    #     '''
+    #     for id in self.ids:
+    #         if self.ids.count(id) > 1:
+    #             print(f'JSON CHECK FAILED : several {id} in data.json')
+    #             # TODO ne conserver en mémoire que
+    #             # le post le plus récent (mtime)

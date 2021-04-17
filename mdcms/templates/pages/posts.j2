@@ -2,8 +2,8 @@
 {% block content %}
 <p>{{ posts|length }} posts publiés</p>
 <ul>
-{% for pid in posts %}
-	<li><a href="{{ url_for('post', url=posts[pid].url) }}">{{ posts[pid].title }}</a> . <span class="date">{{ posts[pid].datecr }}</span></li>
+{% for p in posts %}
+	<li><a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a> . <span class="date">{{ p.datecr }}</span></li>
 {% endfor %}
 </ul>
 {% endblock %}

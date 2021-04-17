@@ -39,12 +39,12 @@ TIME UTILS
 
 def to_epoch(datetime: str,
              datetime_format: str='%Y-%m-%d %H:%M:%S',
-             epoch_format: str='float'):
+             epoch_format: str='int'):
     '''Return an UNIX epoch time from a given datetime string
 
     Default source format is '%Y-%m-%d %H:%M:%S'
 
-    Default epoch returned format is float. Can be 'int'.
+    Default epoch returned format is float. Can be 'float'.
     '''
     epoch = time.strptime(datetime,
                           datetime_format)

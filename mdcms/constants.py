@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
-ROOTDIR        = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
+ROOTDIR        = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
 MD_PATH        = ROOTDIR + '/posts/'           # .md posts location
 MD_RES_PATH    = ROOTDIR + '/posts/ressources' # ressources location (images, files..)

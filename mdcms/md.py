@@ -4,6 +4,7 @@ from . import utils
 from .jdata import Jdata as jd
 from markdown import Markdown
 import os
+from time import time
 import uuid
 
 
@@ -17,11 +18,7 @@ class Md:
 
         mdfile = Md('readme.md', '/home/antoine/readme.md')
     '''
-    mdb = {}    # Markdown posts database
-    ids = []    # TODO suppr... récupérer la liste des ids sur mdb
-    urls = []   # TODO idem, inutile
-
-
+    urls = []
 
     def __init__(self, fname: str, mdurl: str):
 
@@ -104,33 +101,10 @@ class Md:
                 self.datecr = utils.to_epoch(self.datecr)
         else:
             self.datecr = os.stat(self.furl).st_mtime
-            wmd.append('datecr', utils.to_datestr(self.datecr))
+            wmd.append(('datecr', utils.to_datestr(self.datecr)))
 
         if len(wmd) > 0:
             self.write(wmd)
-
-
-
-    @classmethod
-    def get_lastupdate(cls) -> int:
-        ''' Return the latest known post update (epoch time)
-        '''
-        dates = []
-        lastd = 0
-
-        # Fill 'dates' list with all dateup
-        # converted to epoch time
-        for v in Md.mdb.values():
-            date = utils.to_epoch(v.get('dateup'), 'int')
-            dates.append(date)
-
-        # Test all dates, keep most recent
-        # TODO just sort the list ? bigger int wins
-        for d in dates:
-            if lastd < d:
-                lastd = d
-
-        return lastd
 
 
 
@@ -294,61 +268,69 @@ def load_md(mds: list):
 
 
 
-def update(md: Md):
-    '''UPDATE posts 
-    '''
-    Md.mdb[md.id]['title'] = md.title
-    Md.mdb[md.id]['author'] = md.author
-    # NB: url is not updated as is it intented to be permanent
-    Md.mdb[md.id]['datecr'] = md.datecr
-    Md.mdb[md.id]['dateup'] = md.dateup
-    Md.mdb[md.id]['lang'] = md.lang
-    Md.mdb[md.id]['originpost'] = md.originpost
-    Md.mdb[md.id]['categories'] = md.cat
-    Md.mdb[md.id]['content'] = md.content
-
-
-
-def watchdog(pending_write: bool):
+def watchdog(mdb: list=[],
+             pending_w: bool=None) -> list:
     '''Polling MD_PATH for .md file change
+   comparing with known MD base (mdb).
 
     Also, if new data (comment, bans) are
     pending for writing, then write them to json
-    '''
-    md_to_process = []
 
+    Returns the updated MD Base
+    '''
+    # Populate (1st watchdog execution) -> process all md
+    populate = True if len(mdb) < 1 else False
+
+    # Get all known post ids in memory
+    mdb_ids = []
+    mdb_last = 0
+
+    for md in mdb:
+        mdb_ids.append(md.id)
+        if md.dateup > mdb_last:
+            mdb_last = md.dateup
+
+    # Loop over each .md file
     for f in os.listdir(const.MD_PATH):
         if f[-3:] == '.md':
 
-            mdurl = f'{const.MD_PATH}/{f}'
+            fpath = f'{const.MD_PATH}/{f}'
+            fdateup = os.stat(fpath).st_mtime
 
-            # TODO crée systématiquement un objet pour chaque fichier MD...
-            # vérifier plutôt les dates de modif des fichiers ?
-            md = Md(f, mdurl)
+            if not populate and fdateup < mdb_last:
+                continue      # File not updated -> skip
+
+            md = Md(f, fpath)
             
-            if str(md.id) in Md.ids:
-                # If the .md isn't newer than last known post update
-                if md.dateup <= Md.get_lastupdate():
-                        continue
-                print(f'Watchdog: update {f}')
+            # Update post in memory
+            if md.id in mdb_ids:
+                if md.dateup > mdb_last:
+                    print(f'Watchdog: update {f}')
+                    i = mdb_ids.index(md.id)
+                    mdb[i] = md
+                else:
+                    continue
             
+            # Add post in mem
             else:
+                mdb.insert(0, md)
                 print(f'Watchdog: new post {f}')
 
-            md_to_process.append(md)
+                # Sort posts by datecr at populate time
+                if populate:
+                    mdb.sort(key=lambda x: x.datecr,
+                             reverse=True)
 
-    if len(md_to_process) > 0:
-        load_md(md_to_process)
-        print(len(md_to_process), 'post(s) processed')
-    
-    if pending_write:
+    print(f'{utils.to_datestr(time())} - {len(mdb)} posts in mdb')
+
+    if pending_w:
         jd().write()    # WRITE json
 
-    return
-    
+    return mdb    
 
 
     
+
     # def md_checkup():
     '''
     Vérif complète des md.

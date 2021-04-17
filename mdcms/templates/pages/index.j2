@@ -10,9 +10,9 @@
 	<hr>
 	<h2>Latest posts</h2>
 	<ul>
-	{% for pid in posts %}
+	{% for p in posts %}
 	{% if loop.index < 6 %}
-	<li><a href="{{ url_for('post', url=posts[pid].url) }}">{{ posts[pid].title }}</a> . <span class="date">{{ posts[pid].datecr }}</span></li>
+	<li><a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a> . <span class="date">{{ p.datecr }}</span></li>
 	{% endif %}
 	{% endfor %}
 	</ul>

@@ -1,10 +1,10 @@
 {% extends 'layouts/default.j2' %}
 {% block content %}
-	{% for pid in posts %}
+	{% for p in posts %}
 	<div class='post'>
-		<h1 class="postitle"><a href="{{ url_for('post', url=posts[pid].url) }}">{{ posts[pid].title }}</a></h1>
-		{{ posts[pid].content|safe }}
-		<p class="datestamp">Le <span class="date">{{ posts[pid].datecr }}</span></p>
+		<h1 class="postitle"><a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a></h1>
+		{{ p.content|safe }}
+		<p class="datestamp">Le <span class="date">{{ p.datecr }}</span></p>
 	</div>
 	{% endfor %}
 {% endblock %}

@@ -1,27 +1,31 @@
 # -*- mode: python ; coding: utf-8 -*-
 import flask as fk
 from flask.helpers import send_from_directory
-from threading     import Thread
-from time          import sleep, time
+from threading import Thread
+from time import sleep, time
 
 from flask.wrappers import Response
 from werkzeug.datastructures import ImmutableMultiDict
-from .             import constants, md 
-from .jdata        import Jdata as jd
+from . import constants, md
+from .jdata import Jdata as jd
 
-pending_write = False
+
+mdb = []            # Markdown posts base
+jd().read()         # Read json data
+pending_w = False   # Comments/bans to be written in json
 
 
 
 def mdcms():
     '''CMS background job
     '''
-    global pending_write
+    global mdb
+    global pending_w
 
     while True:
-        md.watchdog(pending_write)
-        pending_write = False
-        sleep(constants.CHECK_TIME)     
+        md.watchdog(mdb, pending_w)
+        pending_w = False           # Reset pending
+        sleep(constants.CHECK_TIME)
 
 
 
@@ -51,7 +55,7 @@ def banned(sender_ip: str) -> bool:
     
     Return True if IP@ is banned, False if not
     '''
-    global pending_write
+    global pending_w
     banstate = 0
 
     # Check sender ban state, refuse comment if in bantime
@@ -111,7 +115,7 @@ def banned(sender_ip: str) -> bool:
                 jd().jdat['bans'][sender_ip]['banstate'] = -1
                 jd().jdat['bans'][sender_ip]['bantime'] = time()
 
-            pending_write = True           
+            pending_w = True           
             return True
 
     return False
@@ -123,7 +127,7 @@ def process_comment(post_id: str,
                     sender_ip: str):
     '''Create a new comment and add it to pending comments dict
     '''
-    global pending_write
+    global pending_w
 
     comment = {
         "ip":sender_ip,
@@ -142,7 +146,7 @@ def process_comment(post_id: str,
         }
         jd().jdat['comments'].update(comment)
 
-    pending_write = True
+    pending_w = True
 
 
 
@@ -158,19 +162,19 @@ def flaskapp():
     @app.route('/')
     def index():
         return fk.render_template('pages/index.j2',
-                                  posts=jd().jdat['posts'])
+                                  posts=mdb)
 
 
     @app.route('/fullposts')
     def fullposts():
         return fk.render_template('pages/fullposts.j2',
-                                  posts=jd().jdat['posts'])
+                                  posts=mdb)
 
 
     @app.route('/posts')
     def posts():
         return fk.render_template('pages/posts.j2',
-                                  posts=jd().jdat['posts'])
+                                  posts=mdb)
 
 
     @app.route('/posts/ressources/<path:filename>')
@@ -180,16 +184,15 @@ def flaskapp():
 
     @app.route('/post/<string:url>', methods=['GET', 'POST'])
     def post(url):
-        # Get wanted post id + content from url
-        for k, v in jd().jdat['posts'].items():
-            if v.get('url') == url:
-                pid = k
-                post = v
+        global mdb
+
+        # Get md wanted in url
+        post = next((p for p in mdb if p.url == url), None)
 
         # Get comments (old ones + new if POST request)
         coms = None
         for k, v in jd().jdat['comments'].items():
-            if k == pid:
+            if k == post.id:
                 coms = v
 
         return fk.render_template('pages/post.j2',
@@ -203,7 +206,6 @@ def flaskapp():
 
         Security, anti junk check, comment processing
         '''
-
         sender_ip = fk.request.environ.get('HTTP_X_REAL_IP',
                                            fk.request.remote_addr)
 
@@ -222,9 +224,7 @@ def flaskapp():
         url = referer.split('/')[-1]
 
         # Get post ID from URL
-        for k, v in jd().jdat['posts'].items():
-            if v.get('url') == url:
-                pid = k
+        pid = next((p.id for p in mdb if p.url == url), None)
 
         process_comment(pid, form, sender_ip)
 
