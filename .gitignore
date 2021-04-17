@@ -6,7 +6,8 @@ posts/
 mdcms.egg-info/
 *.log
 mdcms/posts/*
+mdcms/data_a.json
 
 
 # Exceptions
-!mdcms/posts/hello.md
+# !mdcms/posts/hello.md

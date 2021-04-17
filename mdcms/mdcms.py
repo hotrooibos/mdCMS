@@ -21,6 +21,7 @@ logging.basicConfig(filename=f'logs/{date}_mdcms.log',
                     format=log_format,
                     datefmt='%Y%m%d %H:%M:%S',
                     level=logging.INFO)
+log = logging.getLogger(__name__)
 
 # Mdcms setup
 mdb = []            # Markdown posts base
