@@ -60,6 +60,8 @@ class Jdata(Singleton):
             "comments": {
             },
             "bans": {
+            },
+            "likes": {
             }
         }
         

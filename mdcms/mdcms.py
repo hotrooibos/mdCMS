@@ -2,12 +2,12 @@
 import flask as fk
 from flask.globals import request
 from flask.helpers import send_from_directory
+import logging
 from threading import Thread
 from time import sleep, time, strftime, localtime
-from flask.wrappers import Response
-import logging
 from werkzeug.datastructures import ImmutableMultiDict
-from . import constants, md
+from . import constants as const
+from . import md
 from .jdata import Jdata as jd
 
 
@@ -39,7 +39,7 @@ def mdcms():
     while True:
         md.watchdog(mdb, pending_w)
         pending_w = False           # Reset pending
-        sleep(constants.CHECK_TIME)
+        sleep(const.CHECK_TIME)
 
 
 
@@ -99,12 +99,9 @@ def banned(sender_ip: str) -> bool:
             if i.get('ip') == sender_ip:
                 sender_comments.append(i.get('time'))
 
-    print(f'Sender has {len(sender_comments)} total msg.')
-
     # Ban if 5th comment within 5 last minutes
     if len(sender_comments) > 4:
         deltatime = time() - sender_comments[-5]
-        print("delta:",deltatime)
 
         # If time between now (last comment) and
         # 5th last comment time < 5mn, ban sender
@@ -139,7 +136,7 @@ def banned(sender_ip: str) -> bool:
 def process_comment(post_id: str,
                     form_data: dict,
                     sender_ip: str):
-    '''Create a new comment and add it to pending comments dict
+    '''Create a new comment
     '''
     global pending_w
 
@@ -151,14 +148,17 @@ def process_comment(post_id: str,
         "comm":form_data['comment'],
     }
 
-    if post_id in jd().jdat['comments']:
-        jd().jdat['comments'][post_id].append(comment)
-
-    else:
-        comment = {                             # Else, CREATE THE ID in the pending
-            post_id: [comment,]                 # and add the comment to it
+    # First comment for this post
+    if not post_id in jd().jdat['comments']:
+        comment = {
+            post_id: [comment,]
         }
         jd().jdat['comments'].update(comment)
+
+    # Add comment to existing ones for this post
+    else:
+        jd().jdat['comments'][post_id].append(comment)
+
 
     pending_w = True
 
@@ -200,13 +200,19 @@ def flaskapp():
 
     @app.route('/posts')
     def posts():
+        # Hide translation posts from list
+        posts = []
+        for p in mdb:
+            if p.lang == const.DEFAULT_LANG[:2]:
+                posts.append(p)
+
         return fk.render_template('pages/posts.j2',
-                                  posts=mdb)
+                                  posts=posts)
 
 
     @app.route('/posts/ressources/<path:filename>')
     def post_ressources(filename):
-        return send_from_directory(constants.MD_RES_PATH, filename)
+        return send_from_directory(const.MD_RES_PATH, filename)
 
 
     @app.route('/post/<string:url>', methods=['GET', 'POST'])
@@ -216,6 +222,21 @@ def flaskapp():
         # Get md wanted in url
         post = next((p for p in mdb if p.url == url), None)
 
+        # Get translations of this post
+        transl = [] # List of translation posts
+
+        for p in mdb:
+            # We are in original post, get translated
+            if post.lang == const.DEFAULT_LANG[:2] and \
+                    p.originpost == post.id and \
+                    p.lang != const.DEFAULT_LANG[:2]:
+                transl.append(p)
+
+            # We are in a translated post, get original
+            elif post.lang != const.DEFAULT_LANG[:2] and \
+                    p.id == post.originpost:
+                transl.append(p)
+
         # Get comments (old ones + new if POST request)
         coms = None
         for k, v in jd().jdat['comments'].items():
@@ -223,12 +244,14 @@ def flaskapp():
                 coms = v
         
         # Get like count
+        likecounter = 0
         for k, v in jd().jdat['likes'].items():
-            if k == post.id:                
-                likecounter = len(v) 
+            if k == post.id:
+                likecounter = len(v)
 
         return fk.render_template('pages/post.j2',
                                   post=post,
+                                  transl=transl,
                                   coms=coms,
                                   likecounter=likecounter)
 
@@ -280,14 +303,14 @@ def flaskapp():
         referer = fk.request.headers.get("Referer")
         pid = get_id_from_referer(referer)
 
-        # First like
+        likecount = 0
+
+        # First like ever
         if not pid in jd().jdat['likes'].keys():
             jd().jdat['likes'].update({pid:[sender_ip]})
-            return ('1', 200)
-
+            likecount += 1
         # Like / unlike
         else:
-            likecount = 0
             for k, v in jd().jdat['likes'].items():
                 
                 if k == pid:                
@@ -303,7 +326,7 @@ def flaskapp():
                         v.append(sender_ip)
                         likecount += 1
 
-                    pending_w = True # Write un/like in json
+        pending_w = True # Write un/like in json
 
         return (str(likecount), 200)
 

@@ -2,6 +2,15 @@
 {% block content %}
 	<div id="post">
 		<h1 class="postitle">{{ post.title }}</h1>
+		{% if transl|length > 0 %}
+			<span id="translation">
+				{% for t in transl %}
+					<a href="{{ url_for('post', url=t.url) }}">
+						<img src="{{ url_for('static', filename=t.lang + '.svg') }}" alt="{{ t.lang }}" title="Read in {{ t.lang }}" width="30" height="20"> 
+					</a>
+				{% endfor %}
+			</span>
+		{% endif %}
 		<hr>
 		{{ post.content|safe }}
 		<hr>

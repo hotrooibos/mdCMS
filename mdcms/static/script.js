@@ -110,7 +110,7 @@ form.addEventListener('submit', (e) => {
     // SEND COMMENT
     // Create new ajax request
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/comment', true);
+    xhr.open('POST', '/comment');
     xhr.send(newcom);
 
     xhr.onreadystatechange = () => {

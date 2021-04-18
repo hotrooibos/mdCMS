@@ -6,6 +6,7 @@ import logging
 from markdown import Markdown
 import os
 from time import time
+import unicodedata
 import uuid
 
 log = logging.getLogger(__name__)
@@ -45,6 +46,7 @@ class Md:
         self.url = None
         self.datecr = None
         self.lang = const.DEFAULT_LANG
+        self.langflag = None
         self.originpost = None
         self.cat = None
         
@@ -107,8 +109,13 @@ class Md:
         else:
             self.lang = const.DEFAULT_LANG[:2]
 
+        # # FLAG SVG : get from consts based on lang
+        # for k, v in const.FLAGS.items():
+        #     if k == self.lang:
+        #         self.langflag == v
+
         # 
-        # CETEGORIES : get from md
+        # CATEGORIES : get from md
         #
         if md.Meta.get('categories'):
             self.cat = md.Meta.get('categories')[0]
@@ -204,6 +211,12 @@ class Md:
         # Clean '_' and 1-letter endings
         while (url[-1:] == '_') or (url[-2:-1] == '_'):
             url = url[:-1]
+
+        # Remove accents
+        url = unicodedata.normalize('NFKD', url)
+        url = u"".join([c for c in url if not unicodedata.combining(c)])
+        # TODO filtrer caractères spéciaux (? ! etc.)
+        # avec regex, comme pour email
 
         url = url.lower()                   # Lower case
 
