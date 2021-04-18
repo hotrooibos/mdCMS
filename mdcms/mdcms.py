@@ -164,6 +164,19 @@ def process_comment(post_id: str,
 
 
 
+def get_id_from_referer(referer: str) -> str:
+
+    # Split full URL and keep post URL
+    # ie. https://marzin.org/posts/blabla -> /blabla
+    url = referer.split('/')[-1]
+
+    # Get post ID from URL
+    id = next((p.id for p in mdb if p.url == url), None)
+
+    return id
+
+
+
 def flaskapp():
     '''FLASK web app
     '''
@@ -208,10 +221,16 @@ def flaskapp():
         for k, v in jd().jdat['comments'].items():
             if k == post.id:
                 coms = v
+        
+        # Get like count
+        for k, v in jd().jdat['likes'].items():
+            if k == post.id:                
+                likecounter = len(v) 
 
         return fk.render_template('pages/post.j2',
                                   post=post,
-                                  coms=coms)
+                                  coms=coms,
+                                  likecounter=likecounter)
 
 
     @app.route('/comment', methods=['POST'])
@@ -233,13 +252,10 @@ def flaskapp():
         # in Python (server-side) as a security layer
         valid_form(form)
             
-        # Build URL from Referer
+        # Get URL from Referer
         referer = fk.request.headers.get("Referer")
-        url = referer.split('/')[-1]
-
-        # Get post ID from URL
-        pid = next((p.id for p in mdb if p.url == url), None)
-
+        pid = get_id_from_referer(referer)
+        
         process_comment(pid, form, sender_ip)
 
         # Get comments including new one
@@ -251,6 +267,45 @@ def flaskapp():
         # All is OK, return comments
         return fk.render_template('layouts/partials/_comments.j2',
                                   coms=coms)
+
+
+    @app.route('/like', methods=['POST'])
+    def like():
+        global pending_w
+
+        sender_ip = fk.request.environ.get('HTTP_X_REAL_IP',
+                                           fk.request.remote_addr)
+
+        # Get post id from Referer
+        referer = fk.request.headers.get("Referer")
+        pid = get_id_from_referer(referer)
+
+        # First like
+        if not pid in jd().jdat['likes'].keys():
+            jd().jdat['likes'].update({pid:[sender_ip]})
+            return ('1', 200)
+
+        # Like / unlike
+        else:
+            likecount = 0
+            for k, v in jd().jdat['likes'].items():
+                
+                if k == pid:                
+                    likecount = len(v)
+
+                    # Visitor already liked this post -> unlike
+                    if sender_ip in v:
+                        v.remove(sender_ip)
+                        likecount -= 1
+
+                    # -> like
+                    else:
+                        v.append(sender_ip)
+                        likecount += 1
+
+                    pending_w = True # Write un/like in json
+
+        return (str(likecount), 200)
 
 
     @app.route('/git')

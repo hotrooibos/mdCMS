@@ -4,6 +4,8 @@ const nav     = document.getElementById('nav');
 const logo    = document.getElementById('logo');
 const form    = document.getElementById('comment_form');
 const comflow = document.getElementById('comflow');
+const like    = document.getElementById('like');
+const likcnt  = document.getElementById('likecounter');
 
 
 
@@ -24,24 +26,41 @@ convertEpoch(dates); // Convert post dates
 
 
 // The Header Scroll effect
-window.addEventListener("scroll", (event) => {
+window.addEventListener("scroll", (e) => {
     let scpos = this.scrollY;
     if (scpos > 100) {
         header.style.fontSize = '1em';
         nav.style.padding     = '.3em 0 .4em';
         logo.style.display    = 'none';
+        like.style.opacity    = .5;
     } else {
         header.style = null;
         nav.style    = null;
         logo.style   = null;
+        like.style   = null;
     }
 });
 
 
 
+// Like btn
+like.addEventListener('click', (e) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/like');
+    xhr.send();
+
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            likcnt.innerHTML = xhr.responseText;
+        }
+    }
+})
+
+
+
 // When clicking comment Submit btn
 // Form tests + ajax processing
-form.addEventListener('submit', function (e) {
+form.addEventListener('submit', (e) => {
     e.preventDefault();
     const newcom = new FormData(form);
     let err = false;    // Error flag
@@ -94,7 +113,7 @@ form.addEventListener('submit', function (e) {
     xhr.open('POST', '/comment', true);
     xhr.send(newcom);
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = () => {
         comflow.innerHTML = '<h2 id="comtitle">Loading comments...</h2>';
         
         if(xhr.readyState === 4) {

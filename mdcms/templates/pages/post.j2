@@ -9,7 +9,6 @@
 	</div>
 
 	<div id="comments">
-
 		<div id="comflow">
 		{% include 'layouts/partials/_comments.j2' %}
 		</div>
@@ -25,4 +24,6 @@
 			</div>
 		</form>
 	</div>
+
+	<div id="like"><a href="javascript:void(0)">&#10084; <span id="likecounter">{{ likecounter }}</span></a></div>
 {% endblock %}

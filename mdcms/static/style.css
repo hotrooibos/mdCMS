@@ -156,14 +156,13 @@ CONTENT
 #content {
     flex-grow: 2;
     max-width: 40em;
-    margin-top: 2em;
     font-size: 1.2em;
 }
     /* #title {
         font-size: 4em;
     } */
     #title {
-        margin: 0 0;
+        margin: .5em 0 .2em;
         font-size: 5em;
         text-align: center;
         background-color: #F67280;
@@ -204,29 +203,28 @@ CONTENT
         font-size: 1.3em;
     }
 
-    #content .postitle {
+    .postitle {
         margin: 0;
         font-size: 2.5em;
         color: #bf5695;
         text-shadow: 1px 2px 1px #1e2229;
     }
-    #content .postitle a,
-    #content .postitle a:visited {
+    .postitle a,
+    .postitle a:visited {
         color: #bf5695;
     }
-    #content .postitle a:hover {
+    .postitle a:hover {
         color: #c988af;
         background: none;
         border-radius: initial;
     }
 
-    #content a:hover {
+    a:hover {
         color: #b6aea2;
         background-color: rgb(84, 201, 185, .2);
         border-radius: 2px;
     }
-
-    #content div.post {
+    div.post {
         padding: 0 1em 1em;
         margin: 0 0 2.5em;
         border-radius: .5em;
@@ -235,7 +233,6 @@ CONTENT
         max-height: 25em;
         overflow: hidden;
     }
-    
 
     #comments {
         width: 100%;
@@ -257,7 +254,7 @@ CONTENT
             border-radius: .6em;
             box-shadow: 1px 2px 5px #1e2229;
         }
-        #comments form {
+        form {
             width: 70%;
             margin: 0 auto;
             text-align: center;
@@ -286,10 +283,26 @@ CONTENT
             font-weight: bold;
         }
 
-.datestamp {
-    text-align: right;
-    opacity: .3;
-}
+    .datestamp {
+        text-align: right;
+        opacity: .3;
+    }
+
+    #like {
+        position: fixed;
+        bottom: 5%;
+        right: 5%;
+    }
+        #like a {
+            font-size: 1.2em;
+            color: #C06C84;
+        }
+        #like a:hover {
+            background-color: initial;
+        }
+        #likecounter {
+            font-size: .7em;
+        }
 
 
 
@@ -304,6 +317,7 @@ FOOTER
     #footer a:visited {
         color:#dbdbe7;
     }
+
 
 
 /*
