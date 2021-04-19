@@ -14,7 +14,7 @@
 		<hr>
 		{{ post.content|safe }}
 		<hr>
-		<p class="datestamp"><span class="date">{{ post.datecr }}</span> (updated <span class="date">{{ post.dateup }}</span>)</p>
+		<p class="datestamp"><time>{{ post.ctime }}</time> (update <time>{{ post.mtime }}</time>)</p>
 	</div>
 
 	<div id="comments">
@@ -23,14 +23,10 @@
 		</div>
 		
 		<form method="post" id="comment_form" class="flex-utd">
-			<div class="flex-ltr">
-				<input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">
-				<input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail @ (optional)">
-			</div>
-			<div class="flex-ltr">
-				<textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you."></textarea>
-				<input type="submit" class="submit" value="Comment!">
-			</div>
+			<input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">
+			<input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail @ (optional)">
+			<textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you." oninput='this.style.height="";this.style.height=this.scrollHeight + "px"'></textarea>
+			<input type="submit" class="submit" value="Comment!">
 		</form>
 	</div>
 

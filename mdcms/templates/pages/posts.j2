@@ -1,9 +1,15 @@
 {% extends 'layouts/default.j2' %}
 {% block content %}
-<p>{{ posts|length }} posts publiés</p>
-<ul>
-{% for p in posts %}
-	<li><a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a> . <span class="date">{{ p.datecr }}</span></li>
+<p>{{ posts|length }} post{% if posts|length > 1 %}s{% endif %}</p>
+
+{% for year in posts|groupby('cyear')|reverse %}
+	{% if year.grouper != cur_year %}
+		<h2>{{ year.grouper }}</h2>
+	{% endif %}
+		<ul>
+		{% for p in year.list %}
+			<li><a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a>{% if year.grouper == cur_year %} . <time>{{ p.ctime }}</time>{% endif %}</li>
+		{% endfor %}
+		</ul>
 {% endfor %}
-</ul>
 {% endblock %}

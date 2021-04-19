@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+from copy import deepcopy
+from mdcms import utils
 import flask as fk
 from flask.globals import request
 from flask.helpers import send_from_directory
@@ -164,19 +166,6 @@ def process_comment(post_id: str,
 
 
 
-def get_id_from_referer(referer: str) -> str:
-
-    # Split full URL and keep post URL
-    # ie. https://marzin.org/posts/blabla -> /blabla
-    url = referer.split('/')[-1]
-
-    # Get post ID from URL
-    id = next((p.id for p in mdb if p.url == url), None)
-
-    return id
-
-
-
 def flaskapp():
     '''FLASK web app
     '''
@@ -205,9 +194,12 @@ def flaskapp():
         for p in mdb:
             if p.lang == const.DEFAULT_LANG[:2]:
                 posts.append(p)
+        
+        cur_year = utils.to_datestr(time(), out_format='%Y')
 
         return fk.render_template('pages/posts.j2',
-                                  posts=posts)
+                                  posts=posts,
+                                  cur_year=cur_year)
 
 
     @app.route('/posts/ressources/<path:filename>')
@@ -228,25 +220,26 @@ def flaskapp():
         for p in mdb:
             # We are in original post, get translated
             if post.lang == const.DEFAULT_LANG[:2] and \
-                    p.originpost == post.id and \
+                    p.originpost == post.url and \
                     p.lang != const.DEFAULT_LANG[:2]:
                 transl.append(p)
 
             # We are in a translated post, get original
             elif post.lang != const.DEFAULT_LANG[:2] and \
-                    p.id == post.originpost:
+                    p.url == post.originpost:
                 transl.append(p)
 
         # Get comments (old ones + new if POST request)
-        coms = None
-        for k, v in jd().jdat['comments'].items():
-            if k == post.id:
+        coms = []
+        for url, v in jd().jdat['comments'].items():
+            if url == post.url:
                 coms = v
+                break
         
         # Get like count
         likecounter = 0
         for k, v in jd().jdat['likes'].items():
-            if k == post.id:
+            if k == post.url:
                 likecounter = len(v)
 
         return fk.render_template('pages/post.j2',
@@ -277,17 +270,17 @@ def flaskapp():
             
         # Get URL from Referer
         referer = fk.request.headers.get("Referer")
-        pid = get_id_from_referer(referer)
+        post_url = referer.split('/')[-1]
         
-        process_comment(pid, form, sender_ip)
+        process_comment(post_url, form, sender_ip)
 
-        # Get comments including new one
-        coms = None
-        for k, v in jd().jdat['comments'].items():
-            if k == pid:
+        # Get comments (old ones + new if POST request)
+        coms = []
+        for url, v in jd().jdat['comments'].items():
+            if url == post_url:
                 coms = v
+                break
 
-        # All is OK, return comments
         return fk.render_template('layouts/partials/_comments.j2',
                                   coms=coms)
 
@@ -299,21 +292,20 @@ def flaskapp():
         sender_ip = fk.request.environ.get('HTTP_X_REAL_IP',
                                            fk.request.remote_addr)
 
-        # Get post id from Referer
+        # Get post url from Referer
         referer = fk.request.headers.get("Referer")
-        pid = get_id_from_referer(referer)
+        post_url = referer.split('/')[-1]
 
         likecount = 0
 
         # First like ever
-        if not pid in jd().jdat['likes'].keys():
-            jd().jdat['likes'].update({pid:[sender_ip]})
+        if not post_url in jd().jdat['likes'].keys():
+            jd().jdat['likes'].update({post_url:[sender_ip]})
             likecount += 1
         # Like / unlike
         else:
             for k, v in jd().jdat['likes'].items():
-                
-                if k == pid:                
+                if k == post_url:                
                     likecount = len(v)
 
                     # Visitor already liked this post -> unlike

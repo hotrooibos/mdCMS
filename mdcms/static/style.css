@@ -42,6 +42,10 @@ ul {
 img {
     width: 100%;
 }
+time {
+    text-align: right;
+    opacity: .3;
+}
 code {
     padding: .1em;
     border-radius: .1em;
@@ -162,7 +166,7 @@ CONTENT
         font-size: 4em;
     } */
     #title {
-        margin: .5em 0 .2em;
+        margin: 0 0 .2em;
         font-size: 5em;
         text-align: center;
         background-color: #F67280;
@@ -186,7 +190,7 @@ CONTENT
         0% { background-size: 900%; }
         100% { background-size: 100%;background-position: 0 0; }
     }
-    #title:hover {
+    #title:hover, #title:active, #title:focus {
         animation: text_anim_hover 1s ease forwards;
     }
     @keyframes text_anim_hover {
@@ -241,52 +245,52 @@ CONTENT
             opacity: .3;
         }
         .com {
-            margin: 2em;
+            margin: 2em 0;
         }
         .cometa {
             font-weight: bold;
-            margin: auto 0;
+            margin: auto .2em;
+            min-width: 15%;
+            max-width: 20%;
+            overflow: hidden;
+            word-break: break-all;
         }
         .comment {
-            margin: 0 1em;
+            margin: 0;
             padding: .8em;
             background-image: linear-gradient(#41495c, #2e3442);
             border-radius: .6em;
             box-shadow: 1px 2px 5px #1e2229;
+            word-break: break-all;
         }
-        form {
-            width: 70%;
-            margin: 0 auto;
-            text-align: center;
-        }
+
         .input {
-            margin: .5em;
+            margin: .5em 0;
             padding: .3em;
             border: none;
             background-color: #b6aea2;
             border-radius: .3em;
-            width: 100%;
+            width: 95%;
+            max-width: 15em;
             font: 1em -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans",
             "Ubuntu","Cantarell","Helvetica Neue",sans-serif;
         }
         textarea.input {
             height: 6em;
+            max-height: 30em;
+            max-width: 90%;
+            resize: none;
         }
         .submit {
-            margin: .5em;
+            margin: .5em 1em;
             padding: .3em;
             border: none;
-            height: 3em;
+            height: 100%;
             width: 8em;
             border-radius: .3em;
             font-size: 1.1em;
             font-weight: bold;
         }
-
-    .datestamp {
-        text-align: right;
-        opacity: .3;
-    }
 
     #translation {
         position: fixed;

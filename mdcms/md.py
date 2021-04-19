@@ -7,7 +7,6 @@ from markdown import Markdown
 import os
 from time import time
 import unicodedata
-import uuid
 
 log = logging.getLogger(__name__)
 
@@ -25,6 +24,7 @@ class Md:
     urls = []
 
     def __init__(self, fname: str, mdurl: str):
+
         # Read .md file and make attributes from its content
         with open(file=mdurl,
                   mode='r',
@@ -33,39 +33,24 @@ class Md:
 
         wmd = [] # Datas to write to .md
         md = Markdown(extensions=['meta','toc','extra','codehilite'])
-        
+
         self.furl = mdurl
         self.content = md.convert(mddat)
         self.toc = md.toc
-        self.dateup = os.stat(self.furl).st_mtime
+        self.mtime = os.stat(self.furl).st_mtime
 
         # Metas
-        self.id = None
         self.title = None
         self.author = const.DEFAULT_AUTHOR
         self.url = None
-        self.datecr = None
+        self.ctime = None
+        self.cyear = None
         self.lang = const.DEFAULT_LANG
         self.langflag = None
         self.originpost = None
         self.cat = None
-        
-        # 
-        # ID
-        # Get from metas + check, or build it
-        #
-        if md.Meta.get('id'):
-            if self.checkid(md.Meta.get('id')[0]) == 0:
-                self.id = md.Meta.get('id')[0]
-            else:
-                self.id = str(uuid.uuid4())
-                wmd.append(('id', self.id))
-                # TODO suppr l'ancien ID pourri
-        else:
-            self.id = str(uuid.uuid4())
-            wmd.append(('id', self.id))
 
-        # 
+        #
         # TITLE : get or build it
         #
         if md.Meta.get('title'):
@@ -74,7 +59,7 @@ class Md:
             self.title = self.build_title()
             wmd.append(('title', self.title))
 
-        # 
+        #
         # PERMA URL : get or build it
         #
         if md.Meta.get('url'):
@@ -83,7 +68,9 @@ class Md:
             self.url = self.build_url()
             wmd.append(('url', self.url))
 
-        # 
+        Md.urls.append(self.url)
+
+        #
         # AUTHOR : get from md or consts
         #
         if md.Meta.get('author'):
@@ -91,16 +78,16 @@ class Md:
         else:
             self.author = const.DEFAULT_AUTHOR
 
-        # 
+        #
         # LANGUAGE : get from md or consts
         # ORIGINPOST : get from md if lang != default lang
         #
         if md.Meta.get('lang'):
             self.lang = md.Meta.get('lang')[0]
 
-            # Get original/translated post UUID if post lang
+            # Get original/translated post if post lang
             # is different from the default CMS writing
-            # language (cconst.DEFAULT_LANG)
+            # language (const.DEFAULT_LANG)
             if self.lang != const.DEFAULT_LANG[:2]:
                 if md.Meta.get('originpost'):
                     self.originpost = md.Meta.get('originpost')[0]
@@ -109,12 +96,7 @@ class Md:
         else:
             self.lang = const.DEFAULT_LANG[:2]
 
-        # # FLAG SVG : get from consts based on lang
-        # for k, v in const.FLAGS.items():
-        #     if k == self.lang:
-        #         self.langflag == v
-
-        # 
+        #
         # CATEGORIES : get from md
         #
         if md.Meta.get('categories'):
@@ -122,37 +104,21 @@ class Md:
         else:
             wmd.append(('categories', ""))
 
-        # 
+        #
         # DATECR : get from md or create from OS fs metas
         #
         if md.Meta.get('datecr'):
-            self.datecr = md.Meta.get('datecr')[0]
-            if type(self.datecr) == str:
-                self.datecr = utils.to_epoch(self.datecr)
+            self.ctime = utils.to_epoch(md.Meta.get('datecr')[0])
         else:
-            self.datecr = os.stat(self.furl).st_mtime
-            wmd.append(('datecr', utils.to_datestr(self.datecr)))
+            self.ctime = os.stat(self.furl).st_ctime
+            wmd.append(('datecr', utils.to_datestr(self.ctime)))
+
+        self.cyear = utils.to_datestr(self.ctime,
+                                      out_format='%Y')
 
         # WRITE missing metadatas in .md
         if len(wmd) > 0:
             self.write(wmd)
-
-
-
-    @staticmethod
-    def checkid(id) -> int:
-        '''Check .md ID format.
-
-        Return 0 if UUID compliant.
-        '''
-        try:
-            if uuid.UUID(id).version == 4:
-                return 0
-            else:
-                return 1
-
-        except ValueError:
-            return 1
 
 
 
@@ -161,7 +127,6 @@ class Md:
         '''
         w = data_to_write
 
-        # WRITE ctime(datecr) to .md metadata header
         with open(self.furl,
                   mode='r+',
                   encoding='utf-8') as md:
@@ -171,14 +136,6 @@ class Md:
             # d = tuples (tag, data)
             # example : ("title", "My first post !")
             for d in data_to_write:
-
-                # ID to be written ?
-                # Remove any already-present ID
-                if d[0] == 'id':
-                    for i, l in enumerate(mdl):
-                        if l[:3] == 'id:':
-                            mdl.pop(i)
-
                 mdl.insert(0, f'{d[0]}:{d[1]}\n')
 
             mdl = ''.join(mdl)
@@ -230,13 +187,11 @@ class Md:
             # to be translated too
             if self.lang and self.lang != const.DEFAULT_LANG:
                 urlf = f'{self.lang[:2]}_{url}'
-            
-            # True duplicate : add a number
+
+            # True duplicate : add count to name
             else:
                 nb = Md.urls.count(url)
-                urlf = f'{url}{nb}'         # Add count to name
-
-        Md.urls.append(url)                 # Add to url list
+                urlf = f'{url}{nb}'
 
         return urlf
 
@@ -263,14 +218,13 @@ class Md:
             elif l[:5] == '#### ':
                 titl = l[5:]
                 break
-        
+
         if titl:
             titl = titl.replace('\n','')
             return titl
 
-        # Not a single title in .md, rly ?
         else:
-            return f'Post id {self.id}'
+            return 'No title'
 
 
 
@@ -287,53 +241,53 @@ def watchdog(mdb: list=[],
     # Populate (1st watchdog execution) -> process all md
     populate = True if len(mdb) < 1 else False
 
-    # Get all known post ids in memory
-    mdb_ids = []
+    # Get all known post url (id) in memory
+    known_mds = []
     mdb_last = 0
 
     for md in mdb:
-        mdb_ids.append(md.id)
-        if md.dateup > mdb_last:
-            mdb_last = md.dateup
+        known_mds.append(md.url)
+        if md.mtime > mdb_last:
+            mdb_last = md.mtime
 
     # Loop over each .md file
     for f in os.listdir(const.MD_PATH):
         if f[-3:] == '.md':
 
             fpath = f'{const.MD_PATH}/{f}'
-            fdateup = os.stat(fpath).st_mtime
+            fmtime = os.stat(fpath).st_mtime
 
-            if not populate and fdateup <= mdb_last:
+            if not populate and fmtime <= mdb_last:
                 continue      # File not updated -> skip
 
             md = Md(f, fpath)
-            
+
             # Update post in memory
-            if md.id in mdb_ids:
-                if md.dateup > mdb_last:
+            if md.url in known_mds:
+                if md.mtime > mdb_last:
                     log.info(f'Update post "{f}"')
-                    i = mdb_ids.index(md.id)
+                    i = known_mds.index(md.url)
                     mdb[i] = md
                 else:
                     continue
-            
+
             # Add post in mem
             else:
                 mdb.insert(0, md)
                 log.info(f'Add post "{f}"')
 
-                # Sort posts by datecr at populate time
+                # Sort posts by ctime at populate time
                 if populate:
-                    mdb.sort(key=lambda x: x.datecr,
+                    mdb.sort(key=lambda x: x.ctime,
                              reverse=True)
-    
+
     if pending_w:
         jd().write()    # WRITE json
 
     return mdb    
 
 
-    
+
 
     # def md_checkup():
     '''

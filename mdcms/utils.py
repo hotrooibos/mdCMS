@@ -42,7 +42,8 @@ def to_epoch(datetime: str,
              epoch_format: str='int'):
     '''Return an UNIX epoch time from a given datetime string
 
-    Default source format is '%Y-%m-%d %H:%M:%S'
+    Default source format is '%Y-%m-%d %H:%M:%S'.
+    https://docs.python.org/fr/3/library/datetime.html#strftime-and-strptime-format-codes
 
     Default epoch returned format is float. Can be 'float'.
     '''
@@ -61,7 +62,8 @@ def to_datestr(epoch,
                out_format: str='%Y-%m-%d %H:%M:%S') -> str:
     '''Return a datetime string from a given UNIX epoch time
 
-    Default source format is '%Y-%m-%d %H:%M:%S'
+    Default source format is '%Y-%m-%d %H:%M:%S'.
+    https://docs.python.org/fr/3/library/datetime.html#strftime-and-strptime-format-codes
 
     Default epoch returned format is integer. Can be 'float'.
     '''
