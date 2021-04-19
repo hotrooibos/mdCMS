@@ -1,3 +1,9 @@
+@font-face {
+    font-family: 'Rec Mono Linear';
+    src: url('/static/fonts/RecMonoLinear.woff2') format('woff2'),
+         url('/static/fonts/RecMonoLinear.ttf')  format('truetype');
+  }
+
 /*
 GENERAL
 */
@@ -10,9 +16,7 @@ body {
     width: 100%;
     background-color: #252728;
     color: #b6aea2;
-    font: 16px -apple-system,BlinkMacSystemFont,"Segoe UI",
-               "Roboto","Oxygen-Sans","Ubuntu","Cantarell",
-               "Helvetica Neue",sans-serif;
+    font: 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     align-items: center;
 }
 
@@ -43,13 +47,12 @@ img {
     width: 100%;
 }
 time {
-    text-align: right;
     opacity: .3;
 }
 code {
     padding: .1em;
     border-radius: .1em;
-    font: .8em "Fira Code", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+    font: .8em "Rec Mono Linear", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
                "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
                "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 }
@@ -61,13 +64,13 @@ pre {
     background-color: rgb(84, 201, 185, .2);
     border-radius: .3em;
     margin: 1em 0 1em 2%;
-        width: min-content; /*retirer*/
+    /* width: fit-content; */
     max-width: 92%;
-    min-width: 50%;/*retirer*/
+    /* min-width: 50%; */
     border-left: 5px solid #54c9b9;
     overflow-x: hidden;
     box-shadow: 1px 2px 5px #1e2229;
-        /* white-space: pre-wrap; */
+    white-space: pre-wrap;
 }
 pre:hover, pre:focus {
     width: 100%;
@@ -158,6 +161,7 @@ HEADER
 CONTENT
 */
 #content {
+    margin-top: .5em;
     flex-grow: 2;
     max-width: 40em;
     font-size: 1.2em;
@@ -190,7 +194,9 @@ CONTENT
         0% { background-size: 900%; }
         100% { background-size: 100%;background-position: 0 0; }
     }
-    #title:hover, #title:active, #title:focus {
+    #title:hover,
+    #title:active,
+    #title:focus {
         animation: text_anim_hover 1s ease forwards;
     }
     @keyframes text_anim_hover {
@@ -207,36 +213,35 @@ CONTENT
         font-size: 1.3em;
     }
 
-    .postitle {
-        margin: 0;
-        font-size: 2.5em;
-        color: #bf5695;
-        text-shadow: 1px 2px 1px #1e2229;
-    }
-    .postitle a,
-    .postitle a:visited {
-        color: #bf5695;
-    }
-    .postitle a:hover {
-        color: #c988af;
-        background: none;
-        border-radius: initial;
-    }
-
-    a:hover {
-        color: #b6aea2;
-        background-color: rgb(84, 201, 185, .2);
-        border-radius: 2px;
-    }
-    div.post {
-        padding: 0 1em 1em;
-        margin: 0 0 2.5em;
-        border-radius: .5em;
-        background-image: linear-gradient(#252728, #252728, #212324);
-        /* box-shadow: 0px 2px 5px #191c22; */
-        max-height: 25em;
-        overflow: hidden;
-    }
+        #post ul {
+            all: unset;
+            text-align: justify;
+        }
+        #post li {
+            margin-bottom: .5em;
+        }
+        .postitle {
+            margin: 0;
+            font-size: 2.5em;
+            color: #bf5695;
+            text-shadow: 1px 2px 1px #1e2229;
+        }
+        .postitle a,
+        .postitle a:visited {
+            color: #bf5695;
+        }
+        .postitle a:hover {
+            color: #c988af;
+            background: none;
+            border-radius: initial;
+        }
+        .datestamp {
+            opacity: .3;
+            text-align: right;
+        }
+        .datestamp time {
+            opacity: initial;
+        }
 
     #comments {
         width: 100%;
@@ -275,22 +280,43 @@ CONTENT
             font: 1em -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans",
             "Ubuntu","Cantarell","Helvetica Neue",sans-serif;
         }
+        .input:active,
+        .input:focus {
+            box-shadow: 1px 1px 10px #2c7abb;
+        }
         textarea.input {
             height: 6em;
             max-height: 30em;
-            max-width: 90%;
+            max-width: 95%;
             resize: none;
         }
         .submit {
-            margin: .5em 1em;
+            margin: .5em auto;
             padding: .3em;
             border: none;
-            height: 100%;
+            height: 3em;
             width: 8em;
             border-radius: .3em;
             font-size: 1.1em;
             font-weight: bold;
+            background-color: #54c9b9;
+            background-image: url('/static/doge.png');
+            background-repeat: no-repeat;
+            background-size: auto 100%;
+            box-shadow: 0px 2px 5px #1e2229;
+            color: #bf5695;
         }
+        .submit:hover,
+        .submit:active,
+        .submit:focus {
+            background-color: #bf5695;
+            color: #54c9b9;
+        }
+        /* #F8B195 0 25%,
+        #F67280 25% 41.666%,
+        #C06C84 41.666% 58.333%,
+        #6C5B7B 58.333% 75%,
+        #355C7D 75% 100%); */
 
     #translation {
         position: fixed;
@@ -353,13 +379,31 @@ ABOUT
 
 
 
+/*
+ERROR
+*/
+#error {
+    margin-bottom: 5em;
+    text-align: center;
+}
+    #error h1 {
+        font-size: 3em;
+    }
+
+
+
 /* Mobile responsiveness */
 @media screen and (max-width: 500px) {
     #logo { display: none; }
     #wip { display: none; }
     #title { font-size: 18vw; }
+    #presentation {
+        font-size: 4.4vw;
+    }
     pre {
         width: 100%;
         white-space: pre-wrap;
     }
+    .input {
+        max-width: none;    }
 }

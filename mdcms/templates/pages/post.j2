@@ -2,17 +2,8 @@
 {% block content %}
 	<div id="post">
 		<h1 class="postitle">{{ post.title }}</h1>
-		{% if transl|length > 0 %}
-			<span id="translation">
-				{% for t in transl %}
-					<a href="{{ url_for('post', url=t.url) }}">
-						<img src="{{ url_for('static', filename=t.lang + '.svg') }}" alt="{{ t.lang }}" title="Read in {{ t.lang }}" width="30" height="20"> 
-					</a>
-				{% endfor %}
-			</span>
-		{% endif %}
 		<hr>
-		{{ post.content|safe }}
+			{{ post.content|safe }}
 		<hr>
 		<p class="datestamp"><time>{{ post.ctime }}</time> (update <time>{{ post.mtime }}</time>)</p>
 	</div>
@@ -26,9 +17,18 @@
 			<input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">
 			<input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail @ (optional)">
 			<textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you." oninput='this.style.height="";this.style.height=this.scrollHeight + "px"'></textarea>
-			<input type="submit" class="submit" value="Comment!">
+			<input type="submit" class="submit" value="GO">
 		</form>
 	</div>
 
+	{% if transl|length > 0 %}
+	<span id="translation">
+		{% for t in transl %}
+		<a href="{{ url_for('post', url=t.url) }}">
+			<img src="{{ url_for('static', filename=t.lang + '.svg') }}" alt="{{ t.lang }}" title="Read in {{ t.lang }}" width="30" height="20"> 
+		</a>
+		{% endfor %}
+	</span>
+	{% endif %}
 	<div id="like"><a href="javascript:void(0)">&#10084; <span id="likecounter">{{ likecounter }}</span></a></div>
 {% endblock %}

@@ -12,10 +12,11 @@
 	<script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
-	{% include 'layouts/partials/_header.j2' %}
-   	<div id="content">
-	    {% block content %}{% endblock %}
-    </div>
- 	{% include 'layouts/partials/_footer.j2' %}
+{% include 'layouts/partials/_header.j2' %}
+<div id="content">
+	{% block content %}{% endblock %}
+</div>
+{% include 'layouts/partials/_footer.j2' %}
+
 </body>
 </html>

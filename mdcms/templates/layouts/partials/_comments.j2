@@ -1,13 +1,12 @@
-{% if coms|length > 0  %}
-    <h2 id="comtitle">{{ coms|length }} comment{% if coms|length > 1 %}s{% endif %}</h2>
+        {% if coms|length > 0  %}
+            <h2 id="comtitle">{{ coms|length }} comment{% if coms|length > 1 %}s{% endif %}</h2>
 
-    {% for c in coms %}
-    <div class="com {{ loop.cycle('flex-ltr', 'flex-rtl') }}">
-        <div class="cometa">{{ c.name }}</div>
-        <div class="comment">{{ c.comm }} <span class="datestamp">– <time>{{ c.time }}</time></span></div>
-    </div>
-    {% endfor %}
-
-{% else %}
-    <h2 id="comtitle">Be the first to comment !</h2>
-{% endif %}
+            {% for c in coms %}
+            <div class="com {{ loop.cycle('flex-ltr', 'flex-rtl') }}">
+                <div class="cometa">{{ c.name }}</div>
+                <div class="comment">{{ c.comm }} <span class="datestamp">– <time>{{ c.time }}</time></span></div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <h2 id="comtitle">Be the first to comment !</h2>
+        {% endif %}

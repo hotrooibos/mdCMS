@@ -8,6 +8,7 @@ import logging
 from threading import Thread
 from time import sleep, time, strftime, localtime
 from werkzeug.datastructures import ImmutableMultiDict
+from werkzeug.exceptions import HTTPException
 from . import constants as const
 from . import md
 from .jdata import Jdata as jd
@@ -166,10 +167,20 @@ def process_comment(post_id: str,
 
 
 
+def get_404_alt(url: str):
+    '''TODO Retourner une liste de posts au nom
+    similaire en cas de 404
+    '''
+    return None
+
+
+
 def flaskapp():
     '''FLASK web app
     '''
     app = fk.Flask(__name__) # Instance de Flask (WSGI application)
+    app.jinja_env.trim_blocks = True
+    app.jinja_env.lstrip_blocks = True
 
     # START mdCMS thread
     Thread(target=mdcms, daemon=True).start()
@@ -207,12 +218,17 @@ def flaskapp():
         return send_from_directory(const.MD_RES_PATH, filename)
 
 
-    @app.route('/post/<string:url>', methods=['GET', 'POST'])
+    @app.route('/post/<string:url>', methods=['GET'])
     def post(url):
         global mdb
 
         # Get md wanted in url
         post = next((p for p in mdb if p.url == url), None)
+        
+        if not post:
+            alt = get_404_alt(url)
+            # TODO parser l'url demandée et proposer un post qui y ressemble
+            fk.abort(404, ("This post doesn't exist", alt))
 
         # Get translations of this post
         transl = [] # List of translation posts
@@ -259,7 +275,7 @@ def flaskapp():
                                            fk.request.remote_addr)
 
         if banned(sender_ip) == True:
-            return fk.abort(403, "Banned")
+            return fk.abort(403, "Banned due to suspicious activity")
 
         form = fk.request.form              # FORM datas
 
@@ -333,9 +349,10 @@ def flaskapp():
         return fk.render_template('pages/about.j2')
 
 
-    @app.errorhandler(404)
-    def page_not_found(error):
-        return fk.render_template('errors/404.j2'), 404
-
+    @app.errorhandler(HTTPException)
+    def http_err_handler(error):
+        return fk.render_template('errors/error.j2',
+                                  code=error.code,
+                                  desc=error.description)
 
     return app

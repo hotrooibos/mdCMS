@@ -1,4 +1,7 @@
 {% extends 'layouts/default.j2' %}}
 {% block content %}
-	<p>Nothing to do here (404)</p>
+	<div id="error">
+		<h1>{{ code }}</h1>
+		<p>{{ desc }}</p>
+	</div>
 {% endblock %}
