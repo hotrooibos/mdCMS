@@ -1,15 +1,108 @@
+// Global
 const dates   = document.getElementsByTagName('time');
 const header  = document.getElementById('header');
 const nav     = document.getElementById('nav');
-const logo    = document.getElementById('logo');
+// const logo    = document.getElementById('logo');
+
+// /post
 const form    = document.getElementById('comment_form');
 const comflow = document.getElementById('comflow');
 const like    = document.getElementById('like');
 const likcnt  = document.getElementById('likecounter');
 
+// /posts
+const pstlist = document.getElementById('postlist');
+const categs  = document.getElementById('categories');
 
 
-// CONVERT epoch time to datetime
+
+// If in /posts
+if (categs && pstlist) {
+
+    /*
+    BUILD CATEGORY ARRAY from the
+    "data-categories" <li> attribute in #postlist
+    */
+    const plis = pstlist.getElementsByTagName('li');
+    let cats = new Array();
+
+    // Build category list from data-categories attributes
+    for (const pli of plis) {
+        let c = pli.getAttribute('data-categories');
+        for (const cat of c.split(' ')) {
+            if (!cats.includes(cat)) cats.push(cat);
+        }
+    }
+    // Create <li> list of categories
+    for (const cat of cats) {
+        let li = document.createElement("li");
+        li.innerHTML = cat;
+        li.setAttribute('data-state', 'disabled');
+        categs.insertBefore(li, categs.firstChild);
+    }
+
+
+
+    /*
+    CATEGORY FILTERING
+    */
+    categs.addEventListener('click', (e) => {
+        if (e.target && e.target.matches('li')) {
+            const clis = categs.getElementsByTagName('li');
+            let filters = new Array();
+
+            // Btn All
+            if (e.target.innerHTML === 'All') {
+                filters.length = 0; // Clear array
+                for (const cli of clis) {
+                    cli.setAttribute('data-state', 'disabled');
+                }
+            }
+
+            let state = e.target.getAttribute('data-state');
+
+            // Change li state
+            if (state === 'enabled') {
+                e.target.setAttribute('data-state', 'disabled');
+            }
+            else {
+                e.target.setAttribute('data-state', 'enabled');
+            }
+
+            // Filter/refresh post list
+            for (const cli of clis) {
+                let state = cli.getAttribute('data-state');
+                if (state === 'enabled') filters.push(cli.innerHTML);
+            }
+  
+            for (const pli of plis) {
+                let cats = pli.getAttribute('data-categories').split(' ');
+                
+                if (filters.length !== 0) {
+                    for (const cat of cats) {
+                        
+                        if (!filters.includes(cat)) {
+                            pli.style.display = 'none';
+                        }
+                        else {
+                            pli.style = null;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    pli.style = null;
+                }
+            }
+        }
+    });
+}
+
+
+
+/*
+CONVERT EPOCH time to datetime
+*/
 function convertEpoch(dates) {
     for (const d of dates) {
         const opt = { dateStyle: "medium" };
@@ -23,7 +116,9 @@ convertEpoch(dates); // Convert post dates
 
 
 
-// The Header Scroll effect
+/*
+The Header SCROLL EFFECT
+*/
 window.addEventListener("scroll", (e) => {
     let scpos = this.scrollY;
     if (scpos > 100) {
@@ -41,7 +136,9 @@ window.addEventListener("scroll", (e) => {
 
 
 
-// Like btn
+/*
+LIKE btn
+*/
 if (like) {
     like.addEventListener('click', (e) => {
         const xhr = new XMLHttpRequest();
@@ -58,8 +155,9 @@ if (like) {
 
 
 
-// When clicking comment Submit btn
-// Form tests + ajax processing
+/*
+SUBMIT COMMENT ajax processing
+*/
 if (form) {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -116,7 +214,7 @@ if (form) {
 
         xhr.onreadystatechange = () => {
             comflow.innerHTML = '<h2 id="comtitle">Loading comments...</h2>';
-            
+
             if(xhr.readyState === 4) {
                 switch (xhr.status) {
                     case 403:

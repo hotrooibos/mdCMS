@@ -100,7 +100,7 @@ class Md:
         # CATEGORIES : get from md
         #
         if md.Meta.get('categories'):
-            self.cat = md.Meta.get('categories')[0]
+            self.cat = md.Meta.get('categories')
         else:
             wmd.append(('categories', ""))
 

@@ -212,6 +212,9 @@ CONTENT
         margin: 0 0 2em 0;
         font-size: 1.3em;
     }
+        #categories li[data-state="enabled"] {
+            color: green;
+        }
 
         #post ul {
             all: unset;
@@ -312,11 +315,6 @@ CONTENT
             background-color: #bf5695;
             color: #54c9b9;
         }
-        /* #F8B195 0 25%,
-        #F67280 25% 41.666%,
-        #C06C84 41.666% 58.333%,
-        #6C5B7B 58.333% 75%,
-        #355C7D 75% 100%); */
 
     #translation {
         position: fixed;

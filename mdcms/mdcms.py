@@ -257,7 +257,7 @@ def flaskapp():
         for k, v in jd().jdat['likes'].items():
             if k == post.url:
                 likecounter = len(v)
-
+            
         return fk.render_template('pages/post.j2',
                                   post=post,
                                   transl=transl,
@@ -277,7 +277,7 @@ def flaskapp():
         if banned(sender_ip) == True:
             return fk.abort(403, "Banned due to suspicious activity")
 
-        form = fk.request.form              # FORM datas
+        form = fk.request.form # FORM DATA
 
         # Check form validity
         # Already done in JS (client-side) but redo it
@@ -290,7 +290,7 @@ def flaskapp():
         
         process_comment(post_url, form, sender_ip)
 
-        # Get comments (old ones + new if POST request)
+        # Get comments (olds + new one if valid)
         coms = []
         for url, v in jd().jdat['comments'].items():
             if url == post_url:
@@ -321,7 +321,7 @@ def flaskapp():
         # Like / unlike
         else:
             for k, v in jd().jdat['likes'].items():
-                if k == post_url:                
+                if k == post_url:
                     likecount = len(v)
 
                     # Visitor already liked this post -> unlike
