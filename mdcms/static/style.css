@@ -212,8 +212,17 @@ CONTENT
         margin: 0 0 2em 0;
         font-size: 1.3em;
     }
-        #categories li[data-state="enabled"] {
-            color: green;
+
+    #categories {
+        margin-bottom: 3em;
+    }
+        #categories li {
+            display: inline;
+            margin: .2em;
+            padding: 0 .2em;
+            border-radius: 3px;
+            background-color: rgb(63, 63, 51);
+            cursor:pointer;
         }
 
         #post ul {

@@ -1,46 +1,60 @@
 // Global
-const dates   = document.getElementsByTagName('time');
-const header  = document.getElementById('header');
-const nav     = document.getElementById('nav');
-// const logo    = document.getElementById('logo');
+const doc = document;
+const dates   = doc.querySelectorAll('time');
+const header  = doc.querySelector('#header');
+const nav     = doc.querySelector('#nav');
+// const logo    = doc.querySelector('#logo');
 
 // /post
-const form    = document.getElementById('comment_form');
-const comflow = document.getElementById('comflow');
-const like    = document.getElementById('like');
-const likcnt  = document.getElementById('likecounter');
+const form    = doc.querySelector('#comment_form');
+const comflow = doc.querySelector('#comflow');
+const like    = doc.querySelector('#like');
+const likcnt  = doc.querySelector('#likecounter');
 
 // /posts
-const pstlist = document.getElementById('postlist');
-const categs  = document.getElementById('categories');
+const pstlsts = doc.querySelectorAll('.postlist');
+const categs  = doc.querySelector('#catlist');
 
 
 
 // If in /posts
-if (categs && pstlist) {
+if (categs && pstlsts) {
 
     /*
     BUILD CATEGORY ARRAY from the
     "data-categories" <li> attribute in #postlist
     */
-    const plis = pstlist.getElementsByTagName('li');
-    let cats = new Array();
 
-    // Build category list from data-categories attributes
-    for (const pli of plis) {
-        let c = pli.getAttribute('data-categories');
-        for (const cat of c.split(' ')) {
-            if (!cats.includes(cat)) cats.push(cat);
+    // GET POSTS <li> in an array
+    let plis = new Array();                                 // plis == all posts <li>
+    for (const post_ul of pstlsts) {
+        let postLis = post_ul.querySelectorAll('li');
+
+        for (const post_li of postLis) {
+            plis.push(post_li);
         }
     }
-    // Create <li> list of categories
-    for (const cat of cats) {
-        let li = document.createElement("li");
-        li.innerHTML = cat;
-        li.setAttribute('data-state', 'disabled');
-        categs.insertBefore(li, categs.firstChild);
+
+
+    // BUILD CATEGORY LIST from data-categories attributes
+    let cats = new Array();
+    for (const pli of plis) {
+        let c = pli.getAttribute('data-categories');
+
+        if (c.length < 1) pli.setAttribute('data-categories', 'None');
+
+        for (let cat of c.split(' ')) {
+            if (cat.length < 1) cat = 'None';
+            if (!cats.includes(cat)) cats.push(cat);        // cats == all categories
+        }
+
     }
 
+    for (let cat of cats) {
+        let li = doc.createElement("li");
+        li.innerHTML = cat;
+        categs.appendChild(li);
+    }
 
 
     /*
@@ -48,50 +62,26 @@ if (categs && pstlist) {
     */
     categs.addEventListener('click', (e) => {
         if (e.target && e.target.matches('li')) {
-            const clis = categs.getElementsByTagName('li');
-            let filters = new Array();
-
-            // Btn All
-            if (e.target.innerHTML === 'All') {
-                filters.length = 0; // Clear array
-                for (const cli of clis) {
-                    cli.setAttribute('data-state', 'disabled');
-                }
+            const selectedCat = e.target.innerHTML;
+            
+            for (const cat of categs.querySelectorAll('li')) {
+                cat.removeAttribute('style');
             }
+            e.target.style.color = '#54c9b9';
 
-            let state = e.target.getAttribute('data-state');
-
-            // Change li state
-            if (state === 'enabled') {
-                e.target.setAttribute('data-state', 'disabled');
-            }
-            else {
-                e.target.setAttribute('data-state', 'enabled');
-            }
-
-            // Filter/refresh post list
-            for (const cli of clis) {
-                let state = cli.getAttribute('data-state');
-                if (state === 'enabled') filters.push(cli.innerHTML);
-            }
-  
-            for (const pli of plis) {
-                let cats = pli.getAttribute('data-categories').split(' ');
+            for (const postLi of plis) {
+                let postCats = postLi.getAttribute('data-categories').split(' ');
                 
-                if (filters.length !== 0) {
-                    for (const cat of cats) {
-                        
-                        if (!filters.includes(cat)) {
-                            pli.style.display = 'none';
-                        }
-                        else {
-                            pli.style = null;
-                            break;
-                        }
-                    }
+                if (selectedCat === 'All') {
+                    postLi.removeAttribute('style');
+                    continue;
+                }
+
+                if (!postCats.includes(selectedCat)) {
+                    postLi.style.display = 'none';
                 }
                 else {
-                    pli.style = null;
+                    postLi.removeAttribute('style');
                 }
             }
         }
@@ -166,7 +156,7 @@ if (form) {
 
         // Inputs test
         for(var i of newcom.entries()){
-            let ele = document.getElementById(i[0]);
+            let ele = doc.getElementById(i[0]);
             let len = i[1].length;
             ele.style = null;
 
@@ -226,7 +216,7 @@ if (form) {
                         // responseText = returned by /comment
                         // route = all comments
                         comflow.innerHTML = xhr.responseText;
-                        convertEpoch(comflow.getElementsByTagName('time'));
+                        convertEpoch(comflow.querySelectorAll('time'));
                         form.reset();
                         break;
 

@@ -2,18 +2,21 @@
 {% block content %}
 <p>{{ posts|length }} post{% if posts|length > 1 %}s{% endif %}</p>
 
+<div id="categories">
+	<h2>Categories</h2>
+	<ul id="catlist">
+		<li style="color:#54c9b9">All</li>
+	</ul>
+</div>
+
 {% for year in posts|groupby('cyear')|reverse %}
 	{% if year.grouper != cur_year %}
 		<h2>{{ year.grouper }}</h2>
 	{% endif %}
-		<ul id="postlist">
+		<ul class="postlist">
 		{% for p in year.list %}
 			<li data-categories="{% for cat in p.cat %}{{ cat }}{% if not loop.last %} {% endif %}{% endfor %}"><a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a>{% if year.grouper == cur_year %} . <time>{{ p.ctime }}</time>{% endif %}</li>
 		{% endfor %}
-		</ul>
-		<h2>Categories filter</h2>
-		<ul id="categories">
-			<li>All</li>
 		</ul>
 {% endfor %}
 {% endblock %}
