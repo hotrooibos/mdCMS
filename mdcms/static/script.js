@@ -12,13 +12,18 @@ const like    = doc.querySelector('#like');
 const likcnt  = doc.querySelector('#likecounter');
 
 // /posts
-const pstlsts = doc.querySelectorAll('.postlist');
-const categs  = doc.querySelector('#catlist');
+const pstlsts = doc.querySelectorAll('ul.postlist');
+const catlist = doc.querySelector('ul#catlist');
 
 
 
 // If in /posts
-if (categs && pstlsts) {
+if (catlist && pstlsts) {
+    let selectedCat = 'All';
+    let postLis;            // A post <li>
+    let pLis = new Array(); // All posts <li>
+    let cats = new Array(); // All cats <li>
+    let pdc;                // Post data-category attr value
 
     /*
     BUILD CATEGORY ARRAY from the
@@ -26,53 +31,73 @@ if (categs && pstlsts) {
     */
 
     // GET POSTS <li> in an array
-    let plis = new Array();                                 // plis == all posts <li>
-    for (const post_ul of pstlsts) {
-        let postLis = post_ul.querySelectorAll('li');
+    for (const postUl of pstlsts) {
+        postLis = postUl.querySelectorAll('li');
 
-        for (const post_li of postLis) {
-            plis.push(post_li);
+        for (const postLi of postLis) {
+            pLis.push(postLi);
         }
     }
 
-
     // BUILD CATEGORY LIST from data-categories attributes
-    let cats = new Array();
-    for (const pli of plis) {
-        let c = pli.getAttribute('data-categories');
+    for (const pli of pLis) {
+        pdc = pli.getAttribute('data-categories');
 
-        if (c.length < 1) pli.setAttribute('data-categories', 'None');
+        if (pdc.length < 1) pli.setAttribute('data-categories', 'None');
 
-        for (let cat of c.split(' ')) {
+        for (let cat of pdc.split(' ')) {
             if (cat.length < 1) cat = 'None';
             if (!cats.includes(cat)) cats.push(cat);        // cats == all categories
         }
 
     }
 
+    // Create and append categories lis
     for (let cat of cats) {
         let li = doc.createElement("li");
         li.innerHTML = cat;
-        categs.appendChild(li);
+        catlist.appendChild(li);
     }
 
 
     /*
     CATEGORY FILTERING
     */
-    categs.addEventListener('click', (e) => {
+    catlist.addEventListener('click', (e) => {
         if (e.target && e.target.matches('li')) {
-            const selectedCat = e.target.innerHTML;
-            
-            for (const cat of categs.querySelectorAll('li')) {
-                cat.removeAttribute('style');
-            }
-            e.target.style.color = '#54c9b9';
 
-            for (const postLi of plis) {
+            // Clic on already selected cat = reset
+            if (selectedCat === e.target.innerHTML) selectedCat = 'All';
+            else selectedCat = e.target.innerHTML;
+
+            let reset = (selectedCat === 'All') ? true : false;
+
+            // Selected category styling
+            for (const cat of catlist.querySelectorAll('li')) {
+                if (selectedCat === cat.innerHTML) {
+                    cat.style.color = '#54c9b9';
+                }
+                else {
+                    cat.removeAttribute('style');
+                }
+            }
+
+            // Years H2 titles show/hide
+            const h2year = doc.querySelectorAll('.titleyear');
+            for (const h2 of h2year) {
+                if (reset) {
+                    h2.removeAttribute('style');
+                }
+                else {
+                    h2.style.display = 'none';
+                }
+            }
+
+            // Posts LI show/hide
+            for (const postLi of pLis) {
                 let postCats = postLi.getAttribute('data-categories').split(' ');
-                
-                if (selectedCat === 'All') {
+                                
+                if (reset) {
                     postLi.removeAttribute('style');
                     continue;
                 }
@@ -111,7 +136,7 @@ The Header SCROLL EFFECT
 */
 window.addEventListener("scroll", (e) => {
     let scpos = this.scrollY;
-    if (scpos > 100) {
+    if (scpos > 150) {
         header.style.fontSize = '1em';
         nav.style.padding = '.3em 0 .4em';
         // logo.style.display = 'none';
@@ -225,5 +250,23 @@ if (form) {
                 }
             }
         }
+    });
+
+    like.addEventListener('mouseover', (e) => {
+        let msgbox = doc.querySelector('#msgbox');
+
+        liketop = (like.getBoundingClientRect().top - 50) + 'px';
+        likeleft = (like.getBoundingClientRect().left -50) + 'px';
+
+        let box = doc.createElement("div");
+        box.setAttribute('id', 'msgbox');
+        box.innerHTML = "Like this page !";
+        box.style.top = liketop;
+        box.style.left =  likeleft;
+        doc.querySelector('body').appendChild(box);
+    });
+
+    like.addEventListener('mouseout', (e) => {
+        doc.querySelector('#msgbox').remove();
     });
 }

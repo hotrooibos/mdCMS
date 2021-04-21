@@ -32,7 +32,8 @@ class Md:
             mddat = mdf.read()
 
         wmd = [] # Datas to write to .md
-        md = Markdown(extensions=['meta','toc','extra','codehilite'])
+        md = Markdown(extensions=['meta','toc','extra',
+                                  'codehilite','md_in_html'])
 
         self.furl = mdurl
         self.content = md.convert(mddat)
@@ -51,7 +52,7 @@ class Md:
         self.cat = None
 
         #
-        # TITLE : get or build it
+        # TITLE : get or build
         #
         if md.Meta.get('title'):
             self.title = md.Meta.get('title')[0]
@@ -83,7 +84,7 @@ class Md:
         # ORIGINPOST : get from md if lang != default lang
         #
         if md.Meta.get('lang'):
-            self.lang = md.Meta.get('lang')[0]
+            self.lang = (md.Meta.get('lang')[0])[:2]
 
             # Get original/translated post if post lang
             # is different from the default CMS writing
@@ -92,7 +93,7 @@ class Md:
                 if md.Meta.get('originpost'):
                     self.originpost = md.Meta.get('originpost')[0]
                 else:
-                    wmd.append(('originpost', ""))
+                    self.title = f'[{self.lang}] {self.title}'
         else:
             self.lang = const.DEFAULT_LANG[:2]
 
@@ -101,8 +102,6 @@ class Md:
         #
         if md.Meta.get('categories'):
             self.cat = md.Meta.get('categories')
-        else:
-            wmd.append(('categories', ""))
 
         #
         # DATECR : get from md or create from OS fs metas
@@ -181,7 +180,6 @@ class Md:
         urlf = url
 
         if url in Md.urls:
-
             # If translation of another post
             # Might never be used as the title is supposed
             # to be translated too
@@ -253,16 +251,16 @@ def watchdog(mdb: list=[],
     # Loop over each .md file
     for f in os.listdir(const.MD_PATH):
         if f[-3:] == '.md':
-
             fpath = f'{const.MD_PATH}/{f}'
             fmtime = os.stat(fpath).st_mtime
 
+            # File not updated -> skip
             if not populate and fmtime <= mdb_last:
-                continue      # File not updated -> skip
-
-            md = Md(f, fpath)
+                continue
 
             # Update post in memory
+            md = Md(f, fpath)
+
             if md.url in known_mds:
                 if md.mtime > mdb_last:
                     log.info(f'Update post "{f}"')

@@ -2,7 +2,12 @@
     font-family: 'Rec Mono Linear';
     src: url('/static/fonts/RecMonoLinear.woff2') format('woff2'),
          url('/static/fonts/RecMonoLinear.ttf')  format('truetype');
-  }
+}
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('/static/fonts/PlayfairDisplay.woff2') format('woff2'),
+         url('/static/fonts/PlayfairDisplay.ttf')  format('truetype');
+}
 
 /*
 GENERAL
@@ -46,9 +51,6 @@ ul {
 img {
     width: 100%;
 }
-time {
-    opacity: .3;
-}
 code {
     padding: .1em;
     border-radius: .1em;
@@ -88,7 +90,7 @@ h2,
 h3,
 h4,
 h5 {
-    line-height: 1.3;
+    color: #d1cbc3;
 }
 
 h1 {
@@ -108,7 +110,14 @@ h1 {
     flex-direction: column;
 }
 
-
+#msgbox {
+    position: fixed;
+    padding: .3em;
+    border-radius: .3em;
+    font-weight: bold;
+    color: #252728;
+    background-color: #C06C84;
+}
 
 /*
 HEADER
@@ -162,13 +171,13 @@ CONTENT
 */
 #content {
     margin-top: .5em;
-    flex-grow: 2;
     max-width: 40em;
     font-size: 1.2em;
 }
-    /* #title {
-        font-size: 4em;
-    } */
+
+    /*
+    ROOT
+    */
     #title {
         margin: 0 0 .2em;
         font-size: 5em;
@@ -207,53 +216,79 @@ CONTENT
     span.blue { color:#61afee; }
     span.orange { color:#d19a5e; }
     span.red { color:#e06660; }
-
     #presentation {
         margin: 0 0 2em 0;
         font-size: 1.3em;
     }
 
+    /*
+    POSTS LIST
+    */
     #categories {
-        margin-bottom: 3em;
+        margin-bottom: 1em;
     }
         #categories li {
-            display: inline;
+            display: inline-flex;
             margin: .2em;
-            padding: 0 .2em;
-            border-radius: 3px;
+            padding: 0 .3em 0.1em;
+            border-radius: 5px;
             background-color: rgb(63, 63, 51);
-            cursor:pointer;
+            cursor: pointer;
         }
+    h2.titleyear {
+        margin-bottom: 0;
+        opacity: .3;
+    }
+    .postlist {
+        margin: 0;
+    }
+    /*
+    POST
+    */
+    #metadata {
+        font-size: .8em;
+        font-weight: bold;
+        opacity: .3;
+    }
+    #post {
+        margin: 2em 0;
+    }
+    p.cust_image {
+        display: flex;
+        flex-direction: row;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+    }
+    #post ul {
+        all: unset;
+        text-align: justify;
+    }
+    #post li {
+        margin-bottom: .5em;
+    }
+    .postitle {
+        margin: .5em 0;
+        font-size: 2.5em;
+        font-family: "Playfair Display", serif;
+        color: #d1cbc3;
+        text-align: center;
+        text-shadow: 1px 2px 1px #1e2229;
+    }
 
-        #post ul {
-            all: unset;
-            text-align: justify;
-        }
-        #post li {
-            margin-bottom: .5em;
-        }
-        .postitle {
-            margin: 0;
-            font-size: 2.5em;
-            color: #bf5695;
-            text-shadow: 1px 2px 1px #1e2229;
-        }
-        .postitle a,
-        .postitle a:visited {
-            color: #bf5695;
-        }
-        .postitle a:hover {
-            color: #c988af;
-            background: none;
-            border-radius: initial;
-        }
-        .datestamp {
-            opacity: .3;
-            text-align: right;
-        }
-        .datestamp time {
-            opacity: initial;
-        }
+    .postitle a,
+    .postitle a:visited {
+        color: #bf5695;
+    }
+    .postitle a:hover {
+        color: #c988af;
+        background: none;
+        border-radius: initial;
+    }
+    .datestamp {
+        opacity: .3;
+        text-align: right;
+    }
 
     #comments {
         width: 100%;
@@ -311,18 +346,13 @@ CONTENT
             border-radius: .3em;
             font-size: 1.1em;
             font-weight: bold;
-            background-color: #54c9b9;
-            background-image: url('/static/doge.png');
-            background-repeat: no-repeat;
-            background-size: auto 100%;
+            background-color: #d1cbc3;
             box-shadow: 0px 2px 5px #1e2229;
-            color: #bf5695;
+            cursor: pointer;
         }
-        .submit:hover,
-        .submit:active,
-        .submit:focus {
-            background-color: #bf5695;
-            color: #54c9b9;
+        .submit:hover {
+            opacity: .8;
+            box-shadow: 0px 5px 10px #1e2229;
         }
 
     #translation {

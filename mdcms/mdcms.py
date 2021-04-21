@@ -203,14 +203,12 @@ def flaskapp():
         # Hide translation posts from list
         posts = []
         for p in mdb:
-            if p.lang == const.DEFAULT_LANG[:2]:
+            if p.lang == const.DEFAULT_LANG[:2] or \
+                    not p.originpost:
                 posts.append(p)
         
-        cur_year = utils.to_datestr(time(), out_format='%Y')
-
         return fk.render_template('pages/posts.j2',
-                                  posts=posts,
-                                  cur_year=cur_year)
+                                  posts=posts)
 
 
     @app.route('/posts/ressources/<path:filename>')

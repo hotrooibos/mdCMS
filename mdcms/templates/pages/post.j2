@@ -1,11 +1,15 @@
+{% set title = post.title + ' : marzin.org' %}
+
 {% extends 'layouts/default.j2' %}
 {% block content %}
 	<div id="post">
 		<h1 class="postitle">{{ post.title }}</h1>
+		<div id="metadata">
+			<p><time>{{ post.ctime }}</time> by {{ post.author }} - Categories : {% for cat in post.cat %}{{ cat }} {% endfor %}</p>
+		</div>
 		<hr>
 			{{ post.content|safe }}
 		<hr>
-		<p class="datestamp"><time>{{ post.ctime }}</time> (update <time>{{ post.mtime }}</time>)</p>
 	</div>
 
 	<div id="comments">
