@@ -167,6 +167,17 @@ def process_comment(post_id: str,
 
 
 
+def remote_addr() -> str:
+    '''Return client IP adress even if behind proxy (nginx...)
+    '''
+    if 'X-Forwarded-For' in request.headers:
+        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
+    else:
+        remote_addr = request.remote_addr or 'untrackable'
+    return remote_addr
+
+
+
 def get_404_alt(url: str):
     '''TODO Retourner une liste de posts au nom
     similaire en cas de 404
@@ -269,8 +280,7 @@ def flaskapp():
 
         Security, anti junk check, comment processing
         '''
-        sender_ip = fk.request.environ.get('HTTP_X_REAL_IP',
-                                           fk.request.remote_addr)
+        sender_ip = remote_addr()
 
         if banned(sender_ip) == True:
             return fk.abort(403, "Banned due to suspicious activity")
@@ -303,8 +313,7 @@ def flaskapp():
     def like():
         global pending_w
 
-        sender_ip = fk.request.environ.get('HTTP_X_REAL_IP',
-                                           fk.request.remote_addr)
+        sender_ip = remote_addr()
 
         # Get post url from Referer
         referer = fk.request.headers.get("Referer")
@@ -343,7 +352,7 @@ def flaskapp():
 
 
     @app.route('/about')
-    def about():
+    def about():            
         return fk.render_template('pages/about.j2')
 
 
