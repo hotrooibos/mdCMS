@@ -223,68 +223,7 @@ class Md:
 
         else:
             return 'No title'
-
-
-
-def watchdog(mdb: list=[],
-             pending_w: bool=None) -> list:
-    '''Polling MD_PATH for .md file change
-   comparing with known MD base (mdb).
-
-    Also, if new data (comment, bans) are
-    pending for writing, then write them to json
-
-    Returns the updated MD Base
-    '''
-    # Populate (1st watchdog execution) -> process all md
-    populate = True if len(mdb) < 1 else False
-
-    # Get all known post url (id) in memory
-    known_mds = []
-    mdb_last = 0
-
-    for md in mdb:
-        known_mds.append(md.url)
-        if md.mtime > mdb_last:
-            mdb_last = md.mtime
-
-    # Loop over each .md file
-    for f in os.listdir(const.MD_PATH):
-        if f[-3:] == '.md':
-            fpath = f'{const.MD_PATH}/{f}'
-            fmtime = os.stat(fpath).st_mtime
-
-            # File not updated -> skip
-            if not populate and fmtime <= mdb_last:
-                continue
-
-            # Update post in memory
-            md = Md(f, fpath)
-
-            if md.url in known_mds:
-                if md.mtime > mdb_last:
-                    log.info(f'Update post "{f}"')
-                    i = known_mds.index(md.url)
-                    mdb[i] = md
-                else:
-                    continue
-
-            # Add post in mem
-            else:
-                mdb.insert(0, md)
-                log.info(f'Add post "{f}"')
-
-                # Sort posts by ctime at populate time
-                if populate:
-                    mdb.sort(key=lambda x: x.ctime,
-                             reverse=True)
-
-    if pending_w:
-        jd().write()    # WRITE json
-
-    return mdb    
-
-
+ 
 
 
     # def md_checkup():

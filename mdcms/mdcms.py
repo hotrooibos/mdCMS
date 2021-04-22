@@ -1,16 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
-from copy import deepcopy
-from mdcms import utils
 import flask as fk
 from flask.globals import request
 from flask.helpers import send_from_directory
 import logging
+from os import listdir, stat
 from threading import Thread
 from time import sleep, time, strftime, localtime
 from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.exceptions import HTTPException
 from . import constants as const
-from . import md
+from .md import Md
 from .jdata import Jdata as jd
 
 
@@ -29,19 +28,70 @@ log = logging.getLogger(__name__)
 # Mdcms setup
 mdb = []            # Markdown posts base
 jd().read()         # Read json data
-pending_w = False   # Comments/bans to be written in json
+pending_w = False   # Pending writes in json
 
 
 
-def mdcms():
-    '''CMS background job
+def watchdog():
+    '''Polling MD_PATH for .md file change
+   comparing with known MD base (mdb).
+
+    Also, if new data (comment, bans) are
+    pending for writing, then write them to json
+
+    Returns the updated MD Base
     '''
     global mdb
     global pending_w
 
     while True:
-        md.watchdog(mdb, pending_w)
-        pending_w = False           # Reset pending
+        # Initial execution -> process all md
+        populate = True if len(mdb) < 1 else False
+
+        # Get all known post url (id) in memory
+        known_mds = []
+        mdb_last = 0
+
+        for md in mdb:
+            known_mds.append(md.url)
+            if md.mtime > mdb_last:
+                mdb_last = md.mtime
+
+        # Loop over each .md file
+        for f in listdir(const.MD_PATH):
+            if f[-3:] == '.md':
+                fpath = f'{const.MD_PATH}/{f}'
+                fmtime = stat(fpath).st_mtime
+
+                # File not updated -> skip
+                if not populate and fmtime <= mdb_last:
+                    continue
+
+                # Update post in memory
+                md = Md(f, fpath)
+
+                if md.url in known_mds:
+                    if md.mtime > mdb_last:
+                        log.info(f'Update post "{f}"')
+                        i = known_mds.index(md.url)
+                        mdb[i] = md
+                    else:
+                        continue
+
+                # Add post in mem
+                else:
+                    mdb.insert(0, md)
+                    log.info(f'Add post "{f}"')
+
+                    # Sort posts by ctime at populate time
+                    if populate:
+                        mdb.sort(key=lambda x: x.ctime,
+                                reverse=True)
+
+        if pending_w:
+            jd().write()        # WRITE json
+            pending_w = False   # Reset pending
+
         sleep(const.CHECK_TIME)
 
 
@@ -194,7 +244,7 @@ def flaskapp():
     app.jinja_env.lstrip_blocks = True
 
     # START mdCMS thread
-    Thread(target=mdcms, daemon=True).start()
+    Thread(target=watchdog, daemon=True).start()
 
 
     @app.route('/')
