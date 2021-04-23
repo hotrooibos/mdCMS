@@ -231,6 +231,7 @@ def remote_addr() -> str:
 def get_404_alt(url: str) -> list:
     '''Return posts which url similar to the given 'url' argument.
     '''
+    url = url.lower()
     alts = [] # List of Md objects
 
     for u in Md.urls:
@@ -238,11 +239,11 @@ def get_404_alt(url: str) -> list:
         for word in u.split('_'):
             if url.find(word) != -1:
                 i+= 1
-            print(i)
-            if i == 1:
+
+            if i == 1: # 1 word match==url match
                 for md in mdb:
                     if md.url == u:
-                        alts.append(md) # 2 words match==url match
+                        alts.append(md)
                         break
                 break
 
