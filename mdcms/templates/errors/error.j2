@@ -2,6 +2,17 @@
 {% block content %}
 	<div id="error">
 		<h1>{{ code }}</h1>
-		<p>{{ desc }}</p>
+		<div id="errordesc">{{ desc }}</div>
+
+		{% if alt %}
+		<div id="erroralts">
+			<p>You were maybe looking for :</p>
+			<ul>
+				{% for p in alt %}
+				<li><a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a></li>
+				{% endfor %}
+			</ul>
+		</div>
+		{% endif %}
 	</div>
 {% endblock %}

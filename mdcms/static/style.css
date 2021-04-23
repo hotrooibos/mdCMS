@@ -425,12 +425,18 @@ ERROR
 */
 #error {
     margin-bottom: 5em;
-    text-align: center;
 }
     #error h1 {
         font-size: 3em;
+        text-align: center;
     }
-
+    #errordesc {
+        font-size: 2em;
+        text-align: center;
+    }
+    #erroralts {
+        margin: 2em 0;
+    }
 
 
 /* Mobile responsiveness */

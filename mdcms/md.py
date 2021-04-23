@@ -1,13 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 from . import constants as const
 from . import utils
-from .jdata import Jdata as jd
 import logging
 from markdown import Markdown
 import os
 from time import time
 import unicodedata
 
+# Init logger
 log = logging.getLogger(__name__)
 
 
@@ -124,8 +124,6 @@ class Md:
     def write(self, data_to_write: list):
         '''Write metadatas to .md file
         '''
-        w = data_to_write
-
         with open(self.furl,
                   mode='r+',
                   encoding='utf-8') as md:
@@ -196,6 +194,8 @@ class Md:
 
 
     def build_title(self):
+        ''' Tries to build a title from content
+        '''
         with open(self.furl,
                   mode='r+',
                   encoding='utf-8') as md:

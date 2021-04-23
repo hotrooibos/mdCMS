@@ -228,11 +228,25 @@ def remote_addr() -> str:
 
 
 
-def get_404_alt(url: str):
-    '''TODO Retourner une liste de posts au nom
-    similaire en cas de 404
+def get_404_alt(url: str) -> list:
+    '''Return posts which url similar to the given 'url' argument.
     '''
-    return None
+    alts = [] # List of Md objects
+
+    for u in Md.urls:
+        i = 0
+        for word in u.split('_'):
+            if url.find(word) != -1:
+                i+= 1
+            print(i)
+            if i == 1:
+                for md in mdb:
+                    if md.url == u:
+                        alts.append(md) # 2 words match==url match
+                        break
+                break
+
+    return alts
 
 
 
@@ -286,7 +300,6 @@ def flaskapp():
         
         if not post:
             alt = get_404_alt(url)
-            # TODO parser l'url demandée et proposer un post qui y ressemble
             fk.abort(404, ("This post doesn't exist", alt))
 
         # Get translations of this post
@@ -408,8 +421,17 @@ def flaskapp():
 
     @app.errorhandler(HTTPException)
     def http_err_handler(error):
-        return fk.render_template('errors/error.j2',
-                                  code=error.code,
-                                  desc=error.description)
+
+        if type(error.description) is str:
+            return fk.render_template('errors/error.j2',
+                                    code=error.code,
+                                    desc=error.description)
+
+        # Tuple = (description, alt posts propositions when 404)
+        elif type(error.description) is tuple:
+            return fk.render_template('errors/error.j2',
+                        code=error.code,
+                        desc=error.description[0],
+                        alt=error.description[1])
 
     return app
