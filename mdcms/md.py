@@ -102,6 +102,8 @@ class Md:
         #
         if md.Meta.get('categories'):
             self.cat = md.Meta.get('categories')
+        else:
+            self.cat = ['None']
 
         #
         # DATECR : get from md or create from OS fs metas
