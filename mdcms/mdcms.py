@@ -120,7 +120,7 @@ def valid_form(form: ImmutableMultiDict):
 def banned(sender_ip: str) -> bool:
     '''Comments anti junk
     
-    Return True if IP@ is banned, False if not
+    Return True if IP@ is banned
     '''
     global pending_w
     banstate = 0
@@ -145,16 +145,16 @@ def banned(sender_ip: str) -> bool:
             return True
 
     # Gather all old comments' time recorded from sender
-    sender_comments = []
+    sender_comtime = []
 
     for v in jd().jdat['comments'].values():
         for i in v:
             if i.get('ip') == sender_ip:
-                sender_comments.append(i.get('time'))
+                sender_comtime.append(i.get('time'))
 
     # Ban if 5th comment within 5 last minutes
-    if len(sender_comments) > 4:
-        deltatime = time() - sender_comments[-5]
+    if len(sender_comtime) > 4:
+        deltatime = time() - sender_comtime[-5]
 
         # If time between now (last comment) and
         # 5th last comment time < 5mn, ban sender
@@ -179,6 +179,14 @@ def banned(sender_ip: str) -> bool:
                 jd().jdat['bans'][sender_ip]['banstate'] = -1
                 jd().jdat['bans'][sender_ip]['bantime'] = time()
 
+            # At any banstate level, set sender
+            # comments display_status to False
+            # TODO à tester...
+            for v in jd().jdat['comments'].values():
+                for i in v:
+                    if i.get('ip') == sender_ip:
+                        i['display_status'] = False
+
             pending_w = True           
             return True
 
@@ -199,6 +207,7 @@ def process_comment(post_id: str,
         "name":form_data['name'],
         "mail":form_data['email'],
         "comm":form_data['comment'],
+        "disp":True
     }
 
     # First comment for this post
@@ -211,7 +220,6 @@ def process_comment(post_id: str,
     # Add comment to existing ones for this post
     else:
         jd().jdat['comments'][post_id].append(comment)
-
 
     pending_w = True
 
