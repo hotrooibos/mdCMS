@@ -158,6 +158,7 @@ def banned(sender_ip: str) -> bool:
 
         # If time between now (last comment) and
         # 5th last comment time < 5mn, ban sender
+        # and hide ALL his previous comments
         if deltatime < 300:
             # Newbie, add to json bans, state 1
             if banstate == 0:
@@ -179,9 +180,7 @@ def banned(sender_ip: str) -> bool:
                 jd().jdat['bans'][sender_ip]['banstate'] = -1
                 jd().jdat['bans'][sender_ip]['bantime'] = time()
 
-            # At any banstate level, set sender
-            # comments display_status to False
-            # TODO à tester...
+            # Hide all his previous comments
             for v in jd().jdat['comments'].values():
                 for i in v:
                     if i.get('ip') == sender_ip:
@@ -207,7 +206,7 @@ def process_comment(post_id: str,
         "name":form_data['name'],
         "mail":form_data['email'],
         "comm":form_data['comment'],
-        "disp":True
+        "display_status":True
     }
 
     # First comment for this post
@@ -331,8 +330,11 @@ def flaskapp():
         for url, v in jd().jdat['comments'].items():
             if url == post.url:
                 coms = v
+                # TODO coms_filt = (c for c in v.items() if c.get('display_status') == True)
+
                 break
         
+
         # Get like count
         likecounter = 0
         for k, v in jd().jdat['likes'].items():
