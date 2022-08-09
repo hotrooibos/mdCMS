@@ -6,8 +6,10 @@ const nav     = doc.querySelector('#nav');
 // const logo    = doc.querySelector('#logo');
 
 // /post
-const form    = doc.querySelector('#comment_form');
+const comms   = doc.querySelector('#comments');
 const comflow = doc.querySelector('#comflow');
+const comform = doc.querySelector('#comform');
+const form    = doc.querySelector('#comment_form');
 const like    = doc.querySelector('#like');
 const likcnt  = doc.querySelector('#likecounter');
 
@@ -180,7 +182,7 @@ if (form) {
         let err = false;    // Error flag
 
         // Inputs test
-        for(var i of newcom.entries()){
+        for (var i of newcom.entries()) {
             let ele = doc.getElementById(i[0]);
             let len = i[1].length;
             ele.style = null;
@@ -216,9 +218,6 @@ if (form) {
         if (err)
             return; // If any error, do not process request
 
-        // Save  current comment flow
-        const currcom = comflow.innerHTML;
-
         // TODO CALL CAPTCHA
 
         // SEND COMMENT
@@ -227,22 +226,26 @@ if (form) {
         xhr.open('POST', '/comment');
         xhr.send(newcom);
 
+        let currcom = comflow.innerHTML;
+
         xhr.onreadystatechange = () => {
+
             comflow.innerHTML = '<h2 id="comtitle">Loading comments...</h2>';
 
             if(xhr.readyState === 4) {
                 switch (xhr.status) {
-                    case 403:
-                        // Do nothing, restore comment flow
-                        comflow.innerHTML = currcom;
-                        break;
-
                     case 200:
                         // responseText = returned by /comment
                         // route = all comments
                         comflow.innerHTML = xhr.responseText;
                         convertEpoch(comflow.querySelectorAll('time'));
                         form.reset();
+                        break;
+
+                    case 403:
+                        // ban
+                        comflow.innerHTML = currcom;
+                        comform.remove();
                         break;
 
                     default:
@@ -253,20 +256,19 @@ if (form) {
     });
 
     like.addEventListener('mouseover', (e) => {
-        let msgbox = doc.querySelector('#msgbox');
-
         liketop = (like.getBoundingClientRect().top - 50) + 'px';
         likeleft = (like.getBoundingClientRect().left -50) + 'px';
 
         let box = doc.createElement("div");
-        box.setAttribute('id', 'msgbox');
+        box.setAttribute('id', 'likbox');
+        box.setAttribute('class', 'msgbox');
         box.innerHTML = "Like this page !";
         box.style.top = liketop;
-        box.style.left =  likeleft;
+        box.style.left = likeleft;
         doc.querySelector('body').appendChild(box);
     });
 
     like.addEventListener('mouseout', (e) => {
-        doc.querySelector('#msgbox').remove();
+        doc.querySelector('#likbox').remove();
     });
 }

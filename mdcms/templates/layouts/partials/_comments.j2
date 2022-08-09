@@ -1,12 +1,22 @@
+		<div id="comflow">
         {% if coms|length > 0  %}
             <h2 id="comtitle">{{ coms|length }} comment{% if coms|length > 1 %}s{% endif %}</h2>
 
-            {% for c in coms %}
-            <div class="com {{ loop.cycle('flex-ltr', 'flex-rtl') }}">
-                <div class="cometa">{{ c.name }}</div>
-                <div class="comment">{{ c.comm }} <span class="datestamp">– <time>{{ c.time }}</time></span></div>
-            </div>
-            {% endfor %}
+    		{% include 'layouts/partials/_comflow.j2' %}
         {% else %}
             <h2 id="comtitle">Be the first to comment !</h2>
         {% endif %}
+        </div>
+        {% if ban == False  %}
+		<div id="comform">
+            <form method="post" id="comment_form" class="flex-utd">
+                <input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">
+                <input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail @ (optional)">
+                <textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you." oninput='this.style.height="";this.style.height=this.scrollHeight + "px"'></textarea>
+                <input type="submit" class="submit" value="GO">
+            </form>
+		</div>
+		{% endif %}
+
+
+

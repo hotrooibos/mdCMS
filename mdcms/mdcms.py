@@ -160,6 +160,14 @@ def banned(sender_ip: str) -> bool:
         # 5th last comment time < 5mn, ban sender
         # and hide ALL his previous comments
         if deltatime < 300:
+            pending_w = True           
+
+            # Hide all his previous comments
+            for v in jd().jdat['comments'].values():
+                for i in v:
+                    if i.get('ip') == sender_ip:
+                        i['display_status'] = False
+
             # Newbie, add to json bans, state 1
             if banstate == 0:
                 newban = {
@@ -169,27 +177,21 @@ def banned(sender_ip: str) -> bool:
                     }
                 }
                 jd().jdat['bans'].update(newban)
+                return True
 
             # Ban harder, states 1 & 2
             elif banstate in (1,2,3):
                 jd().jdat['bans'][sender_ip]['banstate'] += 1
                 jd().jdat['bans'][sender_ip]['bantime'] = time()
+                return True
 
             # Permanent ban
             elif banstate == 4:
                 jd().jdat['bans'][sender_ip]['banstate'] = -1
                 jd().jdat['bans'][sender_ip]['bantime'] = time()
+                return True
 
-            # Hide all his previous comments
-            for v in jd().jdat['comments'].values():
-                for i in v:
-                    if i.get('ip') == sender_ip:
-                        i['display_status'] = False
-
-            pending_w = True           
-            return True
-
-    return False
+    return False # Not banned
 
 
 
@@ -325,7 +327,11 @@ def flaskapp():
                     p.url == post.originpost:
                 transl.append(p)
 
-        # Get comments (old ones + new if POST request)
+        # Get visitor's ban state
+        sender_ip = remote_addr()
+        ban = banned(sender_ip)
+
+        # Get comments
         coms = []
         for url, v in jd().jdat['comments'].items():
             if url == post.url:
@@ -340,10 +346,11 @@ def flaskapp():
         for k, v in jd().jdat['likes'].items():
             if k == post.url:
                 likecounter = len(v)
-            
+
         return fk.render_template('pages/post.j2',
                                   post=post,
                                   transl=transl,
+                                  ban=ban,
                                   coms=coms,
                                   likecounter=likecounter)
 
@@ -352,12 +359,15 @@ def flaskapp():
     def comment():
         '''Perform comment request from XHR (AJAX)
 
-        Security, anti junk check, comment processing
+        Security, anti junk check, comment digest
         '''
         sender_ip = remote_addr()
+        ban = banned(sender_ip)
 
-        if banned(sender_ip) == True:
-            return fk.abort(403, "Banned due to suspicious activity")
+        if ban == True:
+            httpcode = 403
+        else:
+            httpcode = 200
 
         form = fk.request.form # FORM DATA
 
@@ -370,17 +380,20 @@ def flaskapp():
         referer = fk.request.headers.get("Referer")
         post_url = referer.split('/')[-1]
         
-        process_comment(post_url, form, sender_ip)
+        # Process comment only if user is not banned
+        if httpcode == 200 :
+            process_comment(post_url, form, sender_ip)
 
-        # Get comments (olds + new one if valid)
+        # Get comments (olds + new if not banned)
         coms = []
         for url, v in jd().jdat['comments'].items():
             if url == post_url:
                 coms = v
                 break
-
-        return fk.render_template('layouts/partials/_comments.j2',
-                                  coms=coms)
+        
+        # Return comment flow + http code (ban status)
+        return fk.render_template('layouts/partials/_comflow.j2',
+                                  coms=coms), httpcode
 
 
     @app.route('/like', methods=['POST'])

@@ -13,16 +13,7 @@
 	</div>
 
 	<div id="comments">
-		<div id="comflow">
 		{% include 'layouts/partials/_comments.j2' %}
-		</div>
-		
-		<form method="post" id="comment_form" class="flex-utd">
-			<input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">
-			<input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail @ (optional)">
-			<textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you." oninput='this.style.height="";this.style.height=this.scrollHeight + "px"'></textarea>
-			<input type="submit" class="submit" value="GO">
-		</form>
 	</div>
 
 	{% if transl|length > 0 %}

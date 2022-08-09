@@ -1,0 +1,6 @@
+            {% for c in coms %}
+            <div class="com {{ loop.cycle('flex-ltr', 'flex-rtl') }}">
+                <div class="cometa">{{ c.name }}</div>
+                <div class="comment">{{ c.comm }} <span class="datestamp">– <time>{{ c.time }}</time></span></div>
+            </div>
+            {% endfor %}
