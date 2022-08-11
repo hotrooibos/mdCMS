@@ -336,10 +336,13 @@ def flaskapp():
         for url, v in jd().jdat['comments'].items():
             if url == post.url:
                 coms = v
-                # TODO coms_filt = (c for c in v.items() if c.get('display_status') == True)
-
                 break
-        
+
+        # TODO Remove comment of banned IP@
+        # for c in coms:
+        #     if (c['display_status'] == False):
+        #         coms.pop(coms.index)
+      
 
         # Get like count
         likecounter = 0
