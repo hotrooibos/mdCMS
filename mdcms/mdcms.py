@@ -331,18 +331,19 @@ def flaskapp():
         sender_ip = remote_addr()
         ban = banned(sender_ip)
 
-        # Get comments
-        coms = []
+        # Get this post comments (unfiltered)
+        unfltrd_coms = []
         for url, v in jd().jdat['comments'].items():
             if url == post.url:
-                coms = v
+                unfltrd_coms = v
                 break
 
-        # TODO Remove comment of banned IP@
-        # for c in coms:
-        #     if (c['display_status'] == False):
-        #         coms.pop(coms.index)
-      
+        # Gather comments to display (e.g. skip banned)
+        coms = []
+        for c in unfltrd_coms:
+            if not c['display_status']:
+                continue
+            coms.append(c)      
 
         # Get like count
         likecounter = 0
