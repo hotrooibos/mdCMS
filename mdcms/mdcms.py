@@ -2,6 +2,7 @@
 import flask as fk
 from flask.globals import request
 from flask.helpers import send_from_directory
+import jinja2
 import logging
 from os import listdir, stat
 from threading import Thread
@@ -34,7 +35,7 @@ pending_w = False   # Pending writes in json
 
 def watchdog():
     '''Polling MD_PATH for .md file change
-   comparing with known MD base (mdb).
+    comparing with known MD base (mdb).
 
     Also, if new data (comment, bans) are
     pending for writing, then write them to json
@@ -98,7 +99,6 @@ def watchdog():
 
 def valid_form(form: ImmutableMultiDict):
     '''Form validation
-    
     Raise 403 HTTP errors for any wrong format
     '''
 
@@ -118,9 +118,10 @@ def valid_form(form: ImmutableMultiDict):
 
 
 def banned(sender_ip: str) -> bool:
-    '''Comments anti junk
-    
-    Return True if IP@ is banned
+    '''Comments anti junk/bot.
+    Set different ban states which depends on visitor's (sender)
+    comment frequency and ban triggering recidivism.
+    Return True if visitor's ip is currently banned.
     '''
     global pending_w
     banstate = 0
@@ -287,6 +288,20 @@ def flaskapp():
                                   posts=mdb)
 
 
+    @app.route('/<string:url>')
+    def page(url):
+        '''Default page renderer
+        '''
+        try:
+            if url == 'index':
+                return fk.abort(404)
+                
+            return fk.render_template(f'pages/{url}.j2')
+        
+        except jinja2.exceptions.TemplateNotFound:
+            fk.abort(404)
+            
+
     @app.route('/fullposts')
     def fullposts():
         return fk.render_template('pages/fullposts.j2',
@@ -450,11 +465,6 @@ def flaskapp():
     @app.route('/git')
     def git():
         return fk.redirect('https://github.com/hotrooibos')
-
-
-    @app.route('/about')
-    def about():            
-        return fk.render_template('pages/about.j2')
 
 
     @app.errorhandler(HTTPException)

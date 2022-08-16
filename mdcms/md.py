@@ -14,11 +14,9 @@ log = logging.getLogger(__name__)
 
 class Md:
     '''Markdown document class.
-
     File name and URL strings to .md file in argument.
     
     Usage:
-
         mdfile = Md('readme.md', '/home/antoine/readme.md')
     '''
     urls = []
