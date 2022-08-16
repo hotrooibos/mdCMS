@@ -270,6 +270,16 @@ def flaskapp():
     # START mdCMS thread
     Thread(target=watchdog, daemon=True).start()
 
+    @app.context_processor
+    def utility_processor():
+        '''Flask utility "global" variables, callable from any template
+        '''
+        utilvars = {
+            "curr_year": strftime('%Y')
+        }
+
+        return dict(utilvars=utilvars)
+
 
     @app.route('/')
     def index():

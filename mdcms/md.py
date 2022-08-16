@@ -41,7 +41,7 @@ class Md:
         self.mtime = os.stat(self.furl).st_mtime
 
         # Metas
-        self.title = None
+        self.title = fname[:-3] # Filename without '.md'
         self.author = const.DEFAULT_AUTHOR
         self.url = None
         self.ctime = None
@@ -52,12 +52,11 @@ class Md:
         self.cat = None
 
         #
-        # TITLE : get or build
+        # TITLE : get or use+write the one from filename
         #
         if md.Meta.get('title'):
             self.title = md.Meta.get('title')[0]
         else:
-            self.title = self.build_title()
             wmd.append(('title', self.title))
 
         #
@@ -195,42 +194,41 @@ class Md:
 
 
 
-    def build_title(self):
-        ''' Tries to build a title from content
-        '''
-        with open(self.furl,
-                  mode='r+',
-                  encoding='utf-8') as md:
-            mdl = md.readlines()
+    # def build_title(self):
+    #     ''' Build title from file name
+    #     '''
+        # with open(self.furl,
+        #           mode='r+',
+        #           encoding='utf-8') as md:
+        #     mdl = md.readlines()
 
-        titl = None
+        # titl = None
 
-        for l in mdl:
-            if l[:2] == '# ':
-                titl = l[2:]
-                break
-            elif l[:3] == '## ':
-                titl = l[3:]
-                break
-            elif l[:4] == '### ':
-                titl = l[4:]
-                break
-            elif l[:5] == '#### ':
-                titl = l[5:]
-                break
+        # for l in mdl:
+        #     if l[:2] == '# ':
+        #         titl = l[2:]
+        #         break
+        #     elif l[:3] == '## ':
+        #         titl = l[3:]
+        #         break
+        #     elif l[:4] == '### ':
+        #         titl = l[4:]
+        #         break
+        #     elif l[:5] == '#### ':
+        #         titl = l[5:]
+        #         break
 
-        if titl:
-            titl = titl.replace('\n','')
-            return titl
+        # if titl:
+        #     titl = titl.replace('\n','')
+        #     return titl
 
-        else:
-            return 'No title'
+        # else:
+        #     return 'Untitled'
  
 
 
     # def md_checkup():
-    '''
-    Vérif complète des md.
+    '''Vérif complète des md.
 
     TODO Loop sur tous les fichiers md comportant un id, pour vérifier qu'il
     existe bien un post à l'id correspondant dans le JSON
@@ -254,8 +252,7 @@ class Md:
 
     # @staticmethod
     # def process_ressources(content):
-    '''
-    Lire le contenu du .md, puis vérifier la présence de lignes
+    '''Lire le contenu du .md, puis vérifier la présence de lignes
     au format ![*](*.png/jpg/gif/svg)
     '''
     # In content, find regex ![*](*.jpg) or one of the others formats

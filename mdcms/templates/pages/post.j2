@@ -4,10 +4,10 @@
 {% block content %}
 	<div id="post">
 		<h1 class="postitle">{{ post.title }}</h1>
+		<hr>
 		<div id="metadata">
 			<p><time>{{ post.ctime }}</time> by {{ post.author }} - categories : {% for cat in post.cat %}{{ cat }} {% endfor %}</p>
 		</div>
-		<hr>
 			{{ post.content|safe }}
 		<hr>
 	</div>

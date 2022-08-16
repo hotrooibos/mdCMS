@@ -94,7 +94,7 @@ h5 {
 }
 
 h1 {
-    margin: 1em 0 .3em;
+    margin: 0 0 .3em;
 }
 
 .flex-ltr {
@@ -154,7 +154,7 @@ HEADER
         padding: 0;
     }
     #nav li {
-        padding: 0 .3em;
+        padding: 0 .5em;
     }
 #wip {
     width: 100%;
@@ -180,15 +180,15 @@ CONTENT
     */
     #title {
         margin: 0 0 .2em;
-        font-size: 5em;
-        text-align: center;
+        font-size: 2.5em;
+        text-align: left;
         background-color: #F67280;
         background-image: linear-gradient(45deg,
-                                        #F8B195 0 25%,
-                                        #F67280 25% 41.666%,
-                                        #C06C84 41.666% 58.333%,
-                                        #6C5B7B 58.333% 75%,
-                                        #355C7D 75% 100%);
+                                        #F8B195 0 10%,
+                                        #F67280 10% 20%,
+                                        #C06C84 20% 30%,
+                                        #6C5B7B 30% 40%,
+                                        #355C7D 40% 100%);
         background-position: -18em 0;
         background-size: 100%;
         background-repeat: repeat;
@@ -246,13 +246,13 @@ CONTENT
     POST
     */
     #metadata {
-        margin-bottom: 2em;
+        margin-top: 2em;
         font-size: .8em;
         font-weight: bold;
-        opacity: .3;
+        opacity: .4;
     }
     #metadata p {
-        text-align: center;
+        text-align: left;
     }
     #post {
         margin: 2em 0;
@@ -276,7 +276,7 @@ CONTENT
         font-size: 2.5em;
         font-family: "Playfair Display", serif;
         color: #d1cbc3;
-        text-align: center;
+        text-align: left;
         text-shadow: 1px 2px 1px #1e2229;
     }
 
