@@ -1,22 +1,21 @@
 		<div id="comflow">
-        {% if coms|length > 0  %}
+            {% if coms|length > 0  %}
             <h2 id="comtitle">{{ coms|length }} comment{% if coms|length > 1 %}s{% endif %}</h2>
-
     		{% include 'layouts/partials/_comflow.j2' %}
-        {% else %}
-            <h2 id="comtitle">Be the first to comment !</h2>
-        {% endif %}
+            {% endif %}
         </div>
         {% if ban == False  %}
 		<div id="comform">
+            {% if coms|length > 0  %}
+            <p id="toggleform">Add a comment <span id="tglformarrow">&#129134;</span></div>
+            {% else %}
+            <p id="toggleform">Be the first to comment &#129134;</p>
+            {% endif %}
             <form method="post" id="comment_form" class="flex-utd">
                 <input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">
-                <input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail @ (optional)">
-                <textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that e-mail @ won't be displayed online. Fill it if you wan't me to contact you." oninput='this.style.height="";this.style.height=this.scrollHeight + "px"'></textarea>
-                <input type="submit" class="submit" value="GO">
+                <input type="text" id="email" class="input" name="email" maxlength="30" placeholder="E-mail (optional)">
+                <textarea id="comment" class="input" name="comment" maxlength="1000" placeholder="Your comment.&#x0a;Note that your e-mail adress won't be displayed publicly." oninput='this.style.height="";this.style.height=this.scrollHeight + "px"'></textarea>
+                <input type="submit" class="submit" value="Send">
             </form>
 		</div>
 		{% endif %}
-
-
-

@@ -1,5 +1,5 @@
 // Global
-const doc = document;
+const doc     = document;
 const dates   = doc.querySelectorAll('time');
 const header  = doc.querySelector('#header');
 const nav     = doc.querySelector('#nav');
@@ -54,7 +54,7 @@ if (catlist && pstlsts) {
 
     }
 
-    // Create and append categories lis
+    // Create and append categories LIs
     for (let cat of cats) {
         let li = doc.createElement("li");
         li.innerHTML = cat;
@@ -63,7 +63,7 @@ if (catlist && pstlsts) {
 
 
     /*
-    CATEGORY FILTERING
+    CATEGORY filtering
     */
     catlist.addEventListener('click', (e) => {
         if (e.target && e.target.matches('li')) {
@@ -125,11 +125,11 @@ function convertEpoch(dates) {
         const opt = { dateStyle: "medium" };
         dt = parseInt(d.innerHTML);
         dt = new Date(dt * 1000);
-        d.innerHTML = dt.toLocaleString('fr-FR', opt );
+        d.innerHTML = dt.toLocaleString('fr-FR', opt);
     }
 }
 
-convertEpoch(dates); // Convert post dates 
+convertEpoch(dates); // Convert post dates
 
 
 
@@ -154,34 +154,16 @@ window.addEventListener("scroll", (e) => {
 
 
 /*
-LIKE btn
-*/
-if (like) {
-    like.addEventListener('click', (e) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/like');
-        xhr.send();
-
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                likcnt.innerHTML = xhr.responseText;
-            }
-        }
-    });
-}
-
-
-
-/*
-SUBMIT COMMENT ajax processing
+COMMENT
 */
 if (form) {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const newcom = new FormData(form);
+
+        // Front side inputs tests
         let err = false;    // Error flag
 
-        // Inputs test
         for (var i of newcom.entries()) {
             let ele = doc.getElementById(i[0]);
             let len = i[1].length;
@@ -218,10 +200,7 @@ if (form) {
         if (err)
             return; // If any error, do not process request
 
-        // TODO CALL CAPTCHA
-
-        // SEND COMMENT
-        // Create new ajax request
+        // AJAX / Send comment
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/comment');
         xhr.send(newcom);
@@ -229,7 +208,6 @@ if (form) {
         let currcom = comflow.innerHTML;
 
         xhr.onreadystatechange = () => {
-
             comflow.innerHTML = '<h2 id="comtitle">Loading comments...</h2>';
 
             if(xhr.readyState === 4) {
@@ -251,6 +229,39 @@ if (form) {
                     default:
                         break;
                 }
+            }
+        }
+    });
+
+
+    // Toogle show/hide comment form (transition effect in CSS)
+    var formstyle = window.getComputedStyle(form);
+    var formheight = formstyle.getPropertyValue('height');
+    form.style.height = '0px';
+
+    doc.querySelector('#toggleform').addEventListener('click', (e) => {
+        if (formstyle.getPropertyValue('height') < '1px') {
+            form.style.height = formheight;
+        } else {
+            form.style.height = "0px";
+        }
+    });
+}
+
+
+
+/*
+LIKE btn
+*/
+if (like) {
+    like.addEventListener('click', (e) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/like');
+        xhr.send();
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                likcnt.innerHTML = xhr.responseText;
             }
         }
     });

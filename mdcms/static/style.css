@@ -94,7 +94,7 @@ h5 {
 }
 
 h1 {
-    margin: 0 0 .3em;
+    margin: 1em 0 .3em;
 }
 
 .flex-ltr {
@@ -133,6 +133,7 @@ HEADER
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     font-size: 1.5em;
+    transition: font-size .05s linear;
 }
     #logo {
         display: none;
@@ -266,10 +267,12 @@ CONTENT
     }
     #post ul {
         all: unset;
+        list-style-type: circle;
+        list-style-position: inside;
         text-align: justify;
     }
     #post li {
-        margin-bottom: .5em;
+        margin: 0 0 1em .5em;
     }
     .postitle {
         margin: .5em 0 0;
@@ -297,6 +300,14 @@ CONTENT
     #comments {
         width: 100%;
     }
+        #toggleform {
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #comment_form {
+            overflow: hidden;
+            transition: height .3s linear;
+        }
         h2#comtitle {
             opacity: .3;
         }
@@ -342,10 +353,10 @@ CONTENT
             resize: none;
         }
         .submit {
-            margin: .5em auto;
+            margin: .5em 0;
             padding: .3em;
             border: none;
-            height: 3em;
+            height: 2.5em;
             width: 8em;
             border-radius: .3em;
             font-size: 1.1em;
