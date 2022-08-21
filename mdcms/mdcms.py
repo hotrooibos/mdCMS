@@ -34,13 +34,15 @@ pending_w = False   # Pending writes in json
 
 
 def watchdog():
-    '''Polling MD_PATH for .md file change
-    comparing with known MD base (mdb).
+    '''Watchdog loop function
+    Must be run in a separated thread.
 
-    Also, if new data (comment, bans) are
-    pending for writing, then write them to json
-
-    Returns the updated MD Base
+    Jobs :
+    - Polls MD_PATH for .md file changes (new or changed)
+    comparing with known, in-memory, MD base (mdb)
+    - Write data to data.json if new data (comment, bans) are
+    pending for writing
+    - Returns the updated MD base
     '''
     global mdb
     global pending_w
@@ -89,31 +91,36 @@ def watchdog():
                         mdb.sort(key=lambda x: x.ctime,
                                 reverse=True)
 
+        # Write pending data into data.json (jd object)
+        # And reset flag state
         if pending_w:
-            jd().write()        # WRITE json
-            pending_w = False   # Reset pending
+            jd().write()
+            pending_w = False
 
         sleep(const.CHECK_TIME)
 
 
 
 def valid_form(form: ImmutableMultiDict):
-    '''Form validation
-    Raise 403 HTTP errors for any wrong format
+    '''Basic form validation
+    Raise 403 HTTP error for any invalid format.
+    These tests are equally done client-side (JavaScript), so this
+    function is basically a second security layer.
     '''
 
-    # NAME must be 2-20 chars
+    # NAME must be 2-20 characters
     if not (1 < len(form['name']) < 21):
-        return fk.abort(403, "Wrong name length")
+        return fk.abort(403, "Invalid name length")
 
-    # EMAIL must be 0 (blank), or > 7 chars
+    # EMAIL must be 0 (blank) or >= 8 chars which is
+    # the minimum for a valid email address (xx@zz.yy)
     # TODO regex tests
-    if (0 < len(form['email']) < 8):  # 8 chars = xx@zz.yy
-        return fk.abort(403, "Wrong email format")
+    if (0 < len(form['email']) < 8):
+        return fk.abort(403, "Invalid email format")
 
     # COMMENT must be 6-1000 chars
     if not (5 < len(form['comment']) < 1001):
-        return fk.abort(403, "Wrong text length")
+        return fk.abort(403, "Invalid text length")
 
 
 
@@ -127,10 +134,10 @@ def banned(sender_ip: str) -> bool:
     banstate = 0
 
     # Check sender ban state, refuse comment if in bantime
-    # State 0  = no ban
-    # State 1 & 2  = 30mn ban
-    # State 3  = 1 day ban
-    # State 4  = 3 days ban
+    # State 0 = no ban
+    # State 1 & 2 = 30mn ban
+    # State 3 = 1 day ban
+    # State 4 = 3 days ban
     # State -1 = permanent ban (always refuse comments)
     if sender_ip in jd().jdat['bans']:
         banstate = jd().jdat['bans'][sender_ip]['banstate']
@@ -196,13 +203,17 @@ def banned(sender_ip: str) -> bool:
 
 
 
-def process_comment(post_id: str,
-                    form_data: dict,
-                    sender_ip: str):
-    '''Create a new comment
+def comment_digest(post_id: str,
+                   form_data: dict,
+                   sender_ip: str):
+    '''Process a new comment
+    Make a json data object with given comment informations
+    and prepare for further writting in json file
     '''
     global pending_w
 
+    # Create a dict with key:value json format
+    # Which will be written in json data file
     comment = {
         "ip":sender_ip,
         "time":time(),
@@ -212,7 +223,8 @@ def process_comment(post_id: str,
         "display_status":True
     }
 
-    # First comment for this post
+    # If this is t the first comment for this post,
+    # create a new section in the json for this post
     if not post_id in jd().jdat['comments']:
         comment = {
             post_id: [comment,]
@@ -223,57 +235,73 @@ def process_comment(post_id: str,
     else:
         jd().jdat['comments'][post_id].append(comment)
 
+    # Activate flag for writing in json in watchdog thread
     pending_w = True
 
 
 
 def remote_addr() -> str:
-    '''Return client IP adress even if behind proxy (nginx...)
+    '''Return client IP address even if behind proxy (nginx...)
     '''
     if 'X-Forwarded-For' in request.headers:
         remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
     else:
         remote_addr = request.remote_addr or 'untrackable'
+
     return remote_addr
 
 
 
 def get_404_alt(url: str) -> list:
-    '''Return posts which url similar to the given 'url' argument.
+    '''Return posts (dict of Md objects) which
+    url similar to the given 'url' argument.
     '''
     url = url.lower()
-    alts = [] # List of Md objects
+    alt_mds = []
 
+    # Parses every loaded Mds' url
+    # Compare each word of the url with others Md
+    # Keep the url if at least 1 word matches
+    # Returns a dict of matching urls
     for u in Md.urls:
         i = 0
         for word in u.split('_'):
             if url.find(word) != -1:
                 i+= 1
 
-            if i == 1: # 1 word match==url match
+            # 1 word match == url match
+            if i == 1:
                 for md in mdb:
                     if md.url == u:
-                        alts.append(md)
+                        alt_mds.append(md)
                         break
                 break
 
-    return alts
+    return alt_mds
 
 
 
 def flaskapp():
-    '''FLASK web app
+    '''Flask web application
+    Application entry point, used as Gunicorn parameter.
+    Example :
+        gunicorn  -c ./gunicorn.conf.py 'mdcms.mdcms:flaskapp()'
     '''
-    app = fk.Flask(__name__) # Instance de Flask (WSGI application)
+    # Create instance WSGI application (Flask)
+    app = fk.Flask(__name__)
+
+    # Jinja presets to avoid weird HTML formating
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
 
-    # START mdCMS thread
+    # Start a separate thread for the watchdog loop function
     Thread(target=watchdog, daemon=True).start()
+
 
     @app.context_processor
     def utility_processor():
-        '''Flask utility "global" variables, callable from any template
+        '''Flask utility "global" variables,
+        callable from any template
         '''
         utilvars = {
             "curr_year": strftime('%Y')
@@ -284,6 +312,8 @@ def flaskapp():
 
     @app.route('/')
     def index():
+        '''Website home/root route
+        '''
         return fk.render_template('pages/index.j2',
                                   posts=mdb)
 
@@ -291,6 +321,8 @@ def flaskapp():
     @app.route('/<string:url>')
     def page(url):
         '''Default page renderer
+        Render requested page (url) if it exists,
+        except for "index" which is used for home/root
         '''
         try:
             if url == 'index':
@@ -304,13 +336,17 @@ def flaskapp():
 
     @app.route('/fullposts')
     def fullposts():
+        '''/fullposts url route
+        '''
         return fk.render_template('pages/fullposts.j2',
                                   posts=mdb)
 
 
     @app.route('/posts')
     def posts():
-        # Hide translation posts from list
+        '''/posts url route, list of all published posts
+        Hide translation posts from the list.
+        '''
         posts = []
         for p in mdb:
             if p.lang == const.DEFAULT_LANG[:2] or \
@@ -323,31 +359,36 @@ def flaskapp():
 
     @app.route('/posts/ressources/<path:filename>')
     def post_ressources(filename):
+        '''Route for ressources (images, videos...)
+        '''
         return send_from_directory(const.MD_RES_PATH, filename)
 
 
     @app.route('/post/<string:url>', methods=['GET'])
     def post(url):
+        '''Route for specific post.
+        '''
         global mdb
 
-        # Get md wanted in url
+        # Get post/md specified in url
         post = next((p for p in mdb if p.url == url), None)
         
+        # Return 404 if not found
         if not post:
             alt = get_404_alt(url)
             fk.abort(404, ("This post doesn't exist", alt))
 
-        # Get translations of this post
-        transl = [] # List of translation posts
-
+        # Loop over existing posts and get
+        # translations for this post, if any
+        transl = []
         for p in mdb:
-            # We are in original post, get translated
+            # Visitor is in original post -> get translated
             if post.lang == const.DEFAULT_LANG[:2] and \
                     p.originpost == post.url and \
                     p.lang != const.DEFAULT_LANG[:2]:
                 transl.append(p)
 
-            # We are in a translated post, get original
+            # Visitor is in a translated post -> get original
             elif post.lang != const.DEFAULT_LANG[:2] and \
                     p.url == post.originpost:
                 transl.append(p)
@@ -376,6 +417,8 @@ def flaskapp():
             if k == post.url:
                 likecounter = len(v)
 
+        # Return rendered post with translation link (if any),
+        # visitor's ban state, comments and like counter
         return fk.render_template('pages/post.j2',
                                   post=post,
                                   transl=transl,
@@ -387,8 +430,7 @@ def flaskapp():
     @app.route('/comment', methods=['POST'])
     def comment():
         '''Perform comment request from XHR (AJAX)
-
-        Security, anti junk check, comment digest
+        Security, anti junk check, comment digest.
         '''
         sender_ip = remote_addr()
         ban = banned(sender_ip)
@@ -398,7 +440,8 @@ def flaskapp():
         else:
             httpcode = 200
 
-        form = fk.request.form # FORM DATA
+        # Get form raw data
+        form = fk.request.form
 
         # Check form validity
         # Already done in JS (client-side) but redo it
@@ -411,7 +454,7 @@ def flaskapp():
         
         # Process comment only if user is not banned
         if httpcode == 200 :
-            process_comment(post_url, form, sender_ip)
+            comment_digest(post_url, form, sender_ip)
 
         # Get comments (olds + new if not banned)
         coms = []
@@ -427,6 +470,8 @@ def flaskapp():
 
     @app.route('/like', methods=['POST'])
     def like():
+        '''Perform like request from XHR (AJAX)
+        '''
         global pending_w
 
         sender_ip = remote_addr()
@@ -437,10 +482,12 @@ def flaskapp():
 
         likecount = 0
 
-        # First like ever
+        # Very first like for this post, so create a new
+        # section for this post's likes in json structure
         if not post_url in jd().jdat['likes'].keys():
             jd().jdat['likes'].update({post_url:[sender_ip]})
             likecount += 1
+
         # Like / unlike
         else:
             for k, v in jd().jdat['likes'].items():
@@ -457,29 +504,40 @@ def flaskapp():
                         v.append(sender_ip)
                         likecount += 1
 
-        pending_w = True # Write un/like in json
+        # Set flag for writing in json
+        pending_w = True
 
+        # Return the like count as a string
         return (str(likecount), 200)
 
 
     @app.route('/git')
     def git():
+        '''Route for /git, a simple redirection
+        '''
         return fk.redirect('https://github.com/hotrooibos')
 
 
     @app.errorhandler(HTTPException)
     def http_err_handler(error):
-
+        '''HTTP errors handler
+        Return rendered template for errors.
+        '''
+        # If the error's description is a string,
+        # render a simple error page
         if type(error.description) is str:
             return fk.render_template('errors/error.j2',
                                     code=error.code,
                                     desc=error.description)
 
-        # Tuple = (description, alt posts propositions when 404)
+        # If the error's description is a tuple (description, alt
+        # posts propositions when 404), render error page
+        # with other posts propositions.
         elif type(error.description) is tuple:
             return fk.render_template('errors/error.j2',
                         code=error.code,
                         desc=error.description[0],
                         alt=error.description[1])
+
 
     return app

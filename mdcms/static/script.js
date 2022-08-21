@@ -56,7 +56,7 @@ if (catlist && pstlsts) {
 
     // Create and append categories LIs
     for (let cat of cats) {
-        let li = doc.createElement("li");
+        let li = doc.createElement('li');
         li.innerHTML = cat;
         catlist.appendChild(li);
     }
@@ -134,9 +134,9 @@ convertEpoch(dates); // Convert post dates
 
 
 /*
-The Header SCROLL EFFECT
+NAV scroll effect
 */
-window.addEventListener("scroll", (e) => {
+window.addEventListener('scroll', (e) => {
     let scpos = this.scrollY;
     if (scpos > 150) {
         header.style.fontSize = '1em';
@@ -234,16 +234,22 @@ if (form) {
     });
 
 
-    // Toogle show/hide comment form (transition effect in CSS)
+    // TOGGLE SHOW/HIDE comment form (transition effect in CSS)
     var formstyle = window.getComputedStyle(form);
     var formheight = formstyle.getPropertyValue('height');
     form.style.height = '0px';
 
     doc.querySelector('#toggleform').addEventListener('click', (e) => {
         if (formstyle.getPropertyValue('height') < '1px') {
+
+
+            window.scrollTo(form.getBoundingClientRect().x + 400,
+                            form.getBoundingClientRect().y + 400);
+
             form.style.height = formheight;
+            
         } else {
-            form.style.height = "0px";
+            form.style.height = '0px';
         }
     });
 }
@@ -251,7 +257,7 @@ if (form) {
 
 
 /*
-LIKE btn
+LIKE
 */
 if (like) {
     like.addEventListener('click', (e) => {
@@ -270,10 +276,10 @@ if (like) {
         liketop = (like.getBoundingClientRect().top - 50) + 'px';
         likeleft = (like.getBoundingClientRect().left -50) + 'px';
 
-        let box = doc.createElement("div");
+        let box = doc.createElement('div');
         box.setAttribute('id', 'likbox');
         box.setAttribute('class', 'msgbox');
-        box.innerHTML = "Like this page !";
+        box.innerHTML = 'Like this page !';
         box.style.top = liketop;
         box.style.left = likeleft;
         doc.querySelector('body').appendChild(box);

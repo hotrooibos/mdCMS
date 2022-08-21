@@ -10,6 +10,7 @@ from time import time
 log = logging.getLogger(__name__)
 
 
+
 class Singleton:
     instance = None
 
@@ -23,20 +24,20 @@ class Singleton:
 
 class Jdata(Singleton):
     '''JSON data class
+    Loaded from JSON data file or created 
+    with no data if file doesn't exists.
     '''
-        
     def read(self,
-             jsonf:str=const.JSON_PATH):
+             json_file: str=const.JSON_PATH):
+        '''Read JSON data file and load it in memory as a
+        Jdata object or, if file does not exists, make a new one
         '''
-        READ JSON data file, load and check the content
-        '''
-        log.info('Read json...')
-
+        log.info(f'jdata.py: Read {const.JSON_PATH}')
         try:
-            with open(file=jsonf,
+            with open(file=json_file,
                       mode='r',
-                      encoding='utf-8') as jsonf:
-                self.jdat = json.load(jsonf)
+                      encoding='utf-8') as json_file:
+                self.jdat = json.load(json_file)
                 
         except (JSONDecodeError, FileNotFoundError) as e:
             log.info(f'jdata.py: {e}: creating new JSON')
@@ -45,7 +46,8 @@ class Jdata(Singleton):
 
 
     def make_default(self):
-        '''Create an empty structured json data file
+        '''Create an empty json structure,
+        and write it into json file.
         '''
         path = const.JSON_PATH
 
@@ -55,7 +57,7 @@ class Jdata(Singleton):
             os.rename(path,
                       f'{path}-{date}.bak')
 
-        # Create structure & write to new file
+        # Create structure without data
         self.jdat = {
             "comments": {
             },
@@ -65,35 +67,35 @@ class Jdata(Singleton):
             }
         }
         
+        # Write the empty structure to json file
         self.write()
 
 
 
     def write(self,
               jdat: dict=None,
-              jsonf: str=const.JSON_PATH):
+              json_file: str=const.JSON_PATH):
+        '''Write 'jdat' dict into 'jsonf' JSON file
         '''
-        WRITE 'jdat' dict to 'jsonf' JSON file
-        '''
-        log.info('Write json')
+        log.info('jdata.py: {e}: Write JSON')
 
         if not jdat:
             jdat = self.jdat
 
-        with open(file=jsonf,
+        with open(file=json_file,
                   mode='w',
-                  encoding='utf-8') as jfile:
-            json.dump(jdat, jfile, indent=4)
+                  encoding='utf-8') as jsonfile:
+            json.dump(jdat, jsonfile, indent=4)
 
         self.read()
 
 
 
-    # def check(self):
+    # TODO def check(self):
     #     '''Check for id duplicates
     #     '''
     #     for id in self.ids:
     #         if self.ids.count(id) > 1:
     #             log.info(f'JSON CHECK FAILED : several {id} in data.json')
-    #             # TODO ne conserver en mémoire que
+    #             # ne conserver en mémoire que
     #             # le post le plus récent (mtime)
