@@ -1,12 +1,34 @@
 import os
 
-# DO NOT TOUCH this unless you know what you are doing
-ROOTDIR        = os.path.dirname(os.path.abspath(__file__)) + '/../..'
+# Project ROOT directory - DO NOT TOUCH unless you know what you are doing
+ROOTDIR = os.path.dirname(os.path.abspath(__file__)) + '/../..'
 
-# Constants / configuration
-MD_PATH        = ROOTDIR + '/posts/'            # .md posts location
-MD_RES_PATH    = ROOTDIR + '/posts/ressources'  # Posts' ressources location (images, files..)
-JSON_PATH      = ROOTDIR + '/data.json'   # data.json location
+"""
+Constants / configuration
+
+"""
+
+# Markdown files location
+MD_PATH = ROOTDIR + '/posts/'
+
+# Posts' ressources location (images, files..)
+MD_RES_PATH = ROOTDIR + '/posts/ressources'
+
+# data.json file location
+JSON_PATH = ROOTDIR + '/data.json'
+
+# Default posts' author name
 DEFAULT_AUTHOR = 'Antoine'
-CHECK_TIME     = 10                             # .md watch loop sleep time (seconds)
-DEFAULT_LANG   = 'en'                           # en, fr, de..
+
+# Time between two watchdog loop in seconds
+# Ex : 10 = search for new/modified Markdown every 10 seconds
+CHECK_TIME = 10
+
+# Main language you'll write in
+# Only used in the case you are going to translate your posts
+# Ex : en, fr, de..
+DEFAULT_LANG = 'en'
+
+# Maximum URL lenght for posts
+# Only used by auto URL building function
+URL_LEN = 30

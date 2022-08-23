@@ -1,10 +1,14 @@
+import logging
+import os
+import unicodedata
+
+from markdown import Markdown
+from time import time
+
 from . import constants as const
 from . import utils
-import logging
-from markdown import Markdown
-import os
-from time import time
-import unicodedata
+
+
 
 # Init logger
 log = logging.getLogger(__name__)
@@ -167,9 +171,9 @@ class Md:
                 wds.remove(w)
 
         # Make string from lasting words separated with
-        # underscores and limit its lenght to 20 chars
+        # underscores and limit its lenght
         url = '_'.join(wds)
-        url = url[:20]
+        url = url[:const.URL_LEN]
 
         # Clean '_' and 1-letter endings
         while (url[-1:] == '_') or (url[-2:-1] == '_'):

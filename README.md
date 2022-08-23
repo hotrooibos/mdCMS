@@ -1,6 +1,11 @@
-# mdCMS is a CMS where articles are written in Markdown
-A work in progress personal content managing system build on top of Flask and Python.
-No admin panel, no database, simple setup : tweak constants.py, run, write Markdown articles and place them in the "MD_PATH".
+# mdCMS
+A simple content managing system built in Python.
+No admin panel, no database, simple setup :
+1) tweak constants.py
+2) run with Gunicorn
+3) write some articles in Markdown .md files, and place them in the "MD_PATH"
+
+Voilà, posts are published.
 
 ## Prerequisites
 - A running server with root access, eventually a front web server like Nginx
@@ -9,7 +14,7 @@ No admin panel, no database, simple setup : tweak constants.py, run, write Markd
 
 ## Under the hood
 - A Flask web app
-- A watchdog loads/updates .md files placed in the MD_PATH, any new or modified .md file triggers the process
+- A watchdog thread watches for updated/new .md files placed in the MD_PATH
 - All posts are loaded in memory at startup
 - Commenting management with anti junk (ip ban), comments, likes stored in a json file
 - More coming...
