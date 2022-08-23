@@ -1,4 +1,3 @@
-# -*- mode: python ; coding: utf-8 -*-
 from . import constants as const
 from . import utils
 import logging
@@ -13,23 +12,23 @@ log = logging.getLogger(__name__)
 
 
 class Md:
-    '''Markdown document class.
+    """Markdown document class.
     File name and URL strings to .md file in argument.
     
     Usage:
         mdfile = Md('readme.md', '/home/antoine/readme.md')
-    '''
+    """
     urls = []
 
     def __init__(self, fname: str, mdurl: str):
-
         # Read .md file and make attributes from its content
         with open(file=mdurl,
                   mode='r',
                   encoding='utf-8') as mdf:
             mddat = mdf.read()
 
-        wmd = [] # Datas to write to .md
+        # Datas to write to .md
+        wmd = []
         md = Markdown(extensions=['meta','toc','extra',
                                   'codehilite','md_in_html'])
 
@@ -38,8 +37,11 @@ class Md:
         self.toc = md.toc
         self.mtime = os.stat(self.furl).st_mtime
 
+        #
         # Metas
-        self.title = fname[:-3] # Filename without '.md'
+        #
+        # Filename without '.md'
+        self.title = fname[:-3]
         self.author = const.DEFAULT_AUTHOR
         self.url = None
         self.ctime = None
@@ -121,8 +123,8 @@ class Md:
 
 
     def write(self, data_to_write: list):
-        '''Write metadatas to .md file
-        '''
+        """Write metadatas to .md file
+        """
         with open(self.furl,
                   mode='r+',
                   encoding='utf-8') as md:
@@ -141,25 +143,33 @@ class Md:
 
 
     def build_url(self) -> str:
-        '''Build URL from the title
+        """Build URL from the title
 
         Replaces spaces by underscores, clear trash
         words and dashes, makes it short, process dupes
-        and translated posts the right way.'''
+        and translated posts the right way."""
 
-        tw = ('with','avec','under',        # "Trash words" list
+        # "Trash words" list
+        tw = ('with','avec','under',
               'sous','the', 'for')
 
         url = self.title
-        url = url.replace('-', '')          # Remove dashes
-        wds = url.split(' ')                # Make list from str
 
-        for w in list(wds):                 # Parse words
-            if (len(w) < 3) or (w in tw):   # Rm short / trash words
+        # Remove dashes
+        url = url.replace('-', '')
+
+        # Make list from str
+        wds = url.split(' ')
+
+        # Parse words and rm short/trash ones
+        for w in list(wds):
+            if (len(w) < 3) or (w in tw):
                 wds.remove(w)
 
-        url = '_'.join(wds)                 # Make string
-        url = url[:20]                      # Limit length
+        # Make string from lasting words separated with
+        # underscores and limit its lenght to 20 chars
+        url = '_'.join(wds)
+        url = url[:20]
 
         # Clean '_' and 1-letter endings
         while (url[-1:] == '_') or (url[-2:-1] == '_'):
@@ -171,14 +181,15 @@ class Md:
         # TODO filtrer caractères spéciaux (? ! etc.)
         # avec regex, comme pour email
 
-        url = url.lower()                   # Lower case
+        # Lower case
+        url = url.lower()
 
         # Dupe detection
         urlf = url
 
         if url in Md.urls:
-            # If translation of another post
-            # Might never be used as the title is supposed
+            # If translation of another post,
+            # must not be used as the title is supposed
             # to be translated too
             if self.lang and self.lang != const.DEFAULT_LANG:
                 urlf = f'{self.lang[:2]}_{url}'
@@ -193,8 +204,8 @@ class Md:
 
 
     # def build_title(self):
-    #     ''' Build title from file name
-    #     '''
+    #     """ Build title from file name
+    #     """
         # with open(self.furl,
         #           mode='r+',
         #           encoding='utf-8') as md:
@@ -226,13 +237,13 @@ class Md:
 
 
     # def md_checkup():
-    '''Vérif complète des md.
+    """Vérif complète des md.
 
     TODO Loop sur tous les fichiers md comportant un id, pour vérifier qu'il
     existe bien un post à l'id correspondant dans le JSON
     S'il existe un id, vérifier que 1) la date de création est ==,
     2) le checksum(title + content) est ==
-    '''
+    """
     # for f in os.listdir(const.MD_PATH):
     #     mdurl = f'{const.MD_PATH}/{f}'
 
@@ -250,9 +261,9 @@ class Md:
 
     # @staticmethod
     # def process_ressources(content):
-    '''Lire le contenu du .md, puis vérifier la présence de lignes
+    """Lire le contenu du .md, puis vérifier la présence de lignes
     au format ![*](*.png/jpg/gif/svg)
-    '''
+    """
     # In content, find regex ![*](*.jpg) or one of the others formats
     # The * preceding extension only accepts alphanumeric, dash and underscore chars
     # The goal here is to detect simple filenames (without url format like https://...)

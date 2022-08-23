@@ -1,23 +1,17 @@
-# -*- mode: python ; coding: utf-8 -*-
 import time
 
-'''
+"""STRING UTILS
 
-STRING UTILS
-
-
-'''
+"""
 
 def replacemany(string: str,
                 old: tuple,
                 new: str,
                 count: int=-1) -> str:
-    '''Replaces many different strings with another specified string.
-
+    """Replaces many different strings with another specified string.
     Strings to replace are specified in the tuple argument.
-
-    Works as an extension of replace().
-    '''
+    Works as an extension for replace().
+    """
     newstr = string
     
     for i in old:
@@ -30,23 +24,20 @@ def replacemany(string: str,
 
 
 
-'''
+"""TIME UTILS
 
-TIME UTILS
-
-
-'''
+"""
 
 def to_epoch(datetime: str,
              datetime_format: str='%Y-%m-%d %H:%M:%S',
              epoch_format: str='int'):
-    '''Return an UNIX epoch time from a given datetime string
+    """Return an UNIX epoch time from a given datetime string
 
     Default source format is '%Y-%m-%d %H:%M:%S'.
     https://docs.python.org/fr/3/library/datetime.html#strftime-and-strptime-format-codes
 
     Default epoch returned format is float. Can be 'float'.
-    '''
+    """
     epoch = time.strptime(datetime,
                           datetime_format)
     epoch = time.mktime(epoch)
@@ -60,13 +51,13 @@ def to_epoch(datetime: str,
 
 def to_datestr(epoch,
                out_format: str='%Y-%m-%d %H:%M:%S') -> str:
-    '''Return a datetime string from a given UNIX epoch time
+    """Return a datetime string from a given UNIX epoch time
 
     Default source format is '%Y-%m-%d %H:%M:%S'.
     https://docs.python.org/fr/3/library/datetime.html#strftime-and-strptime-format-codes
 
     Default epoch returned format is integer. Can be 'float'.
-    '''
+    """
     datestr = time.ctime(epoch)
     datestr = time.strptime(datestr)
     datestr = time.strftime(out_format,
@@ -78,8 +69,8 @@ def to_datestr(epoch,
 def datestr_convert(old: str,
                     old_format: str,
                     new_format: str):
-    '''Convert a date string to another date string format
-    '''
+    """Convert a date string to another date string format
+    """
     datestr = time.strptime(old,
                             old_format)
     datestr = time.strftime(new_format,

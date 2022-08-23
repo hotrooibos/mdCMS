@@ -1,4 +1,25 @@
-# -*- mode: python ; coding: utf-8 -*-
+# MIT License
+
+# Copyright (c) 2022 Antoine Marzin
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import flask as fk
 from flask.globals import request
 from flask.helpers import send_from_directory
@@ -26,15 +47,22 @@ logging.basicConfig(filename=f'logs/{date}_mdcms.log',
                     level=logging.INFO)
 log = logging.getLogger(__name__)
 
-# Mdcms setup
-mdb = []            # Markdown posts base
-jd().read()         # Read json data
-pending_w = False   # Pending writes in json
+"""Mdcms setup
+"""
+
+# Markdown posts base
+mdb = []    
+
+# Read json data
+jd().read()
+
+# Flag for pending writes in json
+pending_w = False
 
 
 
 def watchdog():
-    '''Watchdog loop function
+    """Watchdog loop function
     Must be run in a separated thread.
 
     Jobs :
@@ -43,7 +71,7 @@ def watchdog():
     - Write data to data.json if new data (comment, bans) are
     pending for writing
     - Returns the updated MD base
-    '''
+    """
     global mdb
     global pending_w
 
@@ -102,11 +130,11 @@ def watchdog():
 
 
 def valid_form(form: ImmutableMultiDict):
-    '''Basic form validation
+    """Basic form validation
     Raise 403 HTTP error for any invalid format.
     These tests are equally done client-side (JavaScript), so this
     function is basically a second security layer.
-    '''
+    """
 
     # NAME must be 2-20 characters
     if not (1 < len(form['name']) < 21):
@@ -125,11 +153,11 @@ def valid_form(form: ImmutableMultiDict):
 
 
 def banned(sender_ip: str) -> bool:
-    '''Comments anti junk/bot.
+    """Comments anti junk/bot.
     Set different ban states which depends on visitor's (sender)
     comment frequency and ban triggering recidivism.
     Return True if visitor's ip is currently banned.
-    '''
+    """
     global pending_w
     banstate = 0
 
@@ -143,11 +171,11 @@ def banned(sender_ip: str) -> bool:
         banstate = jd().jdat['bans'][sender_ip]['banstate']
         bantime = jd().jdat['bans'][sender_ip]['bantime']
 
-        if banstate in (1,2) and (time()-bantime) < 1800: #30mn
+        if banstate in (1,2) and (time()-bantime) < 1800:
             return True
-        elif banstate == 3 and (time()-bantime) < 172800: #24h
+        elif banstate == 3 and (time()-bantime) < 172800:
             return True
-        elif banstate == 4 and (time()-bantime) < 259200: #72h
+        elif banstate == 4 and (time()-bantime) < 259200:
             return True
         elif banstate == -1:
             return True
@@ -206,10 +234,10 @@ def banned(sender_ip: str) -> bool:
 def comment_digest(post_id: str,
                    form_data: dict,
                    sender_ip: str):
-    '''Process a new comment
+    """Process a new comment
     Make a json data object with given comment informations
     and prepare for further writting in json file
-    '''
+    """
     global pending_w
 
     # Create a dict with key:value json format
@@ -241,10 +269,10 @@ def comment_digest(post_id: str,
 
 
 def remote_addr() -> str:
-    '''Return client IP address even if behind proxy (nginx...)
-    '''
+    """Return client IP address even if behind proxy (nginx...)
+    """
     if 'X-Forwarded-For' in request.headers:
-        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
+        remote_addr = request.headers.getlist('X-Forwarded-For')[0].rpartition(' ')[-1]
     else:
         remote_addr = request.remote_addr or 'untrackable'
 
@@ -253,9 +281,9 @@ def remote_addr() -> str:
 
 
 def get_404_alt(url: str) -> list:
-    '''Return posts (dict of Md objects) which
+    """Return posts (dict of Md objects) which
     url similar to the given 'url' argument.
-    '''
+    """
     url = url.lower()
     alt_mds = []
 
@@ -282,11 +310,11 @@ def get_404_alt(url: str) -> list:
 
 
 def flaskapp():
-    '''Flask web application
+    """Flask web application
     Application entry point, used as Gunicorn parameter.
     Example :
         gunicorn  -c ./gunicorn.conf.py 'mdcms.mdcms:flaskapp()'
-    '''
+    """
     # Create instance WSGI application (Flask)
     app = fk.Flask(__name__)
 
@@ -300,9 +328,9 @@ def flaskapp():
 
     @app.context_processor
     def utility_processor():
-        '''Flask utility "global" variables,
+        """Flask utility "global" variables,
         callable from any template
-        '''
+        """
         utilvars = {
             "curr_year": strftime('%Y')
         }
@@ -312,18 +340,18 @@ def flaskapp():
 
     @app.route('/')
     def index():
-        '''Website home/root route
-        '''
+        """Website home/root route
+        """
         return fk.render_template('pages/index.j2',
                                   posts=mdb)
 
 
     @app.route('/<string:url>')
     def page(url):
-        '''Default page renderer
+        """Default page renderer
         Render requested page (url) if it exists,
         except for "index" which is used for home/root
-        '''
+        """
         try:
             if url == 'index':
                 return fk.abort(404)
@@ -336,17 +364,17 @@ def flaskapp():
 
     @app.route('/fullposts')
     def fullposts():
-        '''/fullposts url route
-        '''
+        """/fullposts url route
+        """
         return fk.render_template('pages/fullposts.j2',
                                   posts=mdb)
 
 
     @app.route('/posts')
     def posts():
-        '''/posts url route, list of all published posts
+        """/posts url route, list of all published posts
         Hide translation posts from the list.
-        '''
+        """
         posts = []
         for p in mdb:
             if p.lang == const.DEFAULT_LANG[:2] or \
@@ -359,15 +387,15 @@ def flaskapp():
 
     @app.route('/posts/ressources/<path:filename>')
     def post_ressources(filename):
-        '''Route for ressources (images, videos...)
-        '''
+        """Route for ressources (images, videos...)
+        """
         return send_from_directory(const.MD_RES_PATH, filename)
 
 
     @app.route('/post/<string:url>', methods=['GET'])
     def post(url):
-        '''Route for specific post.
-        '''
+        """Route for specific post.
+        """
         global mdb
 
         # Get post/md specified in url
@@ -429,9 +457,9 @@ def flaskapp():
 
     @app.route('/comment', methods=['POST'])
     def comment():
-        '''Perform comment request from XHR (AJAX)
+        """Perform comment request from XHR (AJAX)
         Security, anti junk check, comment digest.
-        '''
+        """
         sender_ip = remote_addr()
         ban = banned(sender_ip)
 
@@ -449,7 +477,7 @@ def flaskapp():
         valid_form(form)
             
         # Get URL from Referer
-        referer = fk.request.headers.get("Referer")
+        referer = fk.request.headers.get('Referer')
         post_url = referer.split('/')[-1]
         
         # Process comment only if user is not banned
@@ -470,14 +498,14 @@ def flaskapp():
 
     @app.route('/like', methods=['POST'])
     def like():
-        '''Perform like request from XHR (AJAX)
-        '''
+        """Perform like request from XHR (AJAX)
+        """
         global pending_w
 
         sender_ip = remote_addr()
 
         # Get post url from Referer
-        referer = fk.request.headers.get("Referer")
+        referer = fk.request.headers.get('Referer')
         post_url = referer.split('/')[-1]
 
         likecount = 0
@@ -513,16 +541,16 @@ def flaskapp():
 
     @app.route('/git')
     def git():
-        '''Route for /git, a simple redirection
-        '''
+        """Route for /git, a simple redirection
+        """
         return fk.redirect('https://github.com/hotrooibos')
 
 
     @app.errorhandler(HTTPException)
     def http_err_handler(error):
-        '''HTTP errors handler
+        """HTTP errors handler
         Return rendered template for errors.
-        '''
+        """
         # If the error's description is a string,
         # render a simple error page
         if type(error.description) is str:
