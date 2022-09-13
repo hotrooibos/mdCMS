@@ -125,7 +125,7 @@ function convertEpoch(dates) {
         const opt = { dateStyle: "medium" };
         dt = parseInt(d.innerHTML);
         dt = new Date(dt * 1000);
-        d.innerHTML = dt.toLocaleString('fr-FR', opt);
+        d.innerHTML = dt.toISOString().split('T')[0];
     }
 }
 
