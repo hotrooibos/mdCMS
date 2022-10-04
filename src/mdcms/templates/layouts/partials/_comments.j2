@@ -7,9 +7,9 @@
         {% if ban == False  %}
 		<div id="comform">
             {% if coms|length > 0  %}
-            <p id="toggleform">Add a comment <span id="tglformarrow">&#129134;</span></div>
+            <p class="toggleshow">Add a comment <span id="tglformarrow">&#129134;</span></div>
             {% else %}
-            <p id="toggleform">Be the first to comment &#129134;</p>
+            <p class="toggleshow">Be the first to comment &#129134;</p>
             {% endif %}
             <form method="post" id="comment_form" class="flex-utd">
                 <input type="text" id="name" class="input" name="name" maxlength="20" placeholder="Name">

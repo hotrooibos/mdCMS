@@ -232,27 +232,25 @@ if (form) {
             }
         }
     });
-
-
-    // TOGGLE SHOW/HIDE comment form (transition effect in CSS)
-    var formstyle = window.getComputedStyle(form);
-    var formheight = formstyle.getPropertyValue('height');
-    form.style.height = '0px';
-
-    doc.querySelector('#toggleform').addEventListener('click', (e) => {
-        if (formstyle.getPropertyValue('height') < '1px') {
-
-
-            window.scrollTo(form.getBoundingClientRect().x + 400,
-                            form.getBoundingClientRect().y + 400);
-
-            form.style.height = formheight;
-            
-        } else {
-            form.style.height = '0px';
-        }
-    });
 }
+
+
+
+/*
+TOGGLE SHOW/HIDE text (transition effect in CSS)
+*/
+var nextEle = doc.querySelector('.toggleshow').nextElementSibling;
+var nextEleStyle = window.getComputedStyle(nextEle);
+var nextEleHeight = nextEleStyle.getPropertyValue('height');
+nextEle.style.height = '0';
+
+doc.querySelector('.toggleshow').addEventListener('click', (e) => {
+    if (nextEleStyle.getPropertyValue('height') < '1') {
+        nextEle.style.height = nextEleHeight;
+    } else {
+        nextEle.style.height = '0';
+    }
+});
 
 
 
