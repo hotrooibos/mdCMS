@@ -125,7 +125,19 @@ function convertEpoch(dates) {
         const opt = { dateStyle: "medium" };
         dt = parseInt(d.innerHTML);
         dt = new Date(dt * 1000);
-        d.innerHTML = dt.toISOString().split('T')[0];
+
+        const options = {
+            month: 'short', day: 'numeric'
+          };
+
+        if (dt.getFullYear() != new Date().getFullYear() ) {
+            options["year"] = "numeric";        
+        }
+
+        const postdate = new Intl.DateTimeFormat('en-GB', options).format(dt);
+
+
+        d.innerHTML = postdate;
     }
 }
 
@@ -239,18 +251,20 @@ if (form) {
 /*
 TOGGLE SHOW/HIDE text (transition effect in CSS)
 */
-var nextEle = doc.querySelector('.toggleshow').nextElementSibling;
-var nextEleStyle = window.getComputedStyle(nextEle);
-var nextEleHeight = nextEleStyle.getPropertyValue('height');
-nextEle.style.height = '0';
-
-doc.querySelector('.toggleshow').addEventListener('click', (e) => {
-    if (nextEleStyle.getPropertyValue('height') < '1') {
-        nextEle.style.height = nextEleHeight;
-    } else {
-        nextEle.style.height = '0';
-    }
-});
+if (doc.querySelector('.toggleshow')) {
+    var nextEle = doc.querySelector('.toggleshow').nextElementSibling;
+    var nextEleStyle = window.getComputedStyle(nextEle);
+    var nextEleHeight = nextEleStyle.getPropertyValue('height');
+    nextEle.style.height = '0';
+    
+    doc.querySelector('.toggleshow').addEventListener('click', (e) => {
+        if (nextEleStyle.getPropertyValue('height') < '1') {
+            nextEle.style.height = nextEleHeight;
+        } else {
+            nextEle.style.height = '0';
+        }
+    });
+}
 
 
 
