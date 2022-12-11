@@ -1,0 +1,61 @@
+.darkTheme {
+    background-color: #002b36;
+    color: #eee8d5;
+}
+
+.darkTheme a,
+.darkTheme a:visited {
+    color: #b58900;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.darkTheme a:hover {
+    color: #2aa198;
+}
+
+.darkTheme p code {
+    color: #f5d56a;
+}
+
+.darkTheme pre {
+    color: #073642;
+    background-color: #eee8d5;
+    border-left: 5px solid #b58900;
+    box-shadow: 1px 2px 5px #1e2229;
+}
+
+.darkTheme h1,
+.darkTheme h2,
+.darkTheme h3,
+.darkTheme h4,
+.darkTheme h5 {
+    color: #fdf6e3;
+}
+
+.darkTheme #categories li {
+    color: #eee8d5;
+    background-color: #073642;
+}
+
+.darkTheme #metadata {
+    color: #93a1a1;
+}
+
+.darkTheme #metadata p:hover {
+    color: #839496;
+}
+
+.darkTheme .postitle {
+    color: #fdf6e3;
+    text-shadow: 1px 2px 1px #111;
+}
+
+.darkTheme .input {
+    color: #073642;
+    background-color: #eee8d5;
+}
+
+.darkTheme .submit {
+    color: #002b36;
+}

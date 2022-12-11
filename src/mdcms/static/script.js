@@ -3,6 +3,7 @@ const doc     = document;
 const dates   = doc.querySelectorAll('time');
 const header  = doc.querySelector('#header');
 const nav     = doc.querySelector('#nav');
+const params  = doc.querySelector('#params');
 // const logo    = doc.querySelector('#logo');
 
 // /post
@@ -118,6 +119,15 @@ if (catlist && pstlsts) {
 
 
 /*
+LOCAL STORAGE for user's settings
+*/
+function setLocalStorage(key, value) {
+    localStorage.setItem(key, value);
+}
+
+
+
+/*
 CONVERT EPOCH time to datetime
 */
 function convertEpoch(dates) {
@@ -144,6 +154,63 @@ function convertEpoch(dates) {
 convertEpoch(dates); // Convert post dates
 
 
+
+/*
+DARK MODE switch
+*/
+const themeSwitch = params.querySelector('#themeSwitch');
+const prefColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+
+function toggleTheme() {
+    // darkTheme = true;
+    // setLocalStorage("darkTheme", true);
+
+    const darkTheme = doc.body.classList.contains("darkTheme");
+    console.log(darkTheme);
+
+    if (darkTheme) {
+        themeSwitch.innerHTML = "dark:off";
+        doc.body.classList.remove("darkTheme");
+        setLocalStorage("darkTheme", false)
+    } else {
+        themeSwitch.innerHTML = "dark:on";
+        doc.body.classList.add("darkTheme");
+        setLocalStorage("darkTheme", true)
+    }
+
+}
+
+if (window.matchMedia('(prefers-color-scheme: dark)').matches
+|| localStorage.getItem("darkTheme") == "true") {
+    themeSwitch.innerHTML = "dark:on";
+    doc.body.classList.add("darkTheme");
+    // TODO set the switch to dark mode
+} else {
+    themeSwitch.innerHTML = "dark:off";
+}
+
+// User changes color from scheme
+prefColorScheme.addEventListener('change', (e) => {
+    if (e.matches) {
+        runDarkTheme();
+        // TODO run dark mode and set the switch to dark mode
+        // local storage should NOT be affected by this
+    } else {
+        runLightTheme();
+        // TODO run light mode and set the switch to light mode
+        // local storage should NOT be affected by this
+    }
+});
+
+// User changes color from switch btn
+themeSwitch.addEventListener('click', (e) => {
+    toggleTheme();
+    // TODO run other theme
+    // local storage is affected by this
+});
+
+// console.log(window.matchMedia('(prefers-color-scheme: dark)'));
 
 /*
 NAV scroll effect
