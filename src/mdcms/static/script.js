@@ -170,11 +170,9 @@ function toggleTheme() {
     console.log(darkTheme);
 
     if (darkTheme) {
-        themeSwitch.innerHTML = "dark:off";
         doc.body.classList.remove("darkTheme");
         setLocalStorage("darkTheme", false)
     } else {
-        themeSwitch.innerHTML = "dark:on";
         doc.body.classList.add("darkTheme");
         setLocalStorage("darkTheme", true)
     }
@@ -183,11 +181,8 @@ function toggleTheme() {
 
 if (window.matchMedia('(prefers-color-scheme: dark)').matches
 || localStorage.getItem("darkTheme") == "true") {
-    themeSwitch.innerHTML = "dark:on";
     doc.body.classList.add("darkTheme");
     // TODO set the switch to dark mode
-} else {
-    themeSwitch.innerHTML = "dark:off";
 }
 
 // User changes color from scheme

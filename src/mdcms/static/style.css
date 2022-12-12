@@ -133,6 +133,7 @@ HEADER
     position: sticky;
     top: 0;
     width: 100%;
+    background-color: #eee8d5e6;
     justify-content: center;
     align-items: center;
     -webkit-backdrop-filter: blur(4px);
@@ -161,6 +162,14 @@ HEADER
     }
     #nav li {
         padding: 0 .5em;
+    }
+    svg#themeSwitch {
+        height: 36px;
+        fill: #002b36;
+        cursor: pointer;
+    }
+    svg#themeSwitch path {
+        fill: #002b36;
     }
 #wip {
     width: 100%;
