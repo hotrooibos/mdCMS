@@ -156,36 +156,33 @@ convertEpoch(dates); // Convert post dates
 
 
 /*
-DARK MODE switch
+DARK MODE
 */
 const themeSwitch = params.querySelector('#themeSwitch');
 const prefColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
-
 function toggleTheme() {
-    // darkTheme = true;
-    // setLocalStorage("darkTheme", true);
+    const darkTheme = doc.documentElement.classList.contains("dark");
 
-    const darkTheme = doc.body.classList.contains("darkTheme");
-    console.log(darkTheme);
-
+    // If dark, switch to light
     if (darkTheme) {
-        doc.body.classList.remove("darkTheme");
-        setLocalStorage("darkTheme", false)
+        doc.documentElement.className = "light";
+        setLocalStorage("darkTheme", false);
+    // If light, switch to dark
     } else {
-        doc.body.classList.add("darkTheme");
-        setLocalStorage("darkTheme", true)
+        doc.documentElement.className = "dark";
+        setLocalStorage("darkTheme", true);
     }
-
 }
 
+// Auto dark if OS scheme is set to dark
 if (window.matchMedia('(prefers-color-scheme: dark)').matches
 || localStorage.getItem("darkTheme") == "true") {
-    doc.body.classList.add("darkTheme");
+    doc.documentElement.className = "dark";
     // TODO set the switch to dark mode
 }
 
-// User changes color from scheme
+// User changes color from OS scheme
 prefColorScheme.addEventListener('change', (e) => {
     if (e.matches) {
         runDarkTheme();
