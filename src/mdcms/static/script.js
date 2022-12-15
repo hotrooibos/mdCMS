@@ -78,7 +78,7 @@ if (catlist && pstlsts) {
             // Selected category styling
             for (const cat of catlist.querySelectorAll('li')) {
                 if (selectedCat === cat.innerHTML) {
-                    cat.style.color = '#54c9b9';
+                    cat.style.backgroundColor = 'var(--color-text-hover)';
                 }
                 else {
                     cat.removeAttribute('style');

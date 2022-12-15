@@ -17,12 +17,13 @@ GENERAL
 
 :root,
 :root.light {
-    --color-text: #141e24;
-    --color-bg: #eee8d5;
-    --color-bg-z: #eee8d5e6;
+    --color-text: #56544b;
+    --color-bg: #f6f3ed;
+    --color-bg-z: #f6f3ede6;
     --color-link: #1d2a32;
-    --color-hover: #cbc4ad;
+    --color-hover: #f4efe0;
     --color-control: #316d7c;
+    --color-control-z: #316d7ce6;
     --color-text-hover: black;
     --color-highlight: #e96c4c;
     /* --font-family: Open Sans, Helvetica Neue, Segoe UI, Ubuntu, sans-serif; */
@@ -32,9 +33,10 @@ GENERAL
     --color-text: #53a1b3;
     --color-bg: #141e24;
     --color-bg-z: #141e24e6;
-    --color-link: #68b8ca;
+    --color-link: #77c1d1;
     --color-hover: #193945;
     --color-control: #316d7c;
+    --color-control-z: #316d7ce6;
     --color-text-hover: white;
     --color-highlight: #e96c4c;
     /* --font-family: Open Sans, Helvetica Neue, Segoe UI, Ubuntu, sans-serif; */
@@ -199,14 +201,12 @@ HEADER
         cursor: pointer;
     }
     svg#themeSwitch path {
-        fill: #002b36;
+        fill: var(--color-highlight);
     }
     .glow {
         margin: 0 auto;
         text-align: center;
 
-        left: 0;
-        top: 0;
         height: 120px;
         width: 120px;
         
@@ -252,8 +252,8 @@ HEADER
 #wip {
     width: 100%;
     padding: .5em 0;
-    color:saddlebrown;
-    background-color: peru;
+    color:var(--color-bg);
+    background-color: var(--color-highlight);
     text-align: center;
 }
 
@@ -324,8 +324,8 @@ CONTENT
             margin: .2em;
             padding: 0 .3em 0.1em;
             border-radius: 5px;
-            color: #073642;
-            background-color: #586e75;
+            color: var(--color-bg);
+            background-color: var(--color-text);
             cursor: pointer;
         }
     h2.titleyear {
@@ -376,15 +376,6 @@ CONTENT
         text-align: left;
     }
 
-    .postitle a,
-    .postitle a:visited {
-        color: #bf5695;
-    }
-    .postitle a:hover {
-        color: #c988af;
-        background: none;
-        border-radius: initial;
-    }
     .datestamp { opacity: .3;
         text-align: right;
     }
@@ -413,7 +404,7 @@ CONTENT
         .comment {
             margin: 0;
             padding: .8em;
-            background-image: linear-gradient(#41495c, #2e3442);
+            background-image: linear-gradient(var(--color-control), var(--color-control-z));
             border-radius: .6em;
             box-shadow: 1px 2px 5px #1e2229;
             word-break: break-all;
@@ -423,8 +414,8 @@ CONTENT
             margin: .5em;
             padding: .3em;
             border: none;
-            color: var(--color-bg);
-            background-color: #073642;
+            color: var(--color-text);
+            background-color: var(--color-control);
             border-radius: .3em;
             width: 95%;
             max-width: 15em;
@@ -433,7 +424,7 @@ CONTENT
         }
         .input:active,
         .input:focus {
-            box-shadow: 1px 1px 10px #2c7abb;
+            box-shadow: 1px 1px 5px #2c7abb;
         }
         textarea.input {
             height: 6em;
@@ -495,10 +486,6 @@ FOOTER
     margin: 2em 0 .2em;
     opacity: .3;
 }
-    #footer a,
-    #footer a:visited {
-        color:#dbdbe7;
-    }
 
 
 
