@@ -312,6 +312,20 @@ CONTENT
         margin: 0 0 2em 0;
         font-size: 1.3em;
     }
+    #latestposts a {
+        padding: 1em;
+        display: list-item;
+    }
+    #latestposts a:hover {
+        background-color: var(--color-hover);
+    }
+    #latestposts time {
+        font-weight: lighter;
+    }
+
+
+
+
 
     /*
     POSTS LIST

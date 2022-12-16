@@ -287,26 +287,23 @@ if (form) {
 
                     // Comment accepted : update div#comflow with all comments
                     case 200:
-                        // If it's the first comment, add the title/comment counter                   
-                        // TODO if coms.length > 0... see _comments.j2
-
-                        //TODO 
-                        // let h2counter = doc.createElement('h2');
-                        // h2counter.setAttribute('id', 'comtitle');
-                        console.log(xhr.responseXML.getElementsByClassName('com').length);
-                        // let comCount = number of div.com element in xhr.responseText
-                        // if (comCount === 1) {
-                        //    box.innerHTML = '1 comment';
-                        // } else {
-                        //    box.innerHTML = 'comCount comments';
-                        // }
-                        // comflow.appendChild(h2counter);
-
-
                         // responseText contains all comments, and
                         // is returned by /comment Flask route
                         comflow.innerHTML = xhr.responseText;
                         convertEpoch(comflow.querySelectorAll('time'));
+
+                        // If it's the first comment, add the title/comment counter
+                        let comh2 = doc.createElement('h2');
+                        comh2.setAttribute('id', 'comtitle');
+                        let comCount = comflow.getElementsByClassName('com').length;
+                        let h2label = `${comCount} comment`;
+                        h2label += comCount > 1 ? 's' : '';
+                        comh2.innerHTML = h2label;
+
+                        comflow.prepend(comh2);
+
+
+
                         form.reset();
                         break;
 

@@ -9,10 +9,10 @@
 	</ul>
 	<hr>
 	<h2>Latest posts</h2>
-	<ul>
+	<ul id="latestposts">
 	{% for p in posts %}
 	{% if loop.index < 6 %}
-	<li><time>{{ p.ctime }}</time> <a href="{{ url_for('post', url=p.url) }}">{{ p.title }}</a></li>
+	<li><a href="{{ url_for('post', url=p.url) }}"><time>{{ p.ctime }}</time> {{ p.title }}</a></li>
 	{% endif %}
 	{% endfor %}
 	</ul>
