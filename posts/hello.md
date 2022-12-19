@@ -4,6 +4,7 @@ categories:Hello
 url:hello_world
 title:Hello world
 author:Antoine
+preview:/posts/ressources/hello_ideal246.webp
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultricies urna eu suscipit tempus. In et enim scelerisque, rhoncus nibh vitae, maximus enim. Vestibulum cursus, nisi sed dapibus posuere, ipsum metus condimentum neque, aliquam imperdiet risus leo vitae leo.
 

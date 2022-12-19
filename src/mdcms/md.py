@@ -54,6 +54,7 @@ class Md:
         self.langflag = None
         self.originpost = None
         self.cat = None
+        self.preview = None
 
         #
         # TITLE : get or use+write the one from filename
@@ -107,6 +108,14 @@ class Md:
             self.cat = md.Meta.get('categories')
         else:
             self.cat = ['None']
+
+        #
+        # PREVIEW image : get from md
+        #
+        if md.Meta.get('preview'):
+            self.preview = md.Meta.get('preview')[0]
+        # else:
+        #     self.preview = const.DEFAULT_PREVIEW
 
         #
         # DATECR : get from md or create from OS fs metas

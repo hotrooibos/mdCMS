@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -15,6 +15,9 @@
 {% include 'layouts/partials/_header.j2' %}
 <div id="content">
 	{% block content %}{% endblock %}
+</div>
+<div id="params">
+{% include 'layouts/partials/_params.j2' %}
 </div>
 {% include 'layouts/partials/_footer.j2' %}
 

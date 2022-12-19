@@ -15,7 +15,7 @@ const like    = doc.querySelector('#like');
 const likcnt  = doc.querySelector('#likecounter');
 
 // /posts
-const pstlsts = doc.querySelectorAll('ul.postlist');
+const pstlsts = doc.querySelectorAll('ul.post_list');
 const catlist = doc.querySelector('ul#catlist');
 
 
@@ -30,7 +30,7 @@ if (catlist && pstlsts) {
 
     /*
     BUILD CATEGORY ARRAY from the
-    "data-categories" <li> attribute in #postlist
+    "data-categories" <li> attribute in #post_list
     */
 
     // GET POSTS <li> in an array
@@ -137,29 +137,31 @@ function convertEpoch(dates) {
         dt = new Date(dt * 1000);
 
         const options = {
-            month: 'short', day: 'numeric'
-          };
+            month: 'long',
+            day: 'numeric'
+        };
 
+        // Show year if not in current year
         if (dt.getFullYear() != new Date().getFullYear() ) {
             options["year"] = "numeric";        
         }
 
+        // GB time format (ex: 28 September 2022)
         const postdate = new Intl.DateTimeFormat('en-GB', options).format(dt);
-
 
         d.innerHTML = postdate;
     }
 }
 
-convertEpoch(dates); // Convert post dates
+convertEpoch(dates);
 
 
 
 /*
 DARK MODE
 */
-const themeSwitch = params.querySelector('#themeSwitch');
-const prefColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+const themeSwitch = params.querySelector('#theme_switch');
+// const prefColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
 function toggleTheme() {
     const darkTheme = doc.documentElement.classList.contains("dark");
@@ -175,34 +177,36 @@ function toggleTheme() {
     }
 }
 
-// Auto dark if OS scheme is set to dark
-if (window.matchMedia('(prefers-color-scheme: dark)').matches
-|| localStorage.getItem("darkTheme") == "true") {
-    doc.documentElement.className = "dark";
-    // TODO set the switch to dark mode
+// Read localstorage for any previous user setting
+if (localStorage.getItem("darkTheme") == "false") {
+    toggleTheme();
 }
-
-// User changes color from OS scheme
-prefColorScheme.addEventListener('change', (e) => {
-    if (e.matches) {
-        runDarkTheme();
-        // TODO run dark mode and set the switch to dark mode
-        // local storage should NOT be affected by this
-    } else {
-        runLightTheme();
-        // TODO run light mode and set the switch to light mode
-        // local storage should NOT be affected by this
-    }
-});
 
 // User changes color from switch btn
 themeSwitch.addEventListener('click', (e) => {
     toggleTheme();
-    // TODO run other theme
-    // local storage is affected by this
 });
 
-// console.log(window.matchMedia('(prefers-color-scheme: dark)'));
+// Auto dark if OS scheme is set to dark
+// if (window.matchMedia('(prefers-color-scheme: dark)').matches
+// || localStorage.getItem("darkTheme") == "true") {
+//     doc.documentElement.className = "dark";
+// }
+
+// User changes color from OS scheme
+// prefColorScheme.addEventListener('change', (e) => {
+//     if (e.matches) {
+//         runDarkTheme();
+        // TODO run dark mode and set the switch to dark mode
+        // local storage should NOT be affected by this
+    // } else {
+    //     runLightTheme();
+        // TODO run light mode and set the switch to light mode
+        // local storage should NOT be affected by this
+//     }
+// });
+
+
 
 /*
 NAV scroll effect

@@ -1,5 +1,3 @@
-/* @import url("./dark.css"); */
-
 @font-face {
     font-family: 'Rec Mono Linear';
     src: url('/static/fonts/RecMonoLinear.woff2') format('woff2'),
@@ -14,19 +12,17 @@
 /*
 GENERAL
 */
-
 :root,
 :root.light {
-    --color-text: #56544b;
-    --color-bg: #f6f3ed;
-    --color-bg-z: #f6f3ede6;
-    --color-link: #1d2a32;
-    --color-hover: #f4efe0;
-    --color-control: #316d7c;
-    --color-control-z: #316d7ce6;
+    --color-text: #ac5E4c;
+    --color-bg: #ebe1db;
+    --color-bg-z: #ebe1dbe6;
+    --color-link: #883E2E;
+    --color-hover: #E6C6BA;
+    --color-control: #ce9283;
+    --color-control-z: #ce9283e6;
     --color-text-hover: black;
-    --color-highlight: #e96c4c;
-    /* --font-family: Open Sans, Helvetica Neue, Segoe UI, Ubuntu, sans-serif; */
+    --color-highlight: #1693b3;
     color-scheme: light;
 }
 :root.dark {
@@ -39,7 +35,6 @@ GENERAL
     --color-control-z: #316d7ce6;
     --color-text-hover: white;
     --color-highlight: #e96c4c;
-    /* --font-family: Open Sans, Helvetica Neue, Segoe UI, Ubuntu, sans-serif; */
     color-scheme: dark;
 }
 
@@ -53,7 +48,14 @@ body {
     width: 100%;
     background-color: var(--color-bg);
     color: var(--color-text);
-    font: 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font: 16px -apple-system,
+               BlinkMacSystemFont,
+               "Segoe UI",
+               Roboto,
+               "Helvetica Neue",
+               Arial,
+               "Noto Sans",
+               sans-serif;
     align-items: center;
 }
 
@@ -86,9 +88,20 @@ img {
 code {
     padding: .1em;
     border-radius: .1em;
-    font: .8em "Rec Mono Linear", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
-               "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
-               "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+    font: .8em "Rec Mono Linear",
+               Consolas,
+               "Andale Mono WT",
+               "Andale Mono",
+               "Lucida Console",
+               "Lucida Sans Typewriter",
+               "DejaVu Sans Mono",
+               "Bitstream Vera Sans Mono",
+               "Liberation Mono",
+               "Nimbus Mono L",
+               Monaco,
+               "Courier New",
+               Courier,
+               monospace;
 }
 p code {
     color: #f5d56a;
@@ -174,81 +187,82 @@ HEADER
     font-size: 1.5em;
     transition: font-size .05s linear;
 }
-    #logo {
-        display: none;
-    }
-    #logo a {
-        display: flex;
-        align-items: center;
-    }
-    img#logoamn {
-        height: 1.5em;
-        margin-right: .5em;
-    }
     #nav {
         padding: .8em 0;
     }
-    #nav ul {
-        display: flex;
-        margin: 0;
-        padding: 0;
-    }
-    #nav li {
-        padding: 0 .5em;
-    }
-    svg#themeSwitch {
-        height: 36px;
-        cursor: pointer;
-    }
-    svg#themeSwitch path {
-        fill: var(--color-highlight);
-    }
-    .glow {
-        margin: 0 auto;
-        text-align: center;
+        #nav ul {
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        #nav li {
+            padding: 0 .5em;
+        }
 
-        height: 120px;
-        width: 120px;
-        
-        -webkit-animation-name: flicker;
-                animation-name: flicker;
-        -webkit-animation-duration: 15s;
-                animation-duration: 15s;
-        -webkit-animation-iteration-count: infinite;
-                animation-iteration-count: infinite;
-        -webkit-animation-timing-function: linear;
-                animation-timing-function: linear;     
-      }
-      
-    @keyframes flicker {
-        from { opacity: .50; }
-        4%   { opacity: .70; }
-        8%   { opacity: .45; }
-        12%  { opacity: .65; }
-        16%  { opacity: .30; }
-        20%  { opacity: .50; }
-        24%  { opacity: .60; }
-        28%  { opacity: .25; }
-        32%  { opacity: .30; }
-        36%  { opacity: .55; }
-        40%  { opacity: .40; }
-        44%  { opacity: .60; }
-        48%  { opacity: .35; }
-        52%  { opacity: .20; }
-        56%  { opacity: .70; }
-        60%  { opacity: .50; }
-        64%  { opacity: .65; }
-        68%  { opacity: .35; }
-        72%  { opacity: .50; }
-        76%  { opacity: .40; }
-        80%  { opacity: .65; }
-        84%  { opacity: .40; }
-        88%  { opacity: .35; }
-        92%  { opacity: .60; }
-        96%  { opacity: .30; }
-        to   { opacity: .50; }
-      }
-
+    #theme {
+        position: fixed;
+        top: 1%;
+        right: 1%;
+    }
+        svg#theme_switch {
+            height: 36px;
+            cursor: pointer;
+        }
+        svg#theme_switch path {
+            fill: var(--color-text);
+        }
+        .glow {
+            margin: 0 auto;
+            text-align: center;
+            -webkit-animation-name: flicker;
+                    animation-name: flicker;
+            -webkit-animation-duration: 15s;
+                    animation-duration: 15s;
+            -webkit-animation-iteration-count: infinite;
+                    animation-iteration-count: infinite;
+            -webkit-animation-timing-function: linear;
+                    animation-timing-function: linear;
+        }
+        .glow:hover {
+            -webkit-animation-name: static;
+                    animation-name: static;
+            animation-play-state: paused;
+        }
+        @keyframes static {
+            from { opacity:   1; }
+            to   { opacity:   1; }
+        }
+        @keyframes flicker {
+            from { opacity:   1; }
+            4%   { opacity: .70; }
+            8%   { opacity: .45; }
+            12%  { opacity: .65; }
+            16%  { opacity: .30; }
+            20%  { opacity: .50; }
+            24%  { opacity: .60; }
+            28%  { opacity: .25; }
+            32%  { opacity: .30; }
+            36%  { opacity: .55; }
+            40%  { opacity: .40; }
+            44%  { opacity: .60; }
+            48%  { opacity: .35; }
+            52%  { opacity: .20; }
+            56%  { opacity:   1; }
+            60%  { opacity: .50; }
+            64%  { opacity: .65; }
+            68%  { opacity: .35; }
+            72%  { opacity: .50; }
+            76%  { opacity: .40; }
+            80%  { opacity: .65; }
+            84%  { opacity: .40; }
+            88%  { opacity: .35; }
+            92%  { opacity: .60; }
+            96%  { opacity: .30; }
+            to   { opacity:   1; }
+        }
+        .glow:hover {
+            opacity: 1;
+        }
 #wip {
     width: 100%;
     padding: .5em 0;
@@ -312,18 +326,48 @@ CONTENT
         margin: 0 0 2em 0;
         font-size: 1.3em;
     }
-    #latestposts a {
+
+    a.tile {
+        display: grid; 
+        grid-template-columns: minmax(1px, 90px) 5fr; 
+        grid-template-rows: auto 1fr; 
+        grid-template-areas: 
+          "preview title"
+          "preview date";
+        gap: 0 1em;
         padding: 1em;
-        display: list-item;
+        border-radius: 3px;
+        transition: background-color 150ms, color 150ms;
     }
-    #latestposts a:hover {
+    a.tile:hover {
         background-color: var(--color-hover);
     }
-    #latestposts time {
-        font-weight: lighter;
+
+    span.tile_preview {
+        grid-area: preview;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: .5;
+        transition: opacity 150ms;
+    }
+    a.tile:hover span.tile_preview {
+        opacity: 1;
+    }
+    span.tile_preview img {
+        border-radius: 3px;
+        max-height: 90px;
     }
 
-
+    span.tile_title {
+        grid-area: title;
+    }
+    span.tile_date {
+        grid-area: date;
+        font-size: .8em;
+        font-weight: lighter;
+        opacity: .5;
+    }
 
 
 
@@ -337,7 +381,7 @@ CONTENT
             display: inline-flex;
             margin: .2em;
             padding: 0 .3em 0.1em;
-            border-radius: 5px;
+            border-radius: 3px;
             color: var(--color-bg);
             background-color: var(--color-text);
             cursor: pointer;
@@ -346,7 +390,7 @@ CONTENT
         margin-bottom: 0;
         opacity: .3;
     }
-    .postlist {
+    .post_list {
         margin: 0;
     }
 
@@ -390,7 +434,8 @@ CONTENT
         text-align: left;
     }
 
-    .datestamp { opacity: .3;
+    .datestamp {
+        opacity: .3;
         text-align: right;
     }
 
