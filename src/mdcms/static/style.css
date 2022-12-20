@@ -14,11 +14,12 @@ GENERAL
 */
 :root,
 :root.light {
-    --color-text: #ac5E4c;
+    --color-text: #ac5e4c;
     --color-bg: #ebe1db;
     --color-bg-z: #ebe1dbe6;
-    --color-link: #883E2E;
-    --color-hover: #E6C6BA;
+    --color-link: #883e2e;
+    --color-hover: #e6c6bA;
+    --color-code: #0a2a95;
     --color-control: #ce9283;
     --color-control-z: #ce9283e6;
     --color-text-hover: black;
@@ -31,6 +32,7 @@ GENERAL
     --color-bg-z: #141e24e6;
     --color-link: #77c1d1;
     --color-hover: #193945;
+    --color-code: #f5d56a;
     --color-control: #316d7c;
     --color-control-z: #316d7ce6;
     --color-text-hover: white;
@@ -104,11 +106,11 @@ code {
                monospace;
 }
 p code {
-    color: #f5d56a;
+    color: var(--color-code);
 }
 pre {
     padding: .7em 2%;
-    color: var(--color-text-hover);
+    color: var(--color-code);
     background-color: var(--color-hover);
     border-radius: .3em;
     margin: 1em 0 1em 2%;
@@ -356,7 +358,6 @@ CONTENT
     }
     span.tile_preview img {
         border-radius: 3px;
-        max-height: 90px;
     }
 
     span.tile_title {
