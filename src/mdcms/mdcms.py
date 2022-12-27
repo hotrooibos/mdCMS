@@ -53,7 +53,7 @@ log = logging.getLogger(__name__)
 """
 
 # Markdown posts base
-mdb = []    
+mdb = []
 
 # Read json data
 jd().read()
@@ -87,6 +87,7 @@ def watchdog():
 
         for md in mdb:
             known_mds.append(md.url)
+
             if md.mtime > mdb_last:
                 mdb_last = md.mtime
 
@@ -99,22 +100,25 @@ def watchdog():
                 # File not updated -> skip
                 if not populate and fmtime <= mdb_last:
                     continue
-
-                # Update post in memory
+                
+                # Create Md object from file
                 md = Md(f, fpath)
 
-                if md.url in known_mds:
+                # Update post in memory
+                if md.url in known_mds \
+                and not populate:
                     if md.mtime > mdb_last:
-                        log.info(f'Update post "{f}"')
+                        log.info(f'Update post "{md.url}" ({f})')
                         i = known_mds.index(md.url)
                         mdb[i] = md
                     else:
                         continue
 
                 # Add post in mem
-                else:
+                elif md.url not in known_mds:
+                    log.info(f'Add post "{md.url}" ({f})')
                     mdb.insert(0, md)
-                    log.info(f'Add post "{f}"')
+                    known_mds.append(md.url)
 
                     # Sort posts by ctime at populate time
                     if populate:
@@ -400,9 +404,16 @@ def flaskapp():
         """
         global mdb
 
-        # Get post/md specified in url
-        post = next((p for p in mdb if p.url == url), None)
-        
+        post = None
+
+        # Get post/md specified in url      
+        for p in mdb:
+            if url == p.url:
+                post = p
+                continue
+            elif url in p.urlredir:
+                return fk.redirect(f"/post/{p.url}")
+
         # Return 404 if not found
         if not post:
             alt = get_404_alt(url)
@@ -427,7 +438,7 @@ def flaskapp():
         sender_ip = remote_addr()
         ban = banned(sender_ip)
 
-        # Get this post comments (unfiltered)
+        # Get post comments (unfiltered)
         unfltrd_coms = []
         for url, v in jd().jdat['comments'].items():
             if url == post.url:

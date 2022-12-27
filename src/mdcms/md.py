@@ -1,14 +1,12 @@
 import logging
 import os
 import unicodedata
+from time import time
 
 from markdown import Markdown
-from time import time
 
 from . import constants as const
 from . import utils
-
-
 
 # Init logger
 log = logging.getLogger(__name__)
@@ -48,6 +46,7 @@ class Md:
         self.title = fname[:-3]
         self.author = const.DEFAULT_AUTHOR
         self.url = None
+        self.urlredir = []
         self.ctime = None
         self.cyear = None
         self.lang = const.DEFAULT_LANG
@@ -63,17 +62,29 @@ class Md:
             self.title = md.Meta.get('title')[0]
         else:
             wmd.append(('title', self.title))
+            log.warning(f"{fname}: no title specified.")
 
         #
         # PERMA URL : get or build it
         #
         if md.Meta.get('url'):
-            self.url = md.Meta.get('url')[0]
+            self.url = md.Meta.get('url')[0]        
         else:
             self.url = self.build_url()
-            wmd.append(('url', self.url))
 
-        Md.urls.append(self.url)
+        if self.url not in Md.urls:
+            Md.urls.append(self.url)
+
+        #
+        # REDIRECTION URLs
+        #
+        if md.Meta.get('urlredir'):
+            for url in md.Meta.get('urlredir'):
+                self.urlredir.append(url)
+
+                if url not in Md.urls:
+                    # log.info(f'{fname}: add "{url}" redirection')
+                    Md.urls.append(url)
 
         #
         # AUTHOR : get from md or consts
@@ -197,22 +208,13 @@ class Md:
         # Lower case
         url = url.lower()
 
-        # Dupe detection
-        urlf = url
+        # Translation post support
+        if url in Md.urls \
+        and self.lang \
+        and self.lang != const.DEFAULT_LANG:
+                url = f'{self.lang[:2]}_{url}'
 
-        if url in Md.urls:
-            # If translation of another post,
-            # must not be used as the title is supposed
-            # to be translated too
-            if self.lang and self.lang != const.DEFAULT_LANG:
-                urlf = f'{self.lang[:2]}_{url}'
-
-            # True duplicate : add count to name
-            else:
-                nb = Md.urls.count(url)
-                urlf = f'{url}{nb}'
-
-        return urlf
+        return url
 
 
 
