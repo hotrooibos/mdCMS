@@ -22,9 +22,9 @@ class Md:
     """
     urls = []
 
-    def __init__(self, fname: str, mdurl: str):
+    def __init__(self, f_name: str, f_url: str):
         # Read .md file and make attributes from its content
-        with open(file=mdurl,
+        with open(file=f_url,
                   mode='r',
                   encoding='utf-8') as mdf:
             mddat = mdf.read()
@@ -34,16 +34,16 @@ class Md:
         md = Markdown(extensions=['meta','toc','extra',
                                   'codehilite','md_in_html'])
 
-        self.furl = mdurl
+        self.f_url = f_url
         self.content = md.convert(mddat)
         self.toc = md.toc
-        self.mtime = os.stat(self.furl).st_mtime
+        self.m_time = os.stat(self.f_url).st_mtime
 
         #
         # Metas
         #
-        # Filename without '.md'
-        self.title = fname[:-3]
+        self.f_name = f_name
+        self.title = f_name[:-3]
         self.author = const.DEFAULT_AUTHOR
         self.url = None
         self.urlredir = []
@@ -62,7 +62,7 @@ class Md:
             self.title = md.Meta.get('title')[0]
         else:
             wmd.append(('title', self.title))
-            log.warning(f"{fname}: no title specified.")
+            log.warning(f"{f_name}: no title specified.")
 
         #
         # PERMA URL : get or build it
@@ -83,7 +83,7 @@ class Md:
                 self.urlredir.append(url)
 
                 if url not in Md.urls:
-                    # log.info(f'{fname}: add "{url}" redirection')
+                    # log.info(f'{f_name}: add "{url}" redirection')
                     Md.urls.append(url)
 
         #
@@ -134,7 +134,7 @@ class Md:
         if md.Meta.get('datecr'):
             self.ctime = utils.to_epoch(md.Meta.get('datecr')[0])
         else:
-            self.ctime = os.stat(self.furl).st_ctime
+            self.ctime = os.stat(self.f_url).st_ctime
             wmd.append(('datecr', utils.to_datestr(self.ctime)))
 
         self.cyear = utils.to_datestr(self.ctime,
@@ -149,7 +149,7 @@ class Md:
     def write(self, data_to_write: list):
         """Write metadatas to .md file
         """
-        with open(self.furl,
+        with open(self.f_url,
                   mode='r+',
                   encoding='utf-8') as md:
             mdl = md.readlines()
@@ -221,7 +221,7 @@ class Md:
     # def build_title(self):
     #     """ Build title from file name
     #     """
-        # with open(self.furl,
+        # with open(self.f_url,
         #           mode='r+',
         #           encoding='utf-8') as md:
         #     mdl = md.readlines()
@@ -260,10 +260,10 @@ class Md:
     2) le checksum(title + content) est ==
     """
     # for f in os.listdir(const.MD_PATH):
-    #     mdurl = f'{const.MD_PATH}/{f}'
+    #     f_url = f'{const.MD_PATH}/{f}'
 
     #     if f[-3:] == '.md':     
-    #         md = Md(mdurl)
+    #         md = Md(f_url)
 
     #         # SKIP file if a post with same title or checksum exists in JSON data
     #         if md.title in jd().titles:

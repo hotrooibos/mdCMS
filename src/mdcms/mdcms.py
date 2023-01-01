@@ -20,25 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import flask as fk
-import jinja2
 import logging
-
-from flask.globals import request
-from flask.helpers import send_from_directory
 from os import listdir, stat
 from threading import Thread
-from time import sleep, time, strftime, localtime
+from time import localtime, sleep, strftime, time
+
+import flask as fk
+import jinja2
+from flask.globals import request
+from flask.helpers import send_from_directory
 from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.exceptions import HTTPException
 
 from . import constants as const
-from .md import Md
 from .jdata import Jdata as jd
+from .md import Md
 
-
-
-# Logging setup
+"""Logging setup
+"""
 t = time()
 date = strftime('%Y_%m', localtime(t))
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -49,11 +48,13 @@ logging.basicConfig(filename=f'logs/{date}_mdcms.log',
                     level=logging.INFO)
 log = logging.getLogger(__name__)
 
+
+
 """Mdcms setup
 """
-
 # Markdown posts base
 mdb = []
+mdb_last_time = 0
 
 # Read json data
 jd().read()
@@ -75,55 +76,81 @@ def watchdog():
     - Returns the updated MD base
     """
     global mdb
+    global mdb_last_time
     global pending_w
 
     while True:
         # Initial execution -> process all md
         populate = True if len(mdb) < 1 else False
 
-        # Get all known post url (id) in memory
-        known_mds = []
-        mdb_last = 0
-
-        for md in mdb:
-            known_mds.append(md.url)
-
-            if md.mtime > mdb_last:
-                mdb_last = md.mtime
+        # List of actual files in MD_PATH, so we can compare
+        # it to the md objects dict (mdb) and deleted md/posts TODO
+        f_list = []
 
         # Loop over each .md file
-        for f in listdir(const.MD_PATH):
-            if f[-3:] == '.md':
-                fpath = f'{const.MD_PATH}/{f}'
-                fmtime = stat(fpath).st_mtime
+        for f in (f for f in listdir(const.MD_PATH) if f[-3:] == '.md'):
+            f_url = f"{const.MD_PATH}/{f}"
+            f_mtime = stat(f_url).st_mtime
 
-                # File not updated -> skip
-                if not populate and fmtime <= mdb_last:
-                    continue
+            # SKIP if file is known and not updated
+            if not populate \
+            and f_mtime <= mdb_last_time:
+                if f not in f_list:
+                    f_list.append(f)
                 
+                continue
+            
+            # UPDATE if file is refered in mdb, and its
+            # mod time > to the last known modification
+            if not populate \
+            and f in f_list \
+            and f_mtime > mdb_last_time:
+                log.info(f'Update post "{md.url}" ({f})')
+                md = Md(f, f_url)
+                
+                for k,v in enumerate(mdb):
+                    if v.url == md.url:
+                        mdb[k] = md
+                
+                mdb_last_time = f_mtime
+
+            # CREATE NEW post if file is a .md
+            # and not known from mdb
+            elif f not in f_list:
                 # Create Md object from file
-                md = Md(f, fpath)
+                md = Md(f, f_url)
 
-                # Update post in memory
-                if md.url in known_mds \
-                and not populate:
-                    if md.mtime > mdb_last:
-                        log.info(f'Update post "{md.url}" ({f})')
-                        i = known_mds.index(md.url)
-                        mdb[i] = md
-                    else:
-                        continue
+                # Add post in mem if file is
+                # unknown from mdb
+                log.info(f'Add post "{md.url}" ({f})')
+                mdb.append(md)
+                
+                if f_mtime > mdb_last_time:
+                    mdb_last_time = f_mtime
+                
+                f_list.append(f)
+            
+        # REMOVE md from mdb if its .md file
+        # is missing (deleted or moved)
+        for md in mdb:
+            if md.f_name not in f_list:
+                log.info(f'Remove post "{md.url}" ({f} missing)')
 
-                # Add post in mem
-                elif md.url not in known_mds:
-                    log.info(f'Add post "{md.url}" ({f})')
-                    mdb.insert(0, md)
-                    known_mds.append(md.url)
+                # Recalculate mdb_last_time, in case the
+                # missing .md was the most recent file
+                if md.m_time == mdb_last_time:
+                    mdb_last_time = 0
+                    
+                    for f in listdir(const.MD_PATH):
+                        if f[-3:] == '.md' \
+                        and f_mtime > mdb_last_time:
+                            mdb_last_time = f_mtime
+                
+                mdb.remove(md)
 
-                    # Sort posts by ctime at populate time
-                    if populate:
-                        mdb.sort(key=lambda x: x.ctime,
-                                reverse=True)
+        # Sort posts
+        mdb.sort(key=lambda x: x.ctime,
+                reverse=True)
 
         # Write pending data into data.json (jd object)
         # And reset flag state

@@ -32,7 +32,7 @@ class Jdata(Singleton):
         """Read JSON data file and load it in memory as a
         Jdata object or, if file does not exists, make a new one
         """
-        log.info(f'jdata.py: Read {const.JSON_PATH}')
+        log.info(f"Read {const.JSON_PATH}")
         try:
             with open(file=json_file,
                       mode='r',
@@ -40,7 +40,7 @@ class Jdata(Singleton):
                 self.jdat = json.load(json_file)
                 
         except (JSONDecodeError, FileNotFoundError) as e:
-            log.info(f"jdata.py: {e}: creating new JSON")
+            log.info(f"{e}: creating new JSON")
             self.make_default()
 
 
