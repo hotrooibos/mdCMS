@@ -56,6 +56,9 @@ log = logging.getLogger(__name__)
 mdb = []
 mdb_last_time = 0
 
+# Last time /posts dir was modified
+posts_mtime = stat(const.MD_PATH).st_mtime
+
 # Read json data
 jd().read()
 
@@ -77,7 +80,9 @@ def watchdog():
     """
     global mdb
     global mdb_last_time
+    global posts_mtime
     global pending_w
+
 
     while True:
         # Initial execution -> process all md
@@ -132,21 +137,25 @@ def watchdog():
             
         # REMOVE md from mdb if its .md file
         # is missing (deleted or moved)
-        for md in mdb:
-            if md.f_name not in f_list:
-                log.info(f'Remove post "{md.url}" ({f} missing)')
+        if stat(const.MD_PATH).st_mtime > posts_mtime:
 
-                # Recalculate mdb_last_time, in case the
-                # missing .md was the most recent file
-                if md.m_time == mdb_last_time:
-                    mdb_last_time = 0
-                    
-                    for f in listdir(const.MD_PATH):
-                        if f[-3:] == '.md' \
-                        and f_mtime > mdb_last_time:
-                            mdb_last_time = f_mtime
+            for md in mdb:
+                if md.f_name not in f_list:
+                    log.info(f'Remove post "{md.url}" ({f} missing)')
+
+                    # Recalculate mdb_last_time, in case the
+                    # missing .md was the most recent file
+                    if md.m_time == mdb_last_time:
+                        mdb_last_time = 0
+                        
+                        for f in listdir(const.MD_PATH):
+                            if f[-3:] == '.md' \
+                            and f_mtime > mdb_last_time:
+                                mdb_last_time = f_mtime
                 
-                mdb.remove(md)
+                    mdb.remove(md)
+
+                posts_mtime = stat(const.MD_PATH).st_mtime
 
         # Sort posts
         mdb.sort(key=lambda x: x.ctime,
