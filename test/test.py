@@ -1,13 +1,14 @@
-import datetime, time
+import datetime
 import os
 import sys
+import time
+
 # import hashlib, zlib
 
 
 if __name__ == "__main__":    
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from mdcms import jdata, md, constants
-    from mdcms import utils
+    # from src.mdcms.mdcms import constants, jdata, md, utils
 
     # Start execution timer
     start_time = time.time()
@@ -16,9 +17,13 @@ if __name__ == "__main__":
 
 
         '''Tests'''
-        while True:
-            md.watchdog()
-            time.sleep(constants.CHECK_TIME)
+        currdir = os.path.dirname(os.path.abspath(__file__))
+        print(f"{currdir} MTIME -> {os.stat(currdir).st_mtime}")
+
+
+        # while True:
+        #     md.watchdog()
+        #     time.sleep(constants.CHECK_TIME)
 
 
       

@@ -14,10 +14,10 @@ GENERAL
 */
 :root,
 :root.light {
-    --color-text: #ac5e4c;
+    --color-text: #4d4d4d;
     --color-bg: #ebe1db;
     --color-bg-z: #ebe1dbe6;
-    --color-link: #883e2e;
+    --color-link: #000000;
     --color-hover: #e6c6bA;
     --color-code: #0a2a95;
     --color-control: #ce9283;
@@ -326,7 +326,7 @@ CONTENT
     span.red { color:#e06660; }
     #presentation {
         margin: 0 0 2em 0;
-        font-size: 1.3em;
+        font-size: 1em;
     }
 
     a.tile {

@@ -2,16 +2,18 @@
 {% block content %}
 	<h1 id="title">Hi, I'm Antoine</h1>
 	<ul id="presentation">
-		<li><span class="blue">printf</span> ("I love building <span class="orange">%s</span>", <span class="red">softwares</span>) ;</li>
+		<li>I like to learn languages, I speak some french, python, english, js, spanish... ;</li>
+		<li>I do care about security, privacy, and freedom ;</li>
+		<li>I love to discover cultures with a backpack ;</li>
+		<li><span class="blue">printf</span> ("I think building <span class="orange">%s</span>", <span class="red">softwares</span>) is a form of art ;</li>
+		<li>I spend too much time automating, optimizing and min-maxing things ;</li>
 		<li><a href="https://news.ycombinator.com">hackernews</a> is my learning partner ;</li>
-		<li>I work as a project manager and software engineer ;</li>
-		<li>Feel free to contact me @<a href="https://www.linkedin.com/in/marzin/">Linkedin</a> ;</li>
 	</ul>
 	<hr>
 	<h2>Latest posts</h2>
 	<ul id="latest_posts">
 	{% for p in posts %}
-	{% if loop.index < 11 %}
+	{% if loop.index < 6 %}
 	<li>
 		<a class="tile" href="{{ url_for('post', url=p.url) }}">
 		{% if p.preview %}
@@ -23,6 +25,9 @@
 		<span class="tile_date"><time>{{ p.ctime }}</time></span>
 		</a>
 	</li>
+	{% endif %}
+	{% if posts|length > 5 %}
+		<li><a class="tile" href="/posts">more...</a></li>
 	{% endif %}
 	{% endfor %}
 	</ul>

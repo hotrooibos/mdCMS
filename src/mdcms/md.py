@@ -74,6 +74,10 @@ class Md:
 
         if self.url not in Md.urls:
             Md.urls.append(self.url)
+        else:
+            log.warning(f"Error in {f_name} : url for {self.url} already exists, changing url.")
+            self.url = self.build_url()
+
 
         #
         # REDIRECTION URLs
@@ -213,6 +217,10 @@ class Md:
         and self.lang \
         and self.lang != const.DEFAULT_LANG:
                 url = f'{self.lang[:2]}_{url}'
+
+        # Dupe url
+        elif url in Md.urls:
+            url = f"{url}_dupe_{time.time()}"
 
         return url
 

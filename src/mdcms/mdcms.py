@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+
 # MIT License
 
-# Copyright (c) 2022 Antoine Marzin
+# Copyright (c) 2023 Antoine Marzin
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import logging
-from os import listdir, stat
 from threading import Thread
-from time import localtime, sleep, strftime, time
+from time import strftime, time
 
 import flask as fk
 import jinja2
@@ -33,31 +33,14 @@ from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.exceptions import HTTPException
 
 from . import constants as const
+from . import watchdog
 from .jdata import Jdata as jd
 from .md import Md
 
-"""Logging setup
-"""
-t = time()
-date = strftime('%Y_%m', localtime(t))
-log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(filename=f'logs/{date}_mdcms.log',
-                    filemode='a',
-                    format=log_format,
-                    datefmt='%Y%m%d %H:%M:%S',
-                    level=logging.INFO)
-log = logging.getLogger(__name__)
-
-
-
-"""Mdcms setup
+"""MDcms setup
 """
 # Markdown posts base
 mdb = []
-mdb_last_time = 0
-
-# Last time /posts dir was modified
-posts_mtime = stat(const.MD_PATH).st_mtime
 
 # Read json data
 jd().read()
@@ -67,107 +50,7 @@ pending_w = False
 
 
 
-def watchdog():
-    """Watchdog loop function
-    Must be run in a separated thread.
 
-    Jobs :
-    - Polls MD_PATH for .md file changes (new or changed)
-    comparing with known, in-memory, MD base (mdb)
-    - Write data to data.json if new data (comment, bans) are
-    pending for writing
-    - Returns the updated MD base
-    """
-    global mdb
-    global mdb_last_time
-    global posts_mtime
-    global pending_w
-
-
-    while True:
-        # Initial execution -> process all md
-        populate = True if len(mdb) < 1 else False
-
-        # List of actual files in MD_PATH, so we can compare
-        # it to the md objects dict (mdb) and deleted md/posts TODO
-        f_list = []
-
-        # Loop over each .md file
-        for f in (f for f in listdir(const.MD_PATH) if f[-3:] == '.md'):
-            f_url = f"{const.MD_PATH}/{f}"
-            f_mtime = stat(f_url).st_mtime
-
-            # SKIP if file is known and not updated
-            if not populate \
-            and f_mtime <= mdb_last_time:
-                if f not in f_list:
-                    f_list.append(f)
-                
-                continue
-            
-            # UPDATE if file is refered in mdb, and its
-            # mod time > to the last known modification
-            if not populate \
-            and f in f_list \
-            and f_mtime > mdb_last_time:
-                log.info(f'Update post "{md.url}" ({f})')
-                md = Md(f, f_url)
-                
-                for k,v in enumerate(mdb):
-                    if v.url == md.url:
-                        mdb[k] = md
-                
-                mdb_last_time = f_mtime
-
-            # CREATE NEW post if file is a .md
-            # and not known from mdb
-            elif f not in f_list:
-                # Create Md object from file
-                md = Md(f, f_url)
-
-                # Add post in mem if file is
-                # unknown from mdb
-                log.info(f'Add post "{md.url}" ({f})')
-                mdb.append(md)
-                
-                if f_mtime > mdb_last_time:
-                    mdb_last_time = f_mtime
-                
-                f_list.append(f)
-            
-        # REMOVE md from mdb if its .md file
-        # is missing (deleted or moved)
-        if stat(const.MD_PATH).st_mtime > posts_mtime:
-
-            for md in mdb:
-                if md.f_name not in f_list:
-                    log.info(f'Remove post "{md.url}" ({f} missing)')
-
-                    # Recalculate mdb_last_time, in case the
-                    # missing .md was the most recent file
-                    if md.m_time == mdb_last_time:
-                        mdb_last_time = 0
-                        
-                        for f in listdir(const.MD_PATH):
-                            if f[-3:] == '.md' \
-                            and f_mtime > mdb_last_time:
-                                mdb_last_time = f_mtime
-                
-                    mdb.remove(md)
-
-                posts_mtime = stat(const.MD_PATH).st_mtime
-
-        # Sort posts
-        mdb.sort(key=lambda x: x.ctime,
-                reverse=True)
-
-        # Write pending data into data.json (jd object)
-        # And reset flag state
-        if pending_w:
-            jd().write()
-            pending_w = False
-
-        sleep(const.CHECK_TIME)
 
 
 
@@ -364,8 +247,8 @@ def flaskapp():
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
 
-    # Start a separate thread for the watchdog loop function
-    Thread(target=watchdog, daemon=True).start()
+    # Start watchdog thread
+    Thread(target=watchdog.watchdog, args=(mdb,jd,pending_w), daemon=True).start()
 
 
     @app.context_processor
