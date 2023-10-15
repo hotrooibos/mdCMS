@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html class="light" lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,14 +12,15 @@
 	<script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
-{% include 'layouts/partials/_header.j2' %}
-<div id="content">
-	{% block content %}{% endblock %}
-</div>
-<div id="params">
-{% include 'layouts/partials/_params.j2' %}
-</div>
-{% include 'layouts/partials/_footer.j2' %}
-
+	<div id="wrapper" class="flex flex-col justify-between mx-auto">
+		{% include 'layouts/partials/_header.j2' %}
+		<div id="content">
+			{% block content %}{% endblock %}
+		</div>
+		<div id="params">
+		{% include 'layouts/partials/_params.j2' %}
+		</div>
+		{% include 'layouts/partials/_footer.j2' %}
+	</div>
 </body>
 </html>

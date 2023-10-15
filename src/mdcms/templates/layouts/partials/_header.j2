@@ -1,11 +1,20 @@
-<div id="header">
-    <div id="nav">
-        <ul>
-            <li><a href="/">root</a></li>
-            <li><a href="/posts">thoughts</a></li>
-            <li><a href="/git">git</a></li>
-            <li><a href="/about">about</a></li>
-        </ul>
+<header class="flex flex-col justify-between">
+    <div class="flex items-center justify-between">
+        <div>
+            <a class="flex items-center" href="/">
+                <div id="logo">
+                    <img src="{{ url_for('static', filename='logo_sample.png') }}">
+                </div>
+                <div class="font-bold text-2xl">Antoine Marzin</div>
+            </a> 
+        </div>
+        <div id="nav" class="flex items-center font-semibold text-base">
+            <ul>
+                <li><a href="/posts">thoughts</a></li>
+                <li><a href="/git">git</a></li>
+                <li><a href="/about">about</a></li>
+            </ul>
+        </div>
     </div>
-</div>
+</header>
 {# <div id="wip"><strong>Back online 08/04/2021 | website/CMS in HEAVY development | content revival from old DB in progress</strong></div> #}

@@ -5,7 +5,7 @@
 	<div id="post">
 		<h1 class="postitle">{{ post.title }}</h1>
 		<hr>
-		<div id="metadata">
+		<div id="metadata" class="text-gray-1 hover:text-black">
 			<p><time>{{ post.ctime }}</time> by {{ post.author }} - categories : {% for cat in post.cat %}{{ cat }} {% endfor %}</p>
 		</div>
 			{{ post.content|safe }}
