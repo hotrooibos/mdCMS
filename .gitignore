@@ -1,6 +1,11 @@
-__pycache__/
 .vscode/
+__pycache__/
+posts/*
+posts/ressources/*
 venv/
 dist/
 mdcms.egg-info/
 *.log
+
+!posts/hello.md
+!posts/ressources/hello_ideal246.webp
